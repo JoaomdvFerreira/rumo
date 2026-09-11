@@ -1,15 +1,534 @@
 {
   "version": "0.9.0",
-  "projectStatus": "draft",
-  "currentMilestoneId": null,
+  "projectStatus": "in_progress",
+  "currentMilestoneId": "M001",
   "currentWorkUnitId": null,
   "workGraph": {
-    "milestones": [],
-    "workUnits": [],
-    "dependencies": []
+    "milestones": [
+      {
+        "id": "M001",
+        "title": "Production Foundation",
+        "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
+        "status": "ready",
+        "workUnitIds": [
+          "WU001",
+          "WU002",
+          "WU003",
+          "WU004",
+          "WU005",
+          "WU006",
+          "WU007",
+          "WU008"
+        ]
+      }
+    ],
+    "workUnits": [
+      {
+        "id": "WU001",
+        "milestoneId": "M001",
+        "title": "Repository Bootstrap & Governance",
+        "objective": "Establish the Git repository, approved Next.js toolchain, AIQT initialization, agent governance, CI, architecture boundaries, and repository documentation.",
+        "scope": [
+          "Repository bootstrap",
+          "AIQT initialization",
+          "Agent governance and CI",
+          "Architecture boundaries and documentation"
+        ],
+        "outOfScope": [
+          "Product implementation",
+          "GitHub remote governance before approved control-plane action"
+        ],
+        "acceptanceCriteria": [
+          "Validated bootstrap commit cf3f783 exists.",
+          "Lint, typecheck, tests, build, and diff check passed."
+        ],
+        "agentContextRefs": [
+          "project.objective",
+          "context.constraints"
+        ],
+        "suggestedFiles": [
+          "package.json",
+          "AGENTS.md",
+          ".github/",
+          "docs/",
+          "eslint.config.mjs"
+        ],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test",
+          "pnpm build",
+          "git diff --check"
+        ],
+        "status": "done",
+        "dependencies": [],
+        "createdAt": "2026-09-11T18:56:25.144Z",
+        "updatedAt": "2026-09-11T18:58:37.346Z"
+      },
+      {
+        "id": "WU002",
+        "milestoneId": "M001",
+        "title": "Domain Contracts & Schemas",
+        "objective": "Define and validate the framework-independent canonical domain model.",
+        "scope": [
+          "Canonical TypeScript types and Zod schemas",
+          "Declarative Condition AST and closed operators",
+          "Step, requirement, provider, channel, source, and decision-reference contracts",
+          "Schema validation"
+        ],
+        "outOfScope": [
+          "Routing engine",
+          "Full production content",
+          "Persistence UI",
+          "Journey UI"
+        ],
+        "acceptanceCriteria": [
+          "Domain model is framework-independent.",
+          "Schemas validate canonical contracts."
+        ],
+        "agentContextRefs": [
+          "context.architectureNotes",
+          "context.businessRules"
+        ],
+        "suggestedFiles": [
+          "src/domain/",
+          "docs/architecture/guardrails.md"
+        ],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test"
+        ],
+        "status": "ready",
+        "dependencies": [
+          "DEP-001"
+        ],
+        "createdAt": "2026-09-11T18:56:25.144Z",
+        "updatedAt": "2026-09-11T18:59:40.945Z"
+      },
+      {
+        "id": "WU003",
+        "milestoneId": "M001",
+        "title": "Pure Routing Engine",
+        "objective": "Implement deterministic, framework-independent routing.",
+        "scope": [
+          "Condition and dependency evaluation",
+          "Route and next-action selection",
+          "Parallel actions, waits, blockers, resolvers, and subjourneys",
+          "fast-check invariant tests"
+        ],
+        "outOfScope": [
+          "Application UI",
+          "Persistence"
+        ],
+        "acceptanceCriteria": [
+          "Routing follows approved priority semantics.",
+          "Determinism is covered by tests."
+        ],
+        "agentContextRefs": [
+          "context.businessRules"
+        ],
+        "suggestedFiles": [
+          "src/domain/"
+        ],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-002"
+        ],
+        "createdAt": "2026-09-11T18:56:25.144Z",
+        "updatedAt": "2026-09-11T18:56:25.144Z"
+      },
+      {
+        "id": "WU004",
+        "milestoneId": "M001",
+        "title": "Canonical Content & Validation",
+        "objective": "Prove the content architecture with representative validated content.",
+        "scope": [
+          "Content organization and content:check",
+          "Reference, condition, source, and freshness validation",
+          "Deterministic content version/hash",
+          "Representative Move, Energy, Telecom, and Évora water slices"
+        ],
+        "outOfScope": [
+          "CMS"
+        ],
+        "acceptanceCriteria": [
+          "Representative content validates.",
+          "Content hash is deterministic."
+        ],
+        "agentContextRefs": [
+          "context.businessRules",
+          "context.architectureNotes"
+        ],
+        "suggestedFiles": [
+          "src/content/",
+          "scripts/"
+        ],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test",
+          "pnpm content:check"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-003",
+          "DEP-004"
+        ],
+        "createdAt": "2026-09-11T18:56:25.144Z",
+        "updatedAt": "2026-09-11T18:56:25.144Z"
+      },
+      {
+        "id": "WU005",
+        "milestoneId": "M001",
+        "title": "State, Persistence & Hydration",
+        "objective": "Implement safe browser-local resumable runtime state.",
+        "scope": [
+          "Versioned persisted-state envelope and storage adapter",
+          "Migration/reset and content-version mismatch handling",
+          "Resume revalidation and parent/child state",
+          "Next.js hydration boundary"
+        ],
+        "outOfScope": [
+          "Database",
+          "Authentication",
+          "Raw free-text persistence"
+        ],
+        "acceptanceCriteria": [
+          "Runtime state is versioned and safe to resume.",
+          "Content changes trigger revalidation."
+        ],
+        "agentContextRefs": [
+          "context.architectureNotes"
+        ],
+        "suggestedFiles": [
+          "src/",
+          "docs/governance/versioning.md"
+        ],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-005",
+          "DEP-006"
+        ],
+        "createdAt": "2026-09-11T18:56:25.144Z",
+        "updatedAt": "2026-09-11T18:56:25.144Z"
+      },
+      {
+        "id": "WU006",
+        "milestoneId": "M001",
+        "title": "Search & Alias Foundation",
+        "objective": "Implement deterministic intent matching against canonical destinations.",
+        "scope": [
+          "IntentCandidate, deterministic scoring, and confidence",
+          "Explicit fact extraction",
+          "Aliases to canonical destinations",
+          "Representative rented-home-in-Évora and utilities aliases"
+        ],
+        "outOfScope": [
+          "Generative answer path"
+        ],
+        "acceptanceCriteria": [
+          "Unsupported input returns zero candidates.",
+          "Aliases resolve to canonical destinations deterministically."
+        ],
+        "agentContextRefs": [
+          "context.businessRules"
+        ],
+        "suggestedFiles": [
+          "src/domain/",
+          "src/content/"
+        ],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-007",
+          "DEP-008"
+        ],
+        "createdAt": "2026-09-11T18:56:25.144Z",
+        "updatedAt": "2026-09-11T18:56:25.144Z"
+      },
+      {
+        "id": "WU007",
+        "milestoneId": "M001",
+        "title": "Application Shell Integration",
+        "objective": "Connect production domain, content, and state foundations to the validated Rumo interaction hierarchy.",
+        "scope": [
+          "Homepage and intent entry",
+          "Questions, next action, parallel/wait/complete states",
+          "Source disclosure, reset, and browser persistence",
+          "Mobile accessibility, Playwright smoke, and axe"
+        ],
+        "outOfScope": [
+          "Material redesign of the validated v0.8.2 hierarchy"
+        ],
+        "acceptanceCriteria": [
+          "Core interaction hierarchy works on mobile and desktop.",
+          "Accessibility and smoke checks pass."
+        ],
+        "agentContextRefs": [
+          "context.architectureNotes"
+        ],
+        "suggestedFiles": [
+          "src/app/",
+          "src/test/e2e/"
+        ],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test",
+          "pnpm test:e2e",
+          "pnpm build"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-009",
+          "DEP-010"
+        ],
+        "createdAt": "2026-09-11T18:56:25.144Z",
+        "updatedAt": "2026-09-11T18:56:25.144Z"
+      },
+      {
+        "id": "WU008",
+        "milestoneId": "M001",
+        "title": "M03.1 Integration & Release Gate",
+        "objective": "Prove that the complete Production Foundation satisfies the frozen M03.1 contract.",
+        "scope": [
+          "Deterministic, architecture, content, persistence, source, smoke, accessibility, and build validation",
+          "Documentation reconciliation and milestone evidence package"
+        ],
+        "outOfScope": [
+          "Autonomous milestone merge"
+        ],
+        "acceptanceCriteria": [
+          "M03.1 evidence package supports Overseer review.",
+          "Production validation gates pass."
+        ],
+        "agentContextRefs": [
+          "project.objective",
+          "context.constraints"
+        ],
+        "suggestedFiles": [
+          "docs/",
+          "src/",
+          ".github/"
+        ],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test",
+          "pnpm build",
+          "git diff --check"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-011"
+        ],
+        "createdAt": "2026-09-11T18:56:25.144Z",
+        "updatedAt": "2026-09-11T18:56:25.144Z"
+      }
+    ],
+    "dependencies": [
+      {
+        "id": "DEP-001",
+        "fromId": "WU001",
+        "toId": "WU002",
+        "type": "blocks",
+        "reason": "Bootstrap foundation is required first."
+      },
+      {
+        "id": "DEP-002",
+        "fromId": "WU002",
+        "toId": "WU003",
+        "type": "blocks",
+        "reason": "Routing needs domain contracts."
+      },
+      {
+        "id": "DEP-003",
+        "fromId": "WU002",
+        "toId": "WU004",
+        "type": "blocks",
+        "reason": "Content needs domain contracts."
+      },
+      {
+        "id": "DEP-004",
+        "fromId": "WU003",
+        "toId": "WU004",
+        "type": "blocks",
+        "reason": "Content validation needs routing semantics."
+      },
+      {
+        "id": "DEP-005",
+        "fromId": "WU003",
+        "toId": "WU005",
+        "type": "blocks",
+        "reason": "Persistence needs routing behavior."
+      },
+      {
+        "id": "DEP-006",
+        "fromId": "WU004",
+        "toId": "WU005",
+        "type": "blocks",
+        "reason": "Persistence needs content versioning."
+      },
+      {
+        "id": "DEP-007",
+        "fromId": "WU002",
+        "toId": "WU006",
+        "type": "blocks",
+        "reason": "Search needs domain contracts."
+      },
+      {
+        "id": "DEP-008",
+        "fromId": "WU004",
+        "toId": "WU006",
+        "type": "blocks",
+        "reason": "Search needs canonical destinations."
+      },
+      {
+        "id": "DEP-009",
+        "fromId": "WU005",
+        "toId": "WU007",
+        "type": "blocks",
+        "reason": "Shell needs persistence."
+      },
+      {
+        "id": "DEP-010",
+        "fromId": "WU006",
+        "toId": "WU007",
+        "type": "blocks",
+        "reason": "Shell needs search."
+      },
+      {
+        "id": "DEP-011",
+        "fromId": "WU007",
+        "toId": "WU008",
+        "type": "blocks",
+        "reason": "Release gate needs complete shell integration."
+      }
+    ]
   },
-  "checkpoints": [],
-  "lastAgentPacket": null,
-  "nextRecommendedCommand": "aiqt update",
-  "lastUpdatedAt": "2026-09-11T18:23:41.934Z"
+  "checkpoints": [
+    {
+      "id": "C001",
+      "workUnitId": "WU001",
+      "packetId": "PKT-001",
+      "summary": "Reconciled the already-implemented repository bootstrap and governance baseline from commit cf3f783 (chore(bootstrap): establish Rumo development foundation).",
+      "completed": [
+        "Established the Git repository and approved Next.js toolchain.",
+        "Initialized AIQT and recorded governance, CI, architecture boundaries, and repository documentation."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "package.json",
+        "AGENTS.md",
+        ".github/AGENT_WORKFLOW.md",
+        ".github/workflows/ci.yml",
+        "docs/",
+        "eslint.config.mjs",
+        ".aiqt/"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "Validated bootstrap baseline."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "Validated bootstrap baseline."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "Validated bootstrap baseline."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "Validated bootstrap baseline."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed",
+          "summary": "Validated bootstrap baseline."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Validated bootstrap commit cf3f783 exists.",
+          "result": "passed",
+          "evidence": "git log -1 confirms cf3f783 chore(bootstrap): establish Rumo development foundation."
+        },
+        {
+          "criterion": "Lint, typecheck, tests, build, and diff check passed.",
+          "result": "passed",
+          "evidence": "The listed commands completed successfully for the baseline."
+        }
+      ],
+      "finalWorkUnitStatus": "done",
+      "nextRecommendation": "aiqt next",
+      "createdAt": "2026-09-11T18:58:37.346Z"
+    }
+  ],
+  "lastAgentPacket": {
+    "id": "PKT-001",
+    "workUnitId": "WU001",
+    "milestoneId": "M001",
+    "createdAt": "2026-09-11T18:56:28.799Z",
+    "format": "markdown",
+    "contentHash": "sha256:735bbe502dc355ec2f13e76656d7650b92cd2dd0dbc0333388f0c28aac36b926",
+    "sourceCommand": "aiqt next"
+  },
+  "nextRecommendedCommand": "aiqt next",
+  "lastUpdatedAt": "2026-09-11T18:59:40.945Z",
+  "checkpointEvidenceAdvisories": [
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C001",
+      "current": {
+        "observationId": "sha256:bcf8322e27a6babc9db8015a20b730a3c6dc0f937c3bd1d093743489a673a308",
+        "checkpointId": "C001",
+        "workUnitId": "WU001",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-11T18:58:37.346Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-11T18:58:37.346Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:bcf8322e27a6babc9db8015a20b730a3c6dc0f937c3bd1d093743489a673a308",
+          "checkpointId": "C001",
+          "workUnitId": "WU001",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T18:58:37.346Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T18:58:37.346Z"
+        }
+      ]
+    }
+  ]
 }

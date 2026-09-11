@@ -3,31 +3,109 @@
   "project": {
     "id": "PROJECT-001",
     "name": "rumo",
-    "objective": "Provide clear, trustworthy guidance for people moving home and setting up a new home in Portugal, beginning with deeper municipal support for Évora.",
+    "objective": "Rumo is a life-admin navigation product that turns a user situation into relevant facts, dependencies, correct next actions, parallel actions, waits or blockers, progress, and a completed objective while preserving authoritative provenance and freshness.",
     "targetUsers": [
-      "People moving home or setting up a new home in Portugal"
+      "People moving home or setting up a new home in Portugal",
+      "People moving home or setting up a new home in Portugal, beginning with deeper municipal support for Évora"
     ],
     "preferredAgent": "Development Agent",
-    "existingRepositoryPath": "C:\\Users\\João\\Desktop\\projects\\rumo",
+    "existingRepositoryPath": ".",
     "createdAt": "2026-09-11T18:23:41.934Z",
-    "updatedAt": "2026-09-11T18:46:36.001Z"
+    "updatedAt": "2026-09-11T18:56:22.626Z"
   },
   "context": {
-    "constraints": [],
-    "nonGoals": [],
-    "technologyPreferences": [],
-    "businessRules": [],
-    "architectureNotes": []
+    "constraints": [
+      "Do not become an open-ended chatbot, generic public-service directory, or generic checklist application.",
+      "Do not add life-event families during M03.1.",
+      "No database, authentication, AI/LLM routing, or raw free-text analytics by default.",
+      "Canonical content is in the repository; user progress is browser-local versioned persistence."
+    ],
+    "nonGoals": [
+      "Cartão Município Solidário is deferred.",
+      "No CMS, document upload, automated submissions, or generic generative-answer path."
+    ],
+    "technologyPreferences": [
+      "Node 24",
+      "Next.js App Router",
+      "React",
+      "TypeScript",
+      "pnpm",
+      "Zod",
+      "Vitest",
+      "fast-check",
+      "Playwright",
+      "axe",
+      "ESLint",
+      "Prettier",
+      "CSS Modules with design tokens"
+    ],
+    "businessRules": [
+      "Routing prioritizes executable tasks, then parallel executable tasks, then waits; blocked steps are never actionable.",
+      "Steps have task, wait, or subjourney semantics.",
+      "SourceDefinition is separate from SourceVerification.",
+      "Content versioning must be deterministic and persisted state must be revalidated after content changes."
+    ],
+    "architectureNotes": [
+      "The domain is pure and framework-independent; canonical content is declarative with no executable callbacks.",
+      "Persistence distinguishes schemaVersion, contentVersion, updatedAt, and sessions.",
+      "Routing and search are deterministic.",
+      "Personal administrative facts must not appear in URLs."
+    ]
   },
-  "requirements": [],
-  "decisions": [],
+  "requirements": [
+    {
+      "id": "REQ-001",
+      "clientKey": "req-m03-1-production-foundation",
+      "title": "Production Foundation",
+      "description": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
+      "priority": "critical",
+      "type": "functional",
+      "acceptanceCriteria": [
+        "The M03.1 work graph covers domain, routing, content, persistence, search, shell integration, and release validation.",
+        "The MVP remains limited to moving home and setting up a new home in Portugal."
+      ],
+      "status": "accepted",
+      "createdAt": "2026-09-11T18:56:22.626Z",
+      "updatedAt": "2026-09-11T18:56:22.626Z"
+    }
+  ],
+  "decisions": [
+    {
+      "id": "D001",
+      "clientKey": "decision-aiqt-operational-state",
+      "decision": "AIQT is the canonical operational work state.",
+      "reason": "Work-unit scope, dependencies, evidence, and handoff must be durable and provider-neutral.",
+      "impact": "Development Agents execute only active bounded work units.",
+      "status": "decided",
+      "date": "2026-09-11",
+      "createdAt": "2026-09-11T18:56:22.626Z",
+      "updatedAt": "2026-09-11T18:56:22.626Z"
+    },
+    {
+      "id": "D002",
+      "clientKey": "decision-local-persistence",
+      "decision": "Use browser-local versioned persistence for runtime progress.",
+      "reason": "No database or authentication requirement exists.",
+      "impact": "Content-version mismatch requires revalidation or rebuild on resume.",
+      "status": "decided",
+      "date": "2026-09-11",
+      "createdAt": "2026-09-11T18:56:22.626Z",
+      "updatedAt": "2026-09-11T18:56:22.626Z"
+    }
+  ],
   "risks": [],
   "assumptions": [],
   "openQuestions": [],
   "quality": {
     "acceptanceCriteriaRequired": true,
     "validationRequiredBeforeDone": true,
-    "preferredValidationCommands": []
+    "preferredValidationCommands": [
+      "pnpm lint",
+      "pnpm typecheck",
+      "pnpm test",
+      "pnpm build",
+      "git diff --check"
+    ]
   },
   "integrations": {}
 }
