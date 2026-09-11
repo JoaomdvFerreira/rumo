@@ -8,14 +8,14 @@ import type { Requirement, RequirementGroup } from '../model/requirement';
  * Deterministic requirement/group satisfaction:
  * - a Requirement whose own `appliesWhen` is false is not applicable and
  *   never blocks;
- * - an applicable direct Requirement is currently always "satisfied" by
- *   content alone (WU003 defines no separate requirement-fulfilment signal
- *   beyond applicability -- fulfilment tracking, if any, is a later concern);
- *   what matters here is that a *missing* requirement reference must not
- *   silently pass;
- * - RequirementGroup `allOf` requires every applicable member to resolve
- *   and be satisfied; `anyOf` requires at least one; a group with zero
- *   applicable members after conditional filtering does not block.
+ * - an applicable direct Requirement is satisfied only when its id is a
+ *   member of the runtime `satisfiedRequirementIds` signal -- there is no
+ *   other fulfilment source;
+ * - a missing Requirement reference is unsatisfied and reported as
+ *   resolver evidence, never silently passed;
+ * - RequirementGroup `allOf` requires every applicable member to be
+ *   satisfied; `anyOf` requires at least one; a group with zero applicable
+ *   members after conditional filtering does not block.
  */
 export interface RequirementResolution {
   readonly satisfied: boolean;
@@ -26,6 +26,7 @@ function resolveRequirementRef(
   id: string,
   requirements: EntityIndex<Requirement>,
   facts: FactSet,
+  satisfiedRequirementIds: ReadonlySet<string>,
   referencedFrom: string | undefined,
 ): { applicable: boolean; satisfied: boolean; issue?: ResolverIssue } {
   const requirement = requirements.get(id);
@@ -33,22 +34,21 @@ function resolveRequirementRef(
     return { applicable: true, satisfied: false, issue: missingReference('requirement', id, referencedFrom) };
   }
   const applicable = isApplicable(requirement.appliesWhen, facts);
-  // A resolved requirement is always "satisfied" in WU003's model (there is
-  // no separate fulfilment signal beyond applicability) whether or not it
-  // applies: an applicable requirement is met by content, and a
-  // non-applicable one must not block. `applicable` is still reported so
-  // group aggregation (allOf/anyOf) can exclude non-applicable members from
-  // its member count.
-  return { applicable, satisfied: true };
+  // A non-applicable requirement never blocks (reported satisfied from the
+  // caller's perspective); an applicable one is satisfied only by the
+  // runtime signal.
+  const satisfied = applicable ? satisfiedRequirementIds.has(id) : true;
+  return { applicable, satisfied };
 }
 
 export function resolveRequirement(
   id: string,
   requirements: EntityIndex<Requirement>,
   facts: FactSet,
+  satisfiedRequirementIds: ReadonlySet<string>,
   referencedFrom?: string,
 ): RequirementResolution {
-  const { satisfied, issue } = resolveRequirementRef(id, requirements, facts, referencedFrom);
+  const { satisfied, issue } = resolveRequirementRef(id, requirements, facts, satisfiedRequirementIds, referencedFrom);
   return { satisfied, issues: issue ? [issue] : [] };
 }
 
@@ -57,6 +57,7 @@ export function resolveRequirementGroup(
   groups: EntityIndex<RequirementGroup>,
   requirements: EntityIndex<Requirement>,
   facts: FactSet,
+  satisfiedRequirementIds: ReadonlySet<string>,
   referencedFrom?: string,
 ): RequirementResolution {
   const group = groups.get(id);
@@ -68,7 +69,7 @@ export function resolveRequirementGroup(
   const applicableResults: boolean[] = [];
 
   for (const requirementId of group.requirementIds) {
-    const result = resolveRequirementRef(requirementId, requirements, facts, group.id);
+    const result = resolveRequirementRef(requirementId, requirements, facts, satisfiedRequirementIds, group.id);
     if (result.issue) issues.push(result.issue);
     if (result.applicable) applicableResults.push(result.satisfied);
   }
@@ -95,19 +96,20 @@ export function resolveRequirements(
   requirements: EntityIndex<Requirement>,
   groups: EntityIndex<RequirementGroup>,
   facts: FactSet,
+  satisfiedRequirementIds: ReadonlySet<string>,
   referencedFrom?: string,
 ): RequirementResolution {
   const issues: ResolverIssue[] = [];
   let satisfied = true;
 
   for (const id of requirementIds) {
-    const result = resolveRequirement(id, requirements, facts, referencedFrom);
+    const result = resolveRequirement(id, requirements, facts, satisfiedRequirementIds, referencedFrom);
     issues.push(...result.issues);
     if (!result.satisfied) satisfied = false;
   }
 
   for (const id of requirementGroupIds) {
-    const result = resolveRequirementGroup(id, groups, requirements, facts, referencedFrom);
+    const result = resolveRequirementGroup(id, groups, requirements, facts, satisfiedRequirementIds, referencedFrom);
     issues.push(...result.issues);
     if (!result.satisfied) satisfied = false;
   }

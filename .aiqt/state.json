@@ -637,8 +637,8 @@
         }
       ],
       "finalWorkUnitStatus": "needs_review",
-      "createdAt": "2026-09-11T21:23:19.921Z",
-      "nextRecommendation": "aiqt checkpoint amend --checkpoint C003"
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C003",
+      "createdAt": "2026-09-11T21:23:19.921Z"
     }
   ],
   "lastAgentPacket": {
@@ -667,7 +667,7 @@
     }
   },
   "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C003",
-  "lastUpdatedAt": "2026-09-11T21:23:19.921Z",
+  "lastUpdatedAt": "2026-09-11T21:36:32.171Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -687,6 +687,26 @@
       "validationResult": "passed",
       "reason": "Project Overseer final acceptance after remediation and final code review at 77b4943.",
       "amendedAt": "2026-09-11T20:34:23.325Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-003",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "partial",
+      "reason": "Project Overseer code review found routing-semantic gaps requiring remediation: parent subjourney gating can be bypassed, dependency cycles are not cycle-safe, Requirement satisfaction has no runtime signal, dependencies on subjourneys do not derive completion from the child Destination, missing selected Steps can falsely produce complete, and actionable sibling subjourneys lose parallel work.",
+      "amendedAt": "2026-09-11T21:29:07.922Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-004",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "WU003 remediation validation passed; Project Overseer re-review pending.",
+      "amendedAt": "2026-09-11T21:36:32.171Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -779,16 +799,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C003",
       "current": {
-        "observationId": "sha256:8e46050afcd8d354ca401765b1b552a199282bee63d3b57e108cb1adc2373187",
+        "observationId": "sha256:0985582832159895c16536e3fc9829f614b49539e2fcbfe4fe315fed84e4ea21",
         "checkpointId": "C003",
         "workUnitId": "WU003",
-        "trigger": "checkpoint",
+        "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-11T21:23:19.921Z",
+        "asOf": "2026-09-11T21:36:32.171Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-11T21:23:19.921Z"
+        "recordedAt": "2026-09-11T21:36:32.171Z"
       },
       "history": [
         {
@@ -802,6 +822,30 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-11T21:23:19.921Z"
+        },
+        {
+          "observationId": "sha256:f446494adab779fd615b31a8640ad04d1460ef47aee3c2a0d58e33678bbdb708",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T21:29:07.922Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T21:29:07.922Z"
+        },
+        {
+          "observationId": "sha256:0985582832159895c16536e3fc9829f614b49539e2fcbfe4fe315fed84e4ea21",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T21:36:32.171Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T21:36:32.171Z"
         }
       ]
     }

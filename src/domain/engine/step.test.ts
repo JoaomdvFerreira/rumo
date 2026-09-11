@@ -1,3 +1,4 @@
+import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
 import { isStepApplicable, resolveStep } from './step';
@@ -14,6 +15,7 @@ function progress(overrides: Partial<RuntimeProgress> = {}): RuntimeProgress {
   return {
     manualCompletedStepIds: new Set(),
     externalOutcomeCompletedStepIds: new Set(),
+    satisfiedRequirementIds: new Set(),
     ...overrides,
   };
 }
@@ -25,6 +27,7 @@ function inputs(overrides: Partial<StepResolutionInputs> = {}): StepResolutionIn
     requirementGroups: new Map(),
     facts: {},
     progress: progress(),
+    resolveSubjourneyCompletion: () => false,
     ...overrides,
   };
 }
@@ -112,6 +115,23 @@ describe('resolveStep completion modes', () => {
     const withExternal = inputs({ progress: progress({ externalOutcomeCompletedStepIds: new Set([waitStep.id]) }) });
     expect(resolveStep(waitStep, withExternal).state).toBe('complete');
   });
+
+  it('subjourney completion is derived only from resolveSubjourneyCompletion, never from manual/externalOutcome sets', () => {
+    const withManual = inputs({
+      progress: progress({ manualCompletedStepIds: new Set([subjourneyStep.id]) }),
+      resolveSubjourneyCompletion: () => false,
+    });
+    expect(resolveStep(subjourneyStep, withManual).state).not.toBe('complete');
+
+    const withExternal = inputs({
+      progress: progress({ externalOutcomeCompletedStepIds: new Set([subjourneyStep.id]) }),
+      resolveSubjourneyCompletion: () => false,
+    });
+    expect(resolveStep(subjourneyStep, withExternal).state).not.toBe('complete');
+
+    const withDerivedCompletion = inputs({ resolveSubjourneyCompletion: () => true });
+    expect(resolveStep(subjourneyStep, withDerivedCompletion).state).toBe('complete');
+  });
 });
 
 describe('resolveStep states', () => {
@@ -160,22 +180,38 @@ describe('resolveStep states', () => {
   });
 
   it('an unsatisfied direct requirement blocks the step', () => {
-    const requirement: Requirement = {
-      id: 'requirement.proof',
-      title: 'Proof',
+    const blockingRequirement: Requirement = {
+      id: 'requirement.blocking',
+      title: 'Blocking',
       description: 'desc',
-      appliesWhen: { kind: 'factTruthy', fact: 'never' },
       decisionReferenceIds: [],
     };
-    // appliesWhen false => requirement does not block; use a different setup for "blocks":
-    const blockingRequirement: Requirement = { ...requirement, id: 'requirement.blocking', appliesWhen: undefined };
-    void requirement;
-    const step: Step = { ...manualTask, requirementIds: ['requirement.missing'] };
+    const step: Step = { ...manualTask, requirementIds: [blockingRequirement.id] };
     const result = resolveStep(step, inputs({ requirements: index([blockingRequirement]) }));
     expect(result.state).toBe('blocked');
   });
 
-  it('allOf/anyOf RequirementGroups gate step actionability', () => {
+  it('a direct requirement stops blocking once its id is present in satisfiedRequirementIds', () => {
+    const requirement: Requirement = {
+      id: 'requirement.proof',
+      title: 'Proof',
+      description: 'desc',
+      decisionReferenceIds: [],
+    };
+    const step: Step = { ...manualTask, requirementIds: [requirement.id] };
+    const inputsBase = { requirements: index([requirement]) };
+
+    const blocked = resolveStep(step, inputs(inputsBase));
+    expect(blocked.state).toBe('blocked');
+
+    const unblocked = resolveStep(
+      step,
+      inputs({ ...inputsBase, progress: progress({ satisfiedRequirementIds: new Set([requirement.id]) }) }),
+    );
+    expect(unblocked.state).toBe('actionable');
+  });
+
+  it('allOf/anyOf RequirementGroups gate step actionability until satisfied', () => {
     const req: Requirement = {
       id: 'requirement.a',
       title: 'A',
@@ -184,11 +220,16 @@ describe('resolveStep states', () => {
     };
     const group: RequirementGroup = { id: 'requirementGroup.g', mode: 'anyOf', requirementIds: [req.id] };
     const step: Step = { ...manualTask, requirementGroupIds: [group.id] };
-    const result = resolveStep(
+    const base = { requirements: index([req]), requirementGroups: index([group]) };
+
+    const blocked = resolveStep(step, inputs(base));
+    expect(blocked.state).toBe('blocked');
+
+    const unblocked = resolveStep(
       step,
-      inputs({ requirements: index([req]), requirementGroups: index([group]) }),
+      inputs({ ...base, progress: progress({ satisfiedRequirementIds: new Set([req.id]) }) }),
     );
-    expect(result.state).toBe('actionable');
+    expect(unblocked.state).toBe('actionable');
   });
 
   it('completed steps are never actionable regardless of blocking state', () => {
@@ -207,5 +248,74 @@ describe('resolveStep states', () => {
   it('subjourney steps derive local dependency/requirement gating like any other step', () => {
     const result = resolveStep(subjourneyStep, inputs());
     expect(['actionable', 'blocked', 'skipped', 'complete', 'waiting']).toContain(result.state);
+  });
+});
+
+describe('resolveStep dependency cycle safety (F2)', () => {
+  it('a 2-node dependency cycle (A depends B, B depends A) never recurses indefinitely and is reported', () => {
+    const a: Step = { ...manualTask, id: 'step.a', dependsOnStepIds: ['step.b'] };
+    const b: Step = { ...manualTask, id: 'step.b', dependsOnStepIds: ['step.a'] };
+    const steps = index([a, b]);
+
+    const resultA = resolveStep(a, inputs({ steps }));
+    expect(resultA.issues.some((issue) => issue.kind === 'cycle')).toBe(true);
+    expect(resultA.state).not.toBe('actionable');
+
+    const resultB = resolveStep(b, inputs({ steps }));
+    expect(resultB.issues.some((issue) => issue.kind === 'cycle')).toBe(true);
+    expect(resultB.state).not.toBe('actionable');
+  });
+
+  it('a self dependency (A depends A) never recurses indefinitely and leaves the step non-actionable', () => {
+    const a: Step = { ...manualTask, id: 'step.a', dependsOnStepIds: ['step.a'] };
+    const result = resolveStep(a, inputs({ steps: index([a]) }));
+    expect(result.issues.some((issue) => issue.kind === 'cycle')).toBe(true);
+    expect(result.state).not.toBe('actionable');
+  });
+
+  it('propagates resolver issues discovered transitively through a dependency chain', () => {
+    const c: Step = { ...manualTask, id: 'step.c', dependsOnStepIds: ['step.missing'] };
+    const b: Step = { ...manualTask, id: 'step.b', dependsOnStepIds: [c.id] };
+    const a: Step = { ...manualTask, id: 'step.a', dependsOnStepIds: [b.id] };
+    const result = resolveStep(a, inputs({ steps: index([a, b, c]) }));
+    expect(result.issues).toContainEqual({
+      kind: 'missingReference',
+      entityKind: 'step',
+      id: 'step.missing',
+      referencedFrom: c.id,
+    });
+  });
+
+  it('does not mutate canonical Steps while resolving a cycle', () => {
+    const a: Step = { ...manualTask, id: 'step.a', dependsOnStepIds: ['step.b'] };
+    const b: Step = { ...manualTask, id: 'step.b', dependsOnStepIds: ['step.a'] };
+    const steps = index([a, b]);
+    const snapshot = structuredClone({ a, b });
+    resolveStep(a, inputs({ steps }));
+    expect(a).toEqual(snapshot.a);
+    expect(b).toEqual(snapshot.b);
+  });
+});
+
+describe('resolveStep property invariants', () => {
+  it('is deterministic for a fixed dependency graph regardless of cycles', () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 2, max: 6 }), (n) => {
+        const ids = Array.from({ length: n }, (_, i) => `step.${i}`);
+        const steps = index(
+          ids.map((id, i) => ({
+            ...manualTask,
+            id,
+            // Each step depends on the next, wrapping around to form a cycle.
+            dependsOnStepIds: [ids[(i + 1) % n]],
+          })),
+        );
+        const target = steps.get(ids[0])!;
+        const first = resolveStep(target, inputs({ steps }));
+        const second = resolveStep(target, inputs({ steps }));
+        expect(second.state).toBe(first.state);
+        expect(second.issues.length).toBe(first.issues.length);
+      }),
+    );
   });
 });

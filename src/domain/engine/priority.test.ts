@@ -22,19 +22,17 @@ describe('sortByPriority / selectByPriority', () => {
     expect(selectByPriority(candidates)?.id).toBe('z');
   });
 
-  it('breaks a full tie (same priority, same order position across runs) using stable id', () => {
+  it('preserves declaration order for every same-priority candidate, regardless of id ordering', () => {
     const candidates: Prioritized[] = [
       { id: 'b', priority: 2 },
       { id: 'a', priority: 2 },
     ];
-    // Declaration order still wins over id when both are present as separate entries.
+    // Every candidate in a plain array has a unique declaration index, so
+    // the id tie-break is mathematically unreachable here: declaration
+    // order alone decides the outcome. See the note on `sortByPriority`
+    // regarding when id would actually apply.
     expect(selectByPriority(candidates)?.id).toBe('b');
-  });
-
-  it('uses id as the final tie-breaker when priority and effective grouping are identical', () => {
-    const candidates: Prioritized[] = [{ id: 'b', priority: 1 }, { id: 'a', priority: 1 }];
-    const sorted = sortByPriority(candidates);
-    expect(sorted.map((c) => c.id)).toEqual(['b', 'a']);
+    expect(sortByPriority(candidates).map((c) => c.id)).toEqual(['b', 'a']);
   });
 
   it('returns undefined for an empty candidate list', () => {

@@ -3,11 +3,11 @@ import type { EntityIndex, ResolverIssue } from './resolver';
 import { cycleDetected, missingReference } from './resolver';
 import { selectRoute } from './route';
 import type { RoutingContext } from './runtime';
-import { resolveStep } from './step';
-import type { StepResolution } from './step';
+import { isStepApplicable, resolveStep } from './step';
+import type { StepResolution, StepResolutionInputs } from './step';
 import type { Requirement, RequirementGroup } from '../model/requirement';
 import type { Destination, Route, RouteVariant } from '../model/routing';
-import type { Step } from '../model/step';
+import type { Step, SubjourneyStep } from '../model/step';
 
 /**
  * Everything the engine needs to resolve any Destination in the content
@@ -47,6 +47,12 @@ export interface DestinationResolution {
   readonly issues: readonly ResolverIssue[];
 }
 
+/** Ready sibling subjourney: a locally-applicable, unblocked SubjourneyStep and its resolved child Destination. */
+interface ReadySubjourney {
+  readonly step: SubjourneyStep;
+  readonly resolution: DestinationResolution;
+}
+
 export function resolveDestination(
   destinationId: string,
   graph: DestinationGraph,
@@ -55,16 +61,34 @@ export function resolveDestination(
   return resolveDestinationInternal(destinationId, graph, context, [], new Set());
 }
 
-function unresolvedDestination(destinationId: string, issues: ResolverIssue[]): DestinationResolution {
+function emptyResolution(destinationId: string, state: DestinationRouteState, issues: ResolverIssue[]): DestinationResolution {
   return {
     destinationId,
-    state: 'unresolved',
+    state,
     primaryAction: undefined,
     parallelActions: [],
     waits: [],
     blocked: [],
     issues,
   };
+}
+
+/**
+ * Resolves whether a Destination is complete, for use as a Step's
+ * subjourney-completion signal (F4). Cycle-safe: a Destination already on
+ * the current recursion stack is deterministically treated as not complete
+ * rather than recursed into again, since a cycle can never resolve to
+ * "complete" by construction.
+ */
+function isDestinationComplete(
+  destinationId: string,
+  graph: DestinationGraph,
+  context: RoutingContext,
+  ancestorPath: readonly string[],
+  visiting: ReadonlySet<string>,
+): boolean {
+  if (visiting.has(destinationId)) return false;
+  return resolveDestinationInternal(destinationId, graph, context, ancestorPath, visiting).state === 'complete';
 }
 
 function resolveDestinationInternal(
@@ -75,15 +99,14 @@ function resolveDestinationInternal(
   visiting: ReadonlySet<string>,
 ): DestinationResolution {
   if (visiting.has(destinationId)) {
-    return unresolvedDestination(destinationId, [cycleDetected('destination', destinationId)]);
+    return emptyResolution(destinationId, 'unresolved', [cycleDetected('destination', destinationId)]);
   }
 
   const destination = graph.destinations.get(destinationId);
   if (destination === undefined) {
-    return unresolvedDestination(
-      destinationId,
-      [missingReference('destination', destinationId, ancestorPath[ancestorPath.length - 1])],
-    );
+    return emptyResolution(destinationId, 'unresolved', [
+      missingReference('destination', destinationId, ancestorPath[ancestorPath.length - 1]),
+    ]);
   }
 
   const nextVisiting = new Set(visiting);
@@ -94,58 +117,65 @@ function resolveDestinationInternal(
   const issues: ResolverIssue[] = [...selection.issues];
 
   if (selection.route === undefined) {
-    return { ...unresolvedDestination(destinationId, issues), state: 'unresolved' };
+    return emptyResolution(destinationId, 'unresolved', issues);
   }
+
+  const resolveSubjourneyCompletion = (targetDestinationId: string): boolean =>
+    isDestinationComplete(targetDestinationId, graph, context, path, nextVisiting);
+
+  const stepResolutionInputs: StepResolutionInputs = {
+    steps: graph.steps,
+    requirements: graph.requirements,
+    requirementGroups: graph.requirementGroups,
+    facts: context.facts,
+    progress: context.progress,
+    resolveSubjourneyCompletion,
+  };
 
   const actionable: PathStep[] = [];
   const waiting: PathStep[] = [];
   const blocked: PathStep[] = [];
-  const subjourneyResults: { step: Step; resolution: DestinationResolution }[] = [];
+  const readySubjourneys: ReadySubjourney[] = [];
+  let hasUnresolvedSelectedStep = false;
   let allCompleteOrSkipped = true;
 
   for (const stepId of selection.stepIds) {
     const step = graph.steps.get(stepId);
     if (step === undefined) {
       issues.push(missingReference('step', stepId, selection.route.id));
+      hasUnresolvedSelectedStep = true;
       continue;
     }
 
-    const stepResolutionInputs = {
-      steps: graph.steps,
-      requirements: graph.requirements,
-      requirementGroups: graph.requirementGroups,
-      facts: context.facts,
-      progress: context.progress,
-    };
-
     if (step.kind === 'subjourney') {
-      const childResolution = resolveDestinationInternal(
-        step.destinationId,
-        graph,
-        context,
-        path,
-        nextVisiting,
-      );
-      issues.push(...childResolution.issues);
-      subjourneyResults.push({ step, resolution: childResolution });
-
-      const localState = resolveStep(step, stepResolutionInputs);
-      issues.push(...localState.issues);
-
-      if (localState.state === 'skipped') {
+      // F1: local gating first. A skipped or blocked SubjourneyStep must
+      // never expose its child Destination's work as active routing work.
+      // Only a locally ready (applicable and unblocked) subjourney is
+      // traversed into its target Destination at all.
+      if (!isStepApplicable(step, context.facts)) {
         continue;
       }
-      if (localState.state === 'blocked') {
+
+      const localResolution = resolveStep(step, stepResolutionInputs);
+      issues.push(...localResolution.issues);
+
+      if (localResolution.state === 'blocked') {
         blocked.push({ step, state: 'blocked', destinationPath: path });
         allCompleteOrSkipped = false;
         continue;
       }
 
-      const subjourneyComplete = childResolution.state === 'complete';
-      if (subjourneyComplete) {
+      if (localResolution.state === 'complete') {
         continue;
       }
+
+      // Locally ready (not skipped/blocked/complete): resolve the child
+      // Destination and let its own actionable/waiting/blocked/unresolved
+      // work flow into this Destination's resolution.
+      const childResolution = resolveDestinationInternal(step.destinationId, graph, context, path, nextVisiting);
+      issues.push(...childResolution.issues);
       allCompleteOrSkipped = false;
+      readySubjourneys.push({ step, resolution: childResolution });
       continue;
     }
 
@@ -171,66 +201,125 @@ function resolveDestinationInternal(
     }
   }
 
-  if (actionable.length > 0) {
-    const ordered = sortByPriority(actionable.map((entry) => ({ id: entry.step.id, priority: entry.step.priority, entry })));
-    const [primary, ...rest] = ordered.map((o) => o.entry);
-    return {
-      destinationId,
-      state: 'actionable',
-      primaryAction: primary,
-      parallelActions: rest,
-      waits: waiting,
-      blocked,
-      issues,
-    };
-  }
+  return buildResolution(destinationId, issues, actionable, waiting, blocked, readySubjourneys, allCompleteOrSkipped, hasUnresolvedSelectedStep);
+}
 
-  const actionableSubjourney = subjourneyResults.find(
+/**
+ * F6: deterministic ordering of ready sibling subjourneys, by parent
+ * SubjourneyStep priority desc, then active-route step order (the order
+ * `readySubjourneys` was collected in, which follows `selection.stepIds`),
+ * then stable id -- the same tie-break rule used everywhere else.
+ */
+function orderReadySubjourneys(readySubjourneys: readonly ReadySubjourney[]): ReadySubjourney[] {
+  return sortByPriority(
+    readySubjourneys.map((entry) => ({ id: entry.step.id, priority: entry.step.priority, entry })),
+  ).map((wrapped) => wrapped.entry);
+}
+
+function buildResolution(
+  destinationId: string,
+  issues: ResolverIssue[],
+  actionable: PathStep[],
+  waiting: PathStep[],
+  blocked: PathStep[],
+  readySubjourneys: ReadySubjourney[],
+  allCompleteOrSkipped: boolean,
+  hasUnresolvedSelectedStep: boolean,
+): DestinationResolution {
+  const orderedSubjourneys = orderReadySubjourneys(readySubjourneys);
+  const actionableSubjourneys = orderedSubjourneys.filter(
     (entry) => entry.resolution.state === 'actionable' && entry.resolution.primaryAction !== undefined,
   );
-  if (actionableSubjourney !== undefined) {
-    const child = actionableSubjourney.resolution;
+
+  const allWaitsFromSubjourneys = readySubjourneys.flatMap((entry) => entry.resolution.waits);
+  const allBlockedFromSubjourneys = readySubjourneys.flatMap((entry) => entry.resolution.blocked);
+
+  if (actionable.length > 0 || actionableSubjourneys.length > 0) {
+    // Direct actionable steps and actionable sibling subjourneys compete for
+    // the primary/parallel slots under one deterministic order: priority
+    // desc (a subjourney candidate carries its parent SubjourneyStep's
+    // priority), then declaration/collection order, then stable id.
+    const orderedDirect = sortByPriority(
+      actionable.map((entry) => ({ id: entry.step.id, priority: entry.step.priority, entry })),
+    ).map((wrapped) => wrapped.entry);
+
+    type Candidate =
+      | { readonly id: string; readonly priority: number; readonly kind: 'direct'; readonly pathStep: PathStep }
+      | { readonly id: string; readonly priority: number; readonly kind: 'subjourney'; readonly child: DestinationResolution };
+
+    const directCandidates: Candidate[] = orderedDirect.map((entry) => ({
+      id: entry.step.id,
+      priority: entry.step.priority,
+      kind: 'direct',
+      pathStep: entry,
+    }));
+    const subjourneyCandidates: Candidate[] = actionableSubjourneys.map((entry) => ({
+      id: entry.step.id,
+      priority: entry.step.priority,
+      kind: 'subjourney',
+      child: entry.resolution,
+    }));
+
+    const [winner, ...rest] = sortByPriority([...directCandidates, ...subjourneyCandidates]);
+
+    const primaryAction = winner.kind === 'direct' ? winner.pathStep : (winner.child.primaryAction as PathStep);
+
+    const parallelActions: PathStep[] = [];
+    for (const candidate of rest) {
+      if (candidate.kind === 'direct') {
+        parallelActions.push(candidate.pathStep);
+      } else {
+        if (candidate.child.primaryAction) parallelActions.push(candidate.child.primaryAction);
+        parallelActions.push(...candidate.child.parallelActions);
+      }
+    }
+    if (winner.kind === 'subjourney') {
+      parallelActions.push(...winner.child.parallelActions);
+    }
+
     return {
       destinationId,
       state: 'actionable',
-      primaryAction: child.primaryAction,
-      parallelActions: child.parallelActions,
-      waits: [...waiting, ...child.waits],
-      blocked: [...blocked, ...child.blocked],
+      primaryAction,
+      parallelActions,
+      waits: [...waiting, ...allWaitsFromSubjourneys],
+      blocked: [...blocked, ...allBlockedFromSubjourneys],
       issues,
     };
   }
 
-  if (waiting.length > 0 || subjourneyResults.some((entry) => entry.resolution.state === 'waiting')) {
-    const subjourneyWaits = subjourneyResults.flatMap((entry) =>
-      entry.resolution.state === 'waiting' ? entry.resolution.waits : [],
-    );
+  const allWaits = [...waiting, ...allWaitsFromSubjourneys];
+  if (allWaits.length > 0) {
     return {
       destinationId,
       state: 'waiting',
       primaryAction: undefined,
       parallelActions: [],
-      waits: [...waiting, ...subjourneyWaits],
-      blocked,
+      waits: allWaits,
+      blocked: [...blocked, ...allBlockedFromSubjourneys],
       issues,
     };
   }
 
-  if (blocked.length > 0 || subjourneyResults.some((entry) => entry.resolution.state === 'blocked')) {
-    const subjourneyBlocked = subjourneyResults.flatMap((entry) =>
-      entry.resolution.state === 'blocked' ? entry.resolution.blocked : [],
-    );
+  const allBlocked = [...blocked, ...allBlockedFromSubjourneys];
+  if (allBlocked.length > 0) {
     return {
       destinationId,
       state: 'blocked',
       primaryAction: undefined,
       parallelActions: [],
       waits: [],
-      blocked: [...blocked, ...subjourneyBlocked],
+      blocked: allBlocked,
       issues,
     };
   }
 
-  const state: DestinationRouteState = allCompleteOrSkipped ? 'complete' : 'unresolved';
-  return { destinationId, state, primaryAction: undefined, parallelActions: [], waits: [], blocked: [], issues };
+  // F5: a Destination never resolves to `complete` when a selected Step
+  // reference could not be resolved, or a ready subjourney itself resolved
+  // as unresolved -- there is unresolved selected work, so the honest state
+  // is `unresolved`, never a false `complete`.
+  const anySubjourneyUnresolved = readySubjourneys.some((entry) => entry.resolution.state === 'unresolved');
+  const isComplete = allCompleteOrSkipped && !hasUnresolvedSelectedStep && !anySubjourneyUnresolved;
+
+  return emptyResolution(destinationId, isComplete ? 'complete' : 'unresolved', issues);
 }

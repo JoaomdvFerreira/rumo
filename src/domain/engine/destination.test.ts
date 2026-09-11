@@ -1,3 +1,4 @@
+import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 
 import { resolveDestination } from './destination';
@@ -23,7 +24,12 @@ function graph(overrides: Partial<DestinationGraph> = {}): DestinationGraph {
 }
 
 function progress(overrides: Partial<RuntimeProgress> = {}): RuntimeProgress {
-  return { manualCompletedStepIds: new Set(), externalOutcomeCompletedStepIds: new Set(), ...overrides };
+  return {
+    manualCompletedStepIds: new Set(),
+    externalOutcomeCompletedStepIds: new Set(),
+    satisfiedRequirementIds: new Set(),
+    ...overrides,
+  };
 }
 
 function context(overrides: Partial<RoutingContext> = {}): RoutingContext {
@@ -219,6 +225,206 @@ describe('resolveDestination: subjourney resolution', () => {
   });
 });
 
+describe('resolveDestination: F1 subjourney local gating cannot be bypassed', () => {
+  it('a blocked subjourney never exposes child work as actionable/parallel/waiting', () => {
+    const childTask = task('step.child-task');
+    const childDest = destination('destination.child', ['route.child']);
+    const childRoute = route('route.child', [childTask.id]);
+
+    const sub = subjourney('step.subjourney', childDest.id, { requirementIds: ['requirement.absent'] });
+    const parentDest = destination('destination.parent', ['route.parent']);
+    const parentRoute = route('route.parent', [sub.id]);
+
+    const g = graph({
+      destinations: index([parentDest, childDest]),
+      routes: index([parentRoute, childRoute]),
+      steps: index([sub, childTask]),
+    });
+
+    const result = resolveDestination(parentDest.id, g, context());
+    expect(result.state).toBe('blocked');
+    expect(result.primaryAction).toBeUndefined();
+    expect(result.parallelActions).toEqual([]);
+    expect(result.blocked.map((p) => p.step.id)).toEqual(['step.subjourney']);
+  });
+
+  it('a skipped subjourney never exposes child work as active work', () => {
+    const childTask = task('step.child-task');
+    const childDest = destination('destination.child', ['route.child']);
+    const childRoute = route('route.child', [childTask.id]);
+
+    const sub = subjourney('step.subjourney', childDest.id, {
+      appliesWhen: { kind: 'factTruthy', fact: 'never' },
+    });
+    const parentDest = destination('destination.parent', ['route.parent']);
+    const parentRoute = route('route.parent', [sub.id]);
+
+    const g = graph({
+      destinations: index([parentDest, childDest]),
+      routes: index([parentRoute, childRoute]),
+      steps: index([sub, childTask]),
+    });
+
+    const result = resolveDestination(parentDest.id, g, context());
+    // No other work exists in the parent route once the only step is skipped.
+    expect(result.state).toBe('complete');
+    expect(result.primaryAction).toBeUndefined();
+    expect(result.parallelActions).toEqual([]);
+  });
+});
+
+describe('resolveDestination: F4 subjourney dependency completion', () => {
+  it('a task depending on a subjourney is blocked until the child Destination completes', () => {
+    const childTask = task('step.child-task');
+    const childDest = destination('destination.child', ['route.child']);
+    const childRoute = route('route.child', [childTask.id]);
+
+    const sub = subjourney('step.subjourney', childDest.id);
+    const dependentTask = task('step.dependent', { dependsOnStepIds: [sub.id] });
+    const parentDest = destination('destination.parent', ['route.parent']);
+    const parentRoute = route('route.parent', [sub.id, dependentTask.id]);
+
+    const g = graph({
+      destinations: index([parentDest, childDest]),
+      routes: index([parentRoute, childRoute]),
+      steps: index([sub, childTask, dependentTask]),
+    });
+
+    const beforeChildCompletes = resolveDestination(parentDest.id, g, context());
+    expect(beforeChildCompletes.blocked.map((p) => p.step.id)).toContain('step.dependent');
+    expect(beforeChildCompletes.primaryAction?.step.id).toBe('step.child-task');
+
+    const afterChildCompletes = resolveDestination(
+      parentDest.id,
+      g,
+      context({ progress: progress({ manualCompletedStepIds: new Set([childTask.id]) }) }),
+    );
+    expect(afterChildCompletes.state).toBe('actionable');
+    expect(afterChildCompletes.primaryAction?.step.id).toBe('step.dependent');
+  });
+
+  it('no manual/externalOutcome completion signal for the SubjourneyStep itself is necessary or sufficient', () => {
+    const childTask = task('step.child-task');
+    const childDest = destination('destination.child', ['route.child']);
+    const childRoute = route('route.child', [childTask.id]);
+
+    const sub = subjourney('step.subjourney', childDest.id);
+    const dependentTask = task('step.dependent', { dependsOnStepIds: [sub.id] });
+    const parentDest = destination('destination.parent', ['route.parent']);
+    const parentRoute = route('route.parent', [sub.id, dependentTask.id]);
+
+    const g = graph({
+      destinations: index([parentDest, childDest]),
+      routes: index([parentRoute, childRoute]),
+      steps: index([sub, childTask, dependentTask]),
+    });
+
+    // Marking the SubjourneyStep id itself complete must have no effect: the
+    // child Destination (childTask) is still incomplete.
+    const result = resolveDestination(
+      parentDest.id,
+      g,
+      context({ progress: progress({ manualCompletedStepIds: new Set([sub.id]) }) }),
+    );
+    expect(result.blocked.map((p) => p.step.id)).toContain('step.dependent');
+  });
+});
+
+describe('resolveDestination: F5 unresolved selected Steps never produce complete', () => {
+  it('a route containing only a missing Step resolves to unresolved, never complete', () => {
+    const dest = destination('destination.d', ['route.r']);
+    const r = route('route.r', ['step.missing']);
+    const g = graph({ destinations: index([dest]), routes: index([r]), steps: new Map() });
+
+    const result = resolveDestination(dest.id, g, context());
+    expect(result.state).toBe('unresolved');
+    expect(result.issues.some((issue) => issue.kind === 'missingReference' && issue.id === 'step.missing')).toBe(true);
+  });
+
+  it('completed known Steps plus one missing selected Step resolves to unresolved, never complete', () => {
+    const done = task('step.done');
+    const dest = destination('destination.d', ['route.r']);
+    const r = route('route.r', [done.id, 'step.missing']);
+    const g = graph({ destinations: index([dest]), routes: index([r]), steps: index([done]) });
+
+    const result = resolveDestination(
+      dest.id,
+      g,
+      context({ progress: progress({ manualCompletedStepIds: new Set([done.id]) }) }),
+    );
+    expect(result.state).toBe('unresolved');
+  });
+
+  it('still exposes other valid actionable work alongside the resolver issue', () => {
+    const actionableTask = task('step.actionable');
+    const dest = destination('destination.d', ['route.r']);
+    const r = route('route.r', [actionableTask.id, 'step.missing']);
+    const g = graph({ destinations: index([dest]), routes: index([r]), steps: index([actionableTask]) });
+
+    const result = resolveDestination(dest.id, g, context());
+    expect(result.state).toBe('actionable');
+    expect(result.primaryAction?.step.id).toBe('step.actionable');
+    expect(result.issues.some((issue) => issue.kind === 'missingReference')).toBe(true);
+  });
+});
+
+describe('resolveDestination: F6 parallel actionable sibling subjourneys', () => {
+  it('two ready sibling subjourneys each with actionable work: one primary, the other parallel', () => {
+    const childTaskLow = task('step.child-low');
+    const childDestLow = destination('destination.child-low', ['route.child-low']);
+    const childRouteLow = route('route.child-low', [childTaskLow.id]);
+
+    const childTaskHigh = task('step.child-high');
+    const childDestHigh = destination('destination.child-high', ['route.child-high']);
+    const childRouteHigh = route('route.child-high', [childTaskHigh.id]);
+
+    const subLow = subjourney('step.sub-low', childDestLow.id, { priority: 1 });
+    const subHigh = subjourney('step.sub-high', childDestHigh.id, { priority: 5 });
+    const parentDest = destination('destination.parent', ['route.parent']);
+    const parentRoute = route('route.parent', [subLow.id, subHigh.id]);
+
+    const g = graph({
+      destinations: index([parentDest, childDestLow, childDestHigh]),
+      routes: index([parentRoute, childRouteLow, childRouteHigh]),
+      steps: index([subLow, subHigh, childTaskLow, childTaskHigh]),
+    });
+
+    const result = resolveDestination(parentDest.id, g, context());
+    expect(result.state).toBe('actionable');
+    expect(result.primaryAction?.step.id).toBe('step.child-high');
+    expect(result.parallelActions.map((p) => p.step.id)).toContain('step.child-low');
+  });
+
+  it('does not descend through a blocked or skipped sibling subjourney', () => {
+    const childTaskReady = task('step.child-ready');
+    const childDestReady = destination('destination.child-ready', ['route.child-ready']);
+    const childRouteReady = route('route.child-ready', [childTaskReady.id]);
+
+    const childTaskBlockedSide = task('step.child-blocked-side');
+    const childDestBlockedSide = destination('destination.child-blocked-side', ['route.child-blocked-side']);
+    const childRouteBlockedSide = route('route.child-blocked-side', [childTaskBlockedSide.id]);
+
+    const subReady = subjourney('step.sub-ready', childDestReady.id);
+    const subBlocked = subjourney('step.sub-blocked', childDestBlockedSide.id, {
+      requirementIds: ['requirement.absent'],
+    });
+    const parentDest = destination('destination.parent', ['route.parent']);
+    const parentRoute = route('route.parent', [subReady.id, subBlocked.id]);
+
+    const g = graph({
+      destinations: index([parentDest, childDestReady, childDestBlockedSide]),
+      routes: index([parentRoute, childRouteReady, childRouteBlockedSide]),
+      steps: index([subReady, subBlocked, childTaskReady, childTaskBlockedSide]),
+    });
+
+    const result = resolveDestination(parentDest.id, g, context());
+    expect(result.state).toBe('actionable');
+    expect(result.primaryAction?.step.id).toBe('step.child-ready');
+    expect(result.parallelActions).toEqual([]);
+    expect(result.blocked.map((p) => p.step.id)).toEqual(['step.sub-blocked']);
+  });
+});
+
 describe('resolveDestination: missing references and determinism', () => {
   it('reports a missing destination id deterministically', () => {
     const result = resolveDestination('destination.missing', graph(), context());
@@ -264,5 +470,30 @@ describe('resolveDestination: missing references and determinism', () => {
     expect(Object.fromEntries(g.destinations)).toEqual(graphSnapshot.destinations);
     expect(Object.fromEntries(g.routes)).toEqual(graphSnapshot.routes);
     expect(Object.fromEntries(g.steps)).toEqual(graphSnapshot.steps);
+  });
+
+  it('is deterministic across repeated calls for a graph containing a subjourney cycle', () => {
+    fc.assert(
+      fc.property(fc.constant(null), () => {
+        const stepA = subjourney('step.to-b', 'destination.b');
+        const destA = destination('destination.a', ['route.a']);
+        const routeA = route('route.a', [stepA.id]);
+
+        const stepB = subjourney('step.to-a', 'destination.a');
+        const destB = destination('destination.b', ['route.b']);
+        const routeB = route('route.b', [stepB.id]);
+
+        const g = graph({
+          destinations: index([destA, destB]),
+          routes: index([routeA, routeB]),
+          steps: index([stepA, stepB]),
+        });
+
+        const first = resolveDestination(destA.id, g, context());
+        const second = resolveDestination(destA.id, g, context());
+        expect(second.state).toBe(first.state);
+        expect(second.issues.length).toBe(first.issues.length);
+      }),
+    );
   });
 });
