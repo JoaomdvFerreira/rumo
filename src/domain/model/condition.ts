@@ -1,14 +1,20 @@
 import { z } from 'zod';
 
+import { factKeySchema } from './fact';
+
 /**
  * Declarative Condition AST. Rules are data, never executable callbacks:
  * the operator set is closed so every condition can be interpreted by a
  * pure evaluator without eval/Function or dynamic dispatch to host code.
  * No redundant negative operators (e.g. factNotEquals) are added; `not`
  * composes every negative case over the positive primitives.
+ *
+ * Fact references reuse the single canonical `factKeySchema` (see
+ * fact.ts) rather than declaring a duplicate, potentially incompatible
+ * definition here.
  */
 
-const factRefSchema = z.string().min(1);
+const factRefSchema = factKeySchema;
 
 const comparableValueSchema = z.union([z.string(), z.number(), z.boolean()]);
 

@@ -116,4 +116,105 @@ describe('stepSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  describe('completion semantics', () => {
+    it('defaults a task step completion to manual', () => {
+      const result = stepSchema.safeParse({
+        kind: 'task',
+        id: 'step.register-address',
+        title: 'Register your new address',
+        description: 'Submit proof of address to the municipal office.',
+      });
+      expect(result.success).toBe(true);
+      if (result.success && result.data.kind === 'task') {
+        expect(result.data.completion).toBe('manual');
+      }
+    });
+
+    it('allows a task step to declare externalOutcome completion', () => {
+      const result = stepSchema.safeParse({
+        kind: 'task',
+        id: 'step.wait-for-approval',
+        title: 'Await municipal approval',
+        description: 'The municipality reviews and approves the submission.',
+        completion: 'externalOutcome',
+      });
+      expect(result.success).toBe(true);
+      if (result.success && result.data.kind === 'task') {
+        expect(result.data.completion).toBe('externalOutcome');
+      }
+    });
+
+    it('rejects a task step declaring subjourney completion', () => {
+      const result = stepSchema.safeParse({
+        kind: 'task',
+        id: 'step.register-address',
+        title: 'Register your new address',
+        description: 'Submit proof of address to the municipal office.',
+        completion: 'subjourney',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('defaults a wait step completion to externalOutcome', () => {
+      const result = stepSchema.safeParse({
+        kind: 'wait',
+        id: 'step.processing',
+        title: 'Wait for processing',
+        description: 'The municipality processes the registration.',
+      });
+      expect(result.success).toBe(true);
+      if (result.success && result.data.kind === 'wait') {
+        expect(result.data.completion).toBe('externalOutcome');
+      }
+    });
+
+    it('rejects a wait step declaring manual completion', () => {
+      const result = stepSchema.safeParse({
+        kind: 'wait',
+        id: 'step.processing',
+        title: 'Wait for processing',
+        description: 'The municipality processes the registration.',
+        completion: 'manual',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('defaults a subjourney step completion to subjourney', () => {
+      const result = stepSchema.safeParse({
+        kind: 'subjourney',
+        id: 'step.setup-utilities',
+        title: 'Set up utilities',
+        description: 'Complete the utilities setup subjourney.',
+        journeyId: 'journey.eletricidade-e-gas',
+      });
+      expect(result.success).toBe(true);
+      if (result.success && result.data.kind === 'subjourney') {
+        expect(result.data.completion).toBe('subjourney');
+      }
+    });
+
+    it('rejects a subjourney step declaring externalOutcome completion', () => {
+      const result = stepSchema.safeParse({
+        kind: 'subjourney',
+        id: 'step.setup-utilities',
+        title: 'Set up utilities',
+        description: 'Complete the utilities setup subjourney.',
+        journeyId: 'journey.eletricidade-e-gas',
+        completion: 'externalOutcome',
+      });
+      expect(result.success).toBe(false);
+    });
+
+    it('rejects an unknown completion mode on any step kind', () => {
+      const result = stepSchema.safeParse({
+        kind: 'task',
+        id: 'step.register-address',
+        title: 'Register your new address',
+        description: 'Submit proof of address to the municipal office.',
+        completion: 'automatic',
+      });
+      expect(result.success).toBe(false);
+    });
+  });
 });

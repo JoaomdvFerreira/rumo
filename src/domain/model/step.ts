@@ -17,7 +17,13 @@ import { entityIdSchema } from './identifiers';
  * `dependsOnStepIds` and `priority` are declared here so canonical content
  * can express step ordering/precedence; WU003 defines and tests the actual
  * priority-selection and dependency-resolution semantics.
+ *
+ * Each kind also declares its `completion` semantic -- how the step comes
+ * to be considered done -- without storing any completion state or
+ * processing outcomes; that belongs to WU003/WU005.
  */
+
+export const completionModeSchema = z.enum(['manual', 'externalOutcome', 'subjourney']);
 
 const stepBaseSchema = z.strictObject({
   id: entityIdSchema,
@@ -34,16 +40,19 @@ const taskStepSchema = stepBaseSchema.extend({
   kind: z.literal('task'),
   providerId: entityIdSchema.optional(),
   channelId: entityIdSchema.optional(),
+  completion: z.enum(['manual', 'externalOutcome']).default('manual'),
 });
 
 const waitStepSchema = stepBaseSchema.extend({
   kind: z.literal('wait'),
   estimatedDurationDays: z.number().int().nonnegative().optional(),
+  completion: z.literal('externalOutcome').default('externalOutcome'),
 });
 
 const subjourneyStepSchema = stepBaseSchema.extend({
   kind: z.literal('subjourney'),
   journeyId: entityIdSchema,
+  completion: z.literal('subjourney').default('subjourney'),
 });
 
 export const stepSchema = z.discriminatedUnion('kind', [
