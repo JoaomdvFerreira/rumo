@@ -77,7 +77,18 @@ describe('stepSchema', () => {
     expect(result.success).toBe(true);
   });
 
-  it('accepts a subjourney step referencing a nested journey', () => {
+  it('accepts a subjourney step referencing a canonical destination', () => {
+    const result = stepSchema.safeParse({
+      kind: 'subjourney',
+      id: 'step.setup-utilities',
+      title: 'Set up utilities',
+      description: 'Complete the utilities setup subjourney.',
+      destinationId: 'destination.eletricidade-e-gas',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a subjourney step using the legacy journeyId field', () => {
     const result = stepSchema.safeParse({
       kind: 'subjourney',
       id: 'step.setup-utilities',
@@ -85,7 +96,7 @@ describe('stepSchema', () => {
       description: 'Complete the utilities setup subjourney.',
       journeyId: 'journey.eletricidade-e-gas',
     });
-    expect(result.success).toBe(true);
+    expect(result.success).toBe(false);
   });
 
   it('rejects a step missing its discriminant kind', () => {
@@ -97,7 +108,7 @@ describe('stepSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('rejects a subjourney step missing journeyId', () => {
+  it('rejects a subjourney step missing destinationId', () => {
     const result = stepSchema.safeParse({
       kind: 'subjourney',
       id: 'step.setup-utilities',
@@ -186,7 +197,7 @@ describe('stepSchema', () => {
         id: 'step.setup-utilities',
         title: 'Set up utilities',
         description: 'Complete the utilities setup subjourney.',
-        journeyId: 'journey.eletricidade-e-gas',
+        destinationId: 'destination.eletricidade-e-gas',
       });
       expect(result.success).toBe(true);
       if (result.success && result.data.kind === 'subjourney') {
@@ -200,7 +211,7 @@ describe('stepSchema', () => {
         id: 'step.setup-utilities',
         title: 'Set up utilities',
         description: 'Complete the utilities setup subjourney.',
-        journeyId: 'journey.eletricidade-e-gas',
+        destinationId: 'destination.eletricidade-e-gas',
         completion: 'externalOutcome',
       });
       expect(result.success).toBe(false);

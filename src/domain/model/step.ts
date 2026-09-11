@@ -7,7 +7,10 @@ import { entityIdSchema } from './identifiers';
  * A Step has exactly one of three semantics:
  * - task: something the user can execute now (possibly via a provider/channel).
  * - wait: a passive period with no user action (e.g. processing time).
- * - subjourney: a reference to a nested journey the user must complete.
+ * - subjourney: a reference to a canonical Destination the user must
+ *   complete; there is no separate Journey entity, so the target is a
+ *   Destination whose applicable Route/RouteVariant is resolved later by
+ *   the routing engine (WU003).
  *
  * Routing (WU003) decides actionability from these semantics; this contract
  * only declares them. A step is never independently "blocked" -- blocking
@@ -51,7 +54,7 @@ const waitStepSchema = stepBaseSchema.extend({
 
 const subjourneyStepSchema = stepBaseSchema.extend({
   kind: z.literal('subjourney'),
-  journeyId: entityIdSchema,
+  destinationId: entityIdSchema,
   completion: z.literal('subjourney').default('subjourney'),
 });
 
