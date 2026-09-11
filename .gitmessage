@@ -1,0 +1,21 @@
+type(scope): imperative summary
+
+Why:
+- ...
+
+What:
+- ...
+
+Validation:
+- ...
+
+AIQT:
+- Work Unit: <WU ID>
+
+Risk:
+- Score: <0-100>
+- Severity: <low|medium|high|critical>
+- Rationale: ...
+
+# Allowed types: feat, fix, refactor, test, docs, chore, build, ci
+# Risk: 0–20 low; 21–50 medium; 51–80 high; 81–100 critical

@@ -1,0 +1,17 @@
+# dependencies
+/node_modules
+/.pnpm-store
+
+# Next.js
+/.next
+/out
+
+# tests
+/playwright-report
+/test-results
+
+# local environment files
+.env*.local
+
+# TypeScript
+*.tsbuildinfo

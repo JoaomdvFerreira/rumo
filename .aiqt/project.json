@@ -1,0 +1,33 @@
+{
+  "version": "0.9.0",
+  "project": {
+    "id": "PROJECT-001",
+    "name": "rumo",
+    "objective": "Provide clear, trustworthy guidance for people moving home and setting up a new home in Portugal, beginning with deeper municipal support for Évora.",
+    "targetUsers": [
+      "People moving home or setting up a new home in Portugal"
+    ],
+    "preferredAgent": "Development Agent",
+    "existingRepositoryPath": "C:\\Users\\João\\Desktop\\projects\\rumo",
+    "createdAt": "2026-09-11T18:23:41.934Z",
+    "updatedAt": "2026-09-11T18:46:36.001Z"
+  },
+  "context": {
+    "constraints": [],
+    "nonGoals": [],
+    "technologyPreferences": [],
+    "businessRules": [],
+    "architectureNotes": []
+  },
+  "requirements": [],
+  "decisions": [],
+  "risks": [],
+  "assumptions": [],
+  "openQuestions": [],
+  "quality": {
+    "acceptanceCriteriaRequired": true,
+    "validationRequiredBeforeDone": true,
+    "preferredValidationCommands": []
+  },
+  "integrations": {}
+}
