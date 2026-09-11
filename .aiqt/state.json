@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "in_progress",
+  "projectStatus": "review",
   "currentMilestoneId": "M001",
   "currentWorkUnitId": null,
   "workGraph": {
@@ -9,7 +9,7 @@
         "id": "M001",
         "title": "Production Foundation",
         "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
-        "status": "ready",
+        "status": "in_progress",
         "workUnitIds": [
           "WU001",
           "WU002",
@@ -136,12 +136,12 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "ready",
+        "status": "needs_review",
         "dependencies": [
           "DEP-002"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T19:36:09.910Z"
+        "updatedAt": "2026-09-11T21:23:19.921Z"
       },
       {
         "id": "WU004",
@@ -559,15 +559,95 @@
       "finalWorkUnitStatus": "done",
       "nextRecommendation": "aiqt next",
       "createdAt": "2026-09-11T19:36:09.910Z"
+    },
+    {
+      "id": "C003",
+      "workUnitId": "WU003",
+      "packetId": "PKT-004",
+      "summary": "Implemented a pure, deterministic, framework-independent routing engine in src/domain/engine/ covering Condition evaluation, Route/RouteVariant selection, Step state derivation, Requirement/RequirementGroup resolution, and Destination resolution (next action, parallel work, waits, blocked, complete, subjourney recursion) per the accepted WU002 contracts.",
+      "completed": [
+        "Condition evaluator (evaluateCondition, isApplicable, isFactTruthy) covering factEquals, factIn, factContains, factTruthy, factPresent, allOf, anyOf, not with missing-fact-as-absent semantics and explicit business truthiness (absent/false/0/\"\"/[] => false).",
+        "Deterministic priority tie-break utility (sortByPriority/selectByPriority): priority desc, then declaration/reference order, then stable id.",
+        "Requirement/RequirementGroup resolver: applicable direct Requirement satisfied; non-applicable Requirement never blocks; allOf/anyOf composition over applicable members only; zero-applicable-members group never blocks; missing requirement/group references produce structured resolver evidence.",
+        "Route/RouteVariant selection (selectRoute): filters applicable Routes referenced by a Destination, selects by priority/order/id, resolves applicable RouteVariants for the winning Route with the same tie-break, falls back to the Route's own stepIds when no variant applies; missing route/variant references reported as evidence, not thrown.",
+        "Step state derivation (resolveStep): explicit states skipped/complete/blocked/actionable/waiting; task/manual and task/externalOutcome and wait/externalOutcome each gated by their own completion signal; dependsOnStepIds gating where a non-applicable dependency never blocks and a missing dependency reference does not block but is reported; requirement/group gating reuses the requirement resolver; wait steps can only reach skipped/complete/blocked/waiting, never actionable.",
+        "Destination resolution (resolveDestination): selects the route/variant, resolves every step, picks the highest-priority actionable task as the primary action (never a wait) with remaining actionable tasks as parallel actions, reports ready waits separately, falls through to blocked/complete/unresolved by the specified precedence, and recurses through subjourney steps preserving a parent/child destinationPath; subjourney and destination recursion is cycle-safe (visited-set guard) and reports a structured cycle issue instead of recursing infinitely.",
+        "Resolver evidence module (missingReference/cycleDetected) shared by every resolution stage so missing ids and cycles are deterministic structured output rather than crashes or silent pass-through.",
+        "Runtime progress/context types (RuntimeProgress, RoutingContext) as the minimum pure input WU003 needs; no persistence implemented (left to WU005).",
+        "Unit and fast-check property tests for every module (96 new tests): all 8 condition operators, absent facts, array membership, business truthiness, determinism and non-mutation invariants; route priority/tie-break/variant fallback; dependency satisfaction incl. non-applicable dependencies and missing references; direct requirements and allOf/anyOf groups; all three completion modes; blocked-never-actionable and wait-never-primary invariants; parallel actions; waiting-only and complete-only destination states; subjourney resolution and parent/child path; subjourney cycle safety; missing destination/step references; determinism and non-mutation of canonical content across repeated calls."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "src/domain/engine/runtime.ts",
+        "src/domain/engine/condition.ts",
+        "src/domain/engine/condition.test.ts",
+        "src/domain/engine/resolver.ts",
+        "src/domain/engine/priority.ts",
+        "src/domain/engine/priority.test.ts",
+        "src/domain/engine/requirement.ts",
+        "src/domain/engine/requirement.test.ts",
+        "src/domain/engine/route.ts",
+        "src/domain/engine/route.test.ts",
+        "src/domain/engine/step.ts",
+        "src/domain/engine/step.test.ts",
+        "src/domain/engine/destination.ts",
+        "src/domain/engine/destination.test.ts",
+        "src/domain/engine/index.ts"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "ESLint clean across the repository."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit clean."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "181 tests passed (96 new in src/domain/engine, 85 pre-existing unaffected)."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "next build succeeded."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed",
+          "summary": "No whitespace errors (line-ending notices only on pre-existing .aiqt state files)."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Routing follows approved priority semantics (highest priority, then declaration/reference order, then stable id) for Route, RouteVariant, and next-action Step selection.",
+          "result": "passed",
+          "evidence": "src/domain/engine/priority.ts + route.test.ts/destination.test.ts tie-break cases."
+        },
+        {
+          "criterion": "Determinism is covered by tests, including fast-check property/invariant tests.",
+          "result": "passed",
+          "evidence": "condition.test.ts and priority.test.ts fast-check suites assert determinism, non-mutation, and structural invariants; destination.test.ts asserts repeated-call determinism and no mutation of graph/context inputs."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "createdAt": "2026-09-11T21:23:19.921Z",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C003"
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-003",
-    "workUnitId": "WU002",
+    "id": "PKT-004",
+    "workUnitId": "WU003",
     "milestoneId": "M001",
-    "createdAt": "2026-09-11T19:32:16.100Z",
+    "createdAt": "2026-09-11T21:14:55.312Z",
     "format": "markdown",
-    "contentHash": "sha256:8829a3b91e57db50ced43636fb11033f679edbc644eb0860c388033598e82c66",
+    "contentHash": "sha256:35f048a529c3c8b78b7d512278d9fcc46e5c87c06b6897ce5306d4b5b2fec47c",
     "sourceCommand": "aiqt next",
     "renderedSections": [
       "scope",
@@ -575,18 +655,19 @@
       "constraints",
       "acceptance",
       "validation",
+      "designGuidance",
       "sourceControlExpectations"
     ],
     "guidanceFlags": {
-      "includesDesignGuidance": false,
+      "includesDesignGuidance": true,
       "includesWorkingDirectoryDiscipline": false,
       "includesComponentSystemGuidance": false,
       "includesRecoveryGuidance": false,
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-11T20:34:23.325Z",
+  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C003",
+  "lastUpdatedAt": "2026-09-11T21:23:19.921Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -691,6 +772,36 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-11T20:34:23.325Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C003",
+      "current": {
+        "observationId": "sha256:8e46050afcd8d354ca401765b1b552a199282bee63d3b57e108cb1adc2373187",
+        "checkpointId": "C003",
+        "workUnitId": "WU003",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-11T21:23:19.921Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-11T21:23:19.921Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:8e46050afcd8d354ca401765b1b552a199282bee63d3b57e108cb1adc2373187",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T21:23:19.921Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T21:23:19.921Z"
         }
       ]
     }
