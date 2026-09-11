@@ -1,0 +1,51 @@
+import { z } from 'zod';
+
+import { conditionSchema } from './condition';
+import { entityIdSchema } from './identifiers';
+
+/**
+ * A Step has exactly one of three semantics:
+ * - task: something the user can execute now (possibly via a provider/channel).
+ * - wait: a passive period with no user action (e.g. processing time).
+ * - subjourney: a reference to a nested journey the user must complete.
+ *
+ * Routing (WU003) decides actionability from these semantics; this contract
+ * only declares them. A step is never independently "blocked" -- blocking
+ * is derived at routing time from unmet requirements/conditions, not stored
+ * as step state here.
+ */
+
+const stepBaseSchema = z.object({
+  id: entityIdSchema,
+  title: z.string().min(1),
+  description: z.string().min(1),
+  requirementIds: z.array(entityIdSchema).default([]),
+  appliesWhen: conditionSchema.optional(),
+});
+
+const taskStepSchema = stepBaseSchema.extend({
+  kind: z.literal('task'),
+  providerId: entityIdSchema.optional(),
+  channelId: entityIdSchema.optional(),
+});
+
+const waitStepSchema = stepBaseSchema.extend({
+  kind: z.literal('wait'),
+  estimatedDurationDays: z.number().int().nonnegative().optional(),
+});
+
+const subjourneyStepSchema = stepBaseSchema.extend({
+  kind: z.literal('subjourney'),
+  journeyId: entityIdSchema,
+});
+
+export const stepSchema = z.discriminatedUnion('kind', [
+  taskStepSchema,
+  waitStepSchema,
+  subjourneyStepSchema,
+]);
+
+export type TaskStep = z.infer<typeof taskStepSchema>;
+export type WaitStep = z.infer<typeof waitStepSchema>;
+export type SubjourneyStep = z.infer<typeof subjourneyStepSchema>;
+export type Step = z.infer<typeof stepSchema>;

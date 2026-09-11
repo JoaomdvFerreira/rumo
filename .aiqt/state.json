@@ -99,12 +99,12 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "ready",
+        "status": "done",
         "dependencies": [
           "DEP-001"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:59:40.945Z"
+        "updatedAt": "2026-09-11T19:36:09.910Z"
       },
       {
         "id": "WU003",
@@ -136,12 +136,12 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "planned",
+        "status": "ready",
         "dependencies": [
           "DEP-002"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:56:25.144Z"
+        "updatedAt": "2026-09-11T19:36:09.910Z"
       },
       {
         "id": "WU004",
@@ -486,19 +486,107 @@
       "finalWorkUnitStatus": "done",
       "nextRecommendation": "aiqt next",
       "createdAt": "2026-09-11T18:58:37.346Z"
+    },
+    {
+      "id": "C002",
+      "workUnitId": "WU002",
+      "packetId": "PKT-003",
+      "summary": "Defined the framework-independent canonical domain model for WU002: a closed-operator declarative Condition AST, and Zod-validated contracts for SourceDefinition/SourceVerification (kept separate per guardrails), DecisionReference, Provider/Channel, Requirement, and Step (task/wait/subjourney discriminated union).",
+      "completed": [
+        "Added declarative Condition AST with a closed operator set (factEquals, factIn, factTruthy, factPresent, allOf, anyOf, not) and its Zod schema.",
+        "Added SourceDefinition and SourceVerification as separate Zod contracts.",
+        "Added DecisionReference contract linking to a SourceDefinition.",
+        "Added Provider and Channel contracts with a closed channel-type enum.",
+        "Added Requirement contract referencing Condition and DecisionReference ids.",
+        "Added Step contract as a discriminated union over task/wait/subjourney kinds; no 'blocked' state is stored on the step (routing derives actionability).",
+        "Added a domain model barrel export at src/domain/model/index.ts.",
+        "Added unit tests for every schema covering valid parses, closed-operator/enum rejection, and structural rejections."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "src/domain/model/condition.ts",
+        "src/domain/model/condition.test.ts",
+        "src/domain/model/identifiers.ts",
+        "src/domain/model/source.ts",
+        "src/domain/model/source.test.ts",
+        "src/domain/model/decision.ts",
+        "src/domain/model/decision.test.ts",
+        "src/domain/model/provider.ts",
+        "src/domain/model/provider.test.ts",
+        "src/domain/model/requirement.ts",
+        "src/domain/model/requirement.test.ts",
+        "src/domain/model/step.ts",
+        "src/domain/model/step.test.ts",
+        "src/domain/model/index.ts"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit clean."
+        },
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "eslint . clean, including domain framework-independence rule."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "vitest run: 7 files, 30 tests passed."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "next build succeeded (static export of existing pages, unaffected by domain-only change)."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Domain model is framework-independent.",
+          "result": "passed",
+          "evidence": "src/domain/model/** imports only zod; ESLint no-restricted-imports rule for src/domain/** passes."
+        },
+        {
+          "criterion": "Schemas validate canonical contracts.",
+          "result": "passed",
+          "evidence": "30 passing Vitest cases across condition/source/decision/provider/requirement/step covering valid and invalid inputs."
+        }
+      ],
+      "finalWorkUnitStatus": "done",
+      "createdAt": "2026-09-11T19:36:09.910Z",
+      "nextRecommendation": "aiqt next"
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-001",
-    "workUnitId": "WU001",
+    "id": "PKT-003",
+    "workUnitId": "WU002",
     "milestoneId": "M001",
-    "createdAt": "2026-09-11T18:56:28.799Z",
+    "createdAt": "2026-09-11T19:32:16.100Z",
     "format": "markdown",
-    "contentHash": "sha256:735bbe502dc355ec2f13e76656d7650b92cd2dd0dbc0333388f0c28aac36b926",
-    "sourceCommand": "aiqt next"
+    "contentHash": "sha256:8829a3b91e57db50ced43636fb11033f679edbc644eb0860c388033598e82c66",
+    "sourceCommand": "aiqt next",
+    "renderedSections": [
+      "scope",
+      "context",
+      "constraints",
+      "acceptance",
+      "validation",
+      "sourceControlExpectations"
+    ],
+    "guidanceFlags": {
+      "includesDesignGuidance": false,
+      "includesWorkingDirectoryDiscipline": false,
+      "includesComponentSystemGuidance": false,
+      "includesRecoveryGuidance": false,
+      "includesSourceControlGuidance": true
+    }
   },
   "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-11T18:59:40.945Z",
+  "lastUpdatedAt": "2026-09-11T19:36:09.910Z",
   "checkpointEvidenceAdvisories": [
     {
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
@@ -527,6 +615,36 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-11T18:58:37.346Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C002",
+      "current": {
+        "observationId": "sha256:93f70725c97c926ae78756f9f8bebcfdd9681cadd07cb1313d4aac2a88e5fc2e",
+        "checkpointId": "C002",
+        "workUnitId": "WU002",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-11T19:36:09.910Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-11T19:36:09.910Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:93f70725c97c926ae78756f9f8bebcfdd9681cadd07cb1313d4aac2a88e5fc2e",
+          "checkpointId": "C002",
+          "workUnitId": "WU002",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T19:36:09.910Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T19:36:09.910Z"
         }
       ]
     }
