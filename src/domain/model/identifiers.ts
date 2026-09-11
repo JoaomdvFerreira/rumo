@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 export const entityIdSchema = z.string().min(1);
 
-export const contentVersionSchema = z.object({
+export const contentVersionSchema = z.strictObject({
   contentHash: z.string().min(1),
   publishedAt: z.iso.datetime(),
 });

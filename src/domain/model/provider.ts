@@ -9,7 +9,7 @@ import { entityIdSchema } from './identifiers';
  */
 export const channelTypeSchema = z.enum(['online', 'inPerson', 'phone', 'post', 'email']);
 
-export const channelSchema = z.object({
+export const channelSchema = z.strictObject({
   id: entityIdSchema,
   type: channelTypeSchema,
   label: z.string().min(1),
@@ -18,7 +18,7 @@ export const channelSchema = z.object({
 
 export type Channel = z.infer<typeof channelSchema>;
 
-export const providerSchema = z.object({
+export const providerSchema = z.strictObject({
   id: entityIdSchema,
   name: z.string().min(1),
   jurisdiction: z.string().min(1),

@@ -10,8 +10,28 @@ describe('sourceDefinitionSchema', () => {
       publisher: 'Câmara Municipal de Évora',
       url: 'https://www.cm-evora.pt',
       jurisdiction: 'Évora',
+      kind: 'action',
+      freshnessRisk: 'low',
+      supports: ['requirement.proof-of-address'],
+      caution: 'Confirm office hours before visiting in person.',
     });
     expect(result.success).toBe(true);
+  });
+
+  it('defaults supports to an empty array when omitted', () => {
+    const result = sourceDefinitionSchema.safeParse({
+      id: 'source.cme-evora',
+      title: 'Câmara Municipal de Évora',
+      publisher: 'Câmara Municipal de Évora',
+      url: 'https://www.cm-evora.pt',
+      jurisdiction: 'Évora',
+      kind: 'evidence',
+      freshnessRisk: 'medium',
+    });
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.supports).toEqual([]);
+    }
   });
 
   it('rejects a non-URL value for url', () => {
@@ -21,42 +41,97 @@ describe('sourceDefinitionSchema', () => {
       publisher: 'Câmara Municipal de Évora',
       url: 'not-a-url',
       jurisdiction: 'Évora',
+      kind: 'action',
+      freshnessRisk: 'low',
     });
     expect(result.success).toBe(false);
   });
 
-  it('does not accept verification fields as part of a definition', () => {
+  it('rejects a kind outside the closed enum', () => {
     const result = sourceDefinitionSchema.safeParse({
       id: 'source.cme-evora',
       title: 'Câmara Municipal de Évora',
       publisher: 'Câmara Municipal de Évora',
       url: 'https://www.cm-evora.pt',
       jurisdiction: 'Évora',
-      status: 'verified',
+      kind: 'primary',
+      freshnessRisk: 'low',
     });
-    // Zod object schemas ignore unknown keys by default; assert the parsed
-    // shape has no verification concept, keeping the two contracts separate.
-    expect(result.success && 'status' in result.data).toBe(false);
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a mutable verification field on a definition (fields kept separate)', () => {
+    const result = sourceDefinitionSchema.safeParse({
+      id: 'source.cme-evora',
+      title: 'Câmara Municipal de Évora',
+      publisher: 'Câmara Municipal de Évora',
+      url: 'https://www.cm-evora.pt',
+      jurisdiction: 'Évora',
+      kind: 'action',
+      freshnessRisk: 'low',
+      linkHealth: 'ok',
+    });
+    expect(result.success).toBe(false);
   });
 });
 
 describe('sourceVerificationSchema', () => {
-  it('accepts a well-formed verification record', () => {
+  it('accepts a well-formed verification record with optional observations', () => {
     const result = sourceVerificationSchema.safeParse({
       sourceId: 'source.cme-evora',
-      status: 'verified',
       checkedAt: '2026-01-15T10:00:00.000Z',
       checkedBy: 'content-team',
+      linkHealth: 'ok',
+      contentFreshness: 'current',
+      httpStatus: 200,
+      finalUrl: 'https://www.cm-evora.pt/',
+      contentHash: 'sha256:abc123',
+      contentReviewedAt: '2026-01-15T10:00:00.000Z',
     });
     expect(result.success).toBe(true);
   });
 
-  it('rejects a status outside the closed enum', () => {
+  it('accepts a verification record without optional observation fields', () => {
     const result = sourceVerificationSchema.safeParse({
       sourceId: 'source.cme-evora',
-      status: 'probably-fine',
       checkedAt: '2026-01-15T10:00:00.000Z',
       checkedBy: 'content-team',
+      linkHealth: 'broken',
+      contentFreshness: 'unknown',
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it('rejects a linkHealth value outside the closed enum', () => {
+    const result = sourceVerificationSchema.safeParse({
+      sourceId: 'source.cme-evora',
+      checkedAt: '2026-01-15T10:00:00.000Z',
+      checkedBy: 'content-team',
+      linkHealth: 'probably-fine',
+      contentFreshness: 'current',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a contentFreshness value outside the closed enum', () => {
+    const result = sourceVerificationSchema.safeParse({
+      sourceId: 'source.cme-evora',
+      checkedAt: '2026-01-15T10:00:00.000Z',
+      checkedBy: 'content-team',
+      linkHealth: 'ok',
+      contentFreshness: 'fresh',
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects the removed generic status field', () => {
+    const result = sourceVerificationSchema.safeParse({
+      sourceId: 'source.cme-evora',
+      checkedAt: '2026-01-15T10:00:00.000Z',
+      checkedBy: 'content-team',
+      linkHealth: 'ok',
+      contentFreshness: 'current',
+      status: 'verified',
     });
     expect(result.success).toBe(false);
   });
@@ -64,9 +139,10 @@ describe('sourceVerificationSchema', () => {
   it('rejects a non-ISO checkedAt', () => {
     const result = sourceVerificationSchema.safeParse({
       sourceId: 'source.cme-evora',
-      status: 'verified',
       checkedAt: 'yesterday',
       checkedBy: 'content-team',
+      linkHealth: 'ok',
+      contentFreshness: 'current',
     });
     expect(result.success).toBe(false);
   });

@@ -30,6 +30,16 @@ describe('channelSchema', () => {
     });
     expect(result.success).toBe(false);
   });
+
+  it('rejects a channel with an unexpected extra key', () => {
+    const result = channelSchema.safeParse({
+      id: 'channel.cme-evora-desk',
+      type: 'inPerson',
+      label: 'Balcão Único',
+      extra: 'not allowed',
+    });
+    expect(result.success).toBe(false);
+  });
 });
 
 describe('providerSchema', () => {
@@ -51,6 +61,18 @@ describe('providerSchema', () => {
       jurisdiction: 'Évora',
       sourceId: 'source.cme-evora',
       channels: [],
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it('rejects a provider with an unexpected extra key', () => {
+    const result = providerSchema.safeParse({
+      id: 'provider.cme-evora',
+      name: 'Câmara Municipal de Évora',
+      jurisdiction: 'Évora',
+      sourceId: 'source.cme-evora',
+      channels: [{ id: 'channel.cme-evora-desk', type: 'inPerson', label: 'Balcão Único' }],
+      extra: 'not allowed',
     });
     expect(result.success).toBe(false);
   });

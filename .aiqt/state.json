@@ -557,8 +557,8 @@
         }
       ],
       "finalWorkUnitStatus": "done",
-      "createdAt": "2026-09-11T19:36:09.910Z",
-      "nextRecommendation": "aiqt next"
+      "nextRecommendation": "aiqt next",
+      "createdAt": "2026-09-11T19:36:09.910Z"
     }
   ],
   "lastAgentPacket": {
@@ -586,7 +586,7 @@
     }
   },
   "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-11T19:36:09.910Z",
+  "lastUpdatedAt": "2026-09-11T19:48:54.860Z",
   "checkpointEvidenceAdvisories": [
     {
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
@@ -622,16 +622,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C002",
       "current": {
-        "observationId": "sha256:93f70725c97c926ae78756f9f8bebcfdd9681cadd07cb1313d4aac2a88e5fc2e",
+        "observationId": "sha256:b6e5513b733d370f8bec8625da94c5418a5878172344fdcd9d95e504f393ad47",
         "checkpointId": "C002",
         "workUnitId": "WU002",
-        "trigger": "checkpoint",
+        "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-11T19:36:09.910Z",
+        "asOf": "2026-09-11T19:48:54.860Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-11T19:36:09.910Z"
+        "recordedAt": "2026-09-11T19:48:54.860Z"
       },
       "history": [
         {
@@ -645,8 +645,32 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-11T19:36:09.910Z"
+        },
+        {
+          "observationId": "sha256:b6e5513b733d370f8bec8625da94c5418a5878172344fdcd9d95e504f393ad47",
+          "checkpointId": "C002",
+          "workUnitId": "WU002",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T19:48:54.860Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T19:48:54.860Z"
         }
       ]
+    }
+  ],
+  "checkpointAmendments": [
+    {
+      "amendmentId": "AMEND-001",
+      "checkpointId": "C002",
+      "workUnitId": "WU002",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "partial",
+      "reason": "Project Overseer code review found bounded contract gaps in WU002 (strict schemas, condition factContains operator, Step dependency fields, RequirementGroup, SourceDefinition/SourceVerification freshness split, DecisionReference sourceIds) requiring remediation before acceptance.",
+      "amendedAt": "2026-09-11T19:48:54.860Z",
+      "sourceCommand": "aiqt checkpoint amend"
     }
   ]
 }

@@ -13,14 +13,21 @@ import { entityIdSchema } from './identifiers';
  * only declares them. A step is never independently "blocked" -- blocking
  * is derived at routing time from unmet requirements/conditions, not stored
  * as step state here.
+ *
+ * `dependsOnStepIds` and `priority` are declared here so canonical content
+ * can express step ordering/precedence; WU003 defines and tests the actual
+ * priority-selection and dependency-resolution semantics.
  */
 
-const stepBaseSchema = z.object({
+const stepBaseSchema = z.strictObject({
   id: entityIdSchema,
   title: z.string().min(1),
   description: z.string().min(1),
   requirementIds: z.array(entityIdSchema).default([]),
+  requirementGroupIds: z.array(entityIdSchema).default([]),
   appliesWhen: conditionSchema.optional(),
+  dependsOnStepIds: z.array(entityIdSchema).default([]),
+  priority: z.number().int().nonnegative().default(0),
 });
 
 const taskStepSchema = stepBaseSchema.extend({
