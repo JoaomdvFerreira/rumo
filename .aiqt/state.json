@@ -586,7 +586,29 @@
     }
   },
   "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-11T19:48:54.860Z",
+  "lastUpdatedAt": "2026-09-11T20:34:23.325Z",
+  "checkpointAmendments": [
+    {
+      "amendmentId": "AMEND-001",
+      "checkpointId": "C002",
+      "workUnitId": "WU002",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "partial",
+      "reason": "Project Overseer code review found bounded contract gaps in WU002 (strict schemas, condition factContains operator, Step dependency fields, RequirementGroup, SourceDefinition/SourceVerification freshness split, DecisionReference sourceIds) requiring remediation before acceptance.",
+      "amendedAt": "2026-09-11T19:48:54.860Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-002",
+      "checkpointId": "C002",
+      "workUnitId": "WU002",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance after remediation and final code review at 77b4943.",
+      "amendedAt": "2026-09-11T20:34:23.325Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    }
+  ],
   "checkpointEvidenceAdvisories": [
     {
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
@@ -622,16 +644,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C002",
       "current": {
-        "observationId": "sha256:b6e5513b733d370f8bec8625da94c5418a5878172344fdcd9d95e504f393ad47",
+        "observationId": "sha256:4dcb2aaaf901f6a010aff5ac24398a9022fea3f9a528f1e907f69ebf9398ef1e",
         "checkpointId": "C002",
         "workUnitId": "WU002",
         "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-11T19:48:54.860Z",
+        "asOf": "2026-09-11T20:34:23.325Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-11T19:48:54.860Z"
+        "recordedAt": "2026-09-11T20:34:23.325Z"
       },
       "history": [
         {
@@ -657,20 +679,20 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-11T19:48:54.860Z"
+        },
+        {
+          "observationId": "sha256:4dcb2aaaf901f6a010aff5ac24398a9022fea3f9a528f1e907f69ebf9398ef1e",
+          "checkpointId": "C002",
+          "workUnitId": "WU002",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T20:34:23.325Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T20:34:23.325Z"
         }
       ]
-    }
-  ],
-  "checkpointAmendments": [
-    {
-      "amendmentId": "AMEND-001",
-      "checkpointId": "C002",
-      "workUnitId": "WU002",
-      "acceptanceCriteriaResult": "partial",
-      "validationResult": "partial",
-      "reason": "Project Overseer code review found bounded contract gaps in WU002 (strict schemas, condition factContains operator, Step dependency fields, RequirementGroup, SourceDefinition/SourceVerification freshness split, DecisionReference sourceIds) requiring remediation before acceptance.",
-      "amendedAt": "2026-09-11T19:48:54.860Z",
-      "sourceCommand": "aiqt checkpoint amend"
     }
   ]
 }
