@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { intentCatalog } from '../../content/intents';
+import type { IntentCatalog } from '../model/intent';
 import {
   INTENT_ACCEPTANCE_THRESHOLD,
   matchIntents,
@@ -140,6 +141,115 @@ describe('deterministic intent matching', () => {
     const input = 'preciso de eletricidade e internet';
     expect(matchIntents(input, [...intentCatalog].reverse())).toEqual(
       matchIntents(input, intentCatalog),
+    );
+  });
+});
+
+describe('fact aggregation across accepted aliases', () => {
+  const input = 'preciso de eletricidade e internet e já tenho ligação de gás';
+
+  it('aggregates facts from every accepted alias for the same Destination', () => {
+    const candidates = matchIntents(input, intentCatalog);
+    const j02 = candidates.find(
+      (candidate) =>
+        candidate.destinationId === 'destination.j02-energy-connected',
+    );
+    const j03 = candidates.find(
+      (candidate) =>
+        candidate.destinationId === 'destination.j03-internet-connected',
+    );
+
+    expect(j02).toBeDefined();
+    expect(j02?.facts).toEqual({ 'household.hasGasConnection': true });
+
+    expect(j03).toBeDefined();
+    expect(j03?.facts).not.toHaveProperty('household.hasGasConnection');
+  });
+
+  it('is independent of catalog declaration order', () => {
+    expect(matchIntents(input, [...intentCatalog].reverse())).toEqual(
+      matchIntents(input, intentCatalog),
+    );
+  });
+
+  it('does not let a stronger generic alias suppress another accepted alias fact', () => {
+    const [j02] = matchIntents(
+      'já tenho ligação de gás e preciso de eletricidade e internet',
+      intentCatalog,
+    ).filter(
+      (candidate) =>
+        candidate.destinationId === 'destination.j02-energy-connected',
+    );
+    expect(j02?.facts).toEqual({ 'household.hasGasConnection': true });
+  });
+
+  it('omits a fact key when accepted aliases for the same Destination disagree', () => {
+    const conflictingCatalog: IntentCatalog = [
+      {
+        id: 'intent.conflict',
+        destinationId: 'destination.j02-energy-connected',
+        aliases: [
+          {
+            id: 'alias.conflict-a',
+            phrase: 'contratar gás',
+            kind: 'alias',
+            extractedFacts: { 'household.hasGasConnection': true },
+          },
+          {
+            id: 'alias.conflict-b',
+            phrase: 'ligar a eletricidade',
+            kind: 'alias',
+            extractedFacts: { 'household.hasGasConnection': false },
+          },
+        ],
+      },
+    ];
+
+    const [candidate] = matchIntents(
+      'contratar gás e ligar a eletricidade',
+      conflictingCatalog,
+    );
+    expect(candidate).toBeDefined();
+    expect(candidate?.facts).not.toHaveProperty('household.hasGasConnection');
+  });
+});
+
+describe('locally negated phrases', () => {
+  it.each([
+    'não quero instalar internet',
+    'não vou mudar de casa',
+    'não quero contratar gás',
+  ])('rejects a positive alias inside a local negation: %s', (input) => {
+    expect(matchIntents(input, intentCatalog)).toEqual([]);
+  });
+
+  it.each(['quero instalar internet', 'vou mudar de casa', 'quero contratar gás'])(
+    'still matches the positive form: %s',
+    (input) => {
+      expect(matchIntents(input, intentCatalog)).not.toEqual([]);
+    },
+  );
+});
+
+describe('frozen Portuguese launch labels', () => {
+  it.each([
+    ['Mudar de casa', 'destination.j01-settle-new-address'],
+    ['Eletricidade e gás na nova casa', 'destination.j02-energy-connected'],
+    ['Internet numa mudança', 'destination.j03-internet-connected'],
+  ])('matches launch label %s', (label, destinationId) => {
+    const candidates = matchIntents(label, intentCatalog);
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0]).toMatchObject({ destinationId, facts: {} });
+  });
+
+  it('matches launch labels without regard to case, accents, or punctuation', () => {
+    const candidates = matchIntents(
+      '  ELETRICIDADE e GÁS,   na NOVA casa!!!  ',
+      intentCatalog,
+    );
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0]?.destinationId).toBe(
+      'destination.j02-energy-connected',
     );
   });
 });

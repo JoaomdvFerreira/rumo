@@ -30,6 +30,11 @@ const declaredIntentCatalog = [
         kind: 'alias',
         extractedFacts: { 'household.municipality': 'evora' },
       },
+      {
+        id: 'alias.j01-launch-label',
+        phrase: 'Mudar de casa',
+        kind: 'alias',
+      },
     ],
   },
   {
@@ -60,6 +65,11 @@ const declaredIntentCatalog = [
       {
         id: 'alias.j02-energy-and-internet',
         phrase: 'preciso de eletricidade e internet',
+        kind: 'alias',
+      },
+      {
+        id: 'alias.j02-launch-label',
+        phrase: 'Eletricidade e gás na nova casa',
         kind: 'alias',
       },
     ],
@@ -93,6 +103,11 @@ const declaredIntentCatalog = [
       {
         id: 'alias.j03-energy-and-internet',
         phrase: 'preciso de eletricidade e internet',
+        kind: 'alias',
+      },
+      {
+        id: 'alias.j03-launch-label',
+        phrase: 'Internet numa mudança',
         kind: 'alias',
       },
     ],
