@@ -966,8 +966,8 @@
         }
       ],
       "finalWorkUnitStatus": "needs_review",
-      "createdAt": "2026-09-12T14:44:47.754Z",
-      "nextRecommendation": "aiqt checkpoint amend --checkpoint C007"
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C007",
+      "createdAt": "2026-09-12T14:44:47.754Z"
     }
   ],
   "lastAgentPacket": {
@@ -996,7 +996,7 @@
     }
   },
   "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C007",
-  "lastUpdatedAt": "2026-09-12T14:44:47.754Z",
+  "lastUpdatedAt": "2026-09-12T17:01:58.979Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -1146,6 +1146,16 @@
       "validationResult": "passed",
       "reason": "Project Overseer final acceptance after WU006 remediation F1-F3. Final reviewed implementation: a28f631.",
       "amendedAt": "2026-09-12T13:34:09.990Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-016",
+      "checkpointId": "C007",
+      "workUnitId": "WU007",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "Project Overseer review: WU007 requires bounded remediation for post-hydration persistence failures, deterministic most-recent session resume, official source URL disclosure, and explicit confirmation of single-result typed search. Core integration architecture otherwise accepted.",
+      "amendedAt": "2026-09-12T17:01:58.979Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -1514,16 +1524,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C007",
       "current": {
-        "observationId": "sha256:f9c64ed604becc69f8a8d8d1119739a02b144a7de2782c8f5a8818018ee490fc",
+        "observationId": "sha256:8b5bcb88676e18cabc41e84cae50e74d7ea7636dee64f8e4a5d2bb4954d86c4a",
         "checkpointId": "C007",
         "workUnitId": "WU007",
-        "trigger": "checkpoint",
+        "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-12T14:44:47.754Z",
+        "asOf": "2026-09-12T17:01:58.979Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-12T14:44:47.754Z"
+        "recordedAt": "2026-09-12T17:01:58.979Z"
       },
       "history": [
         {
@@ -1537,6 +1547,18 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T14:44:47.754Z"
+        },
+        {
+          "observationId": "sha256:8b5bcb88676e18cabc41e84cae50e74d7ea7636dee64f8e4a5d2bb4954d86c4a",
+          "checkpointId": "C007",
+          "workUnitId": "WU007",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T17:01:58.979Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T17:01:58.979Z"
         }
       ]
     }

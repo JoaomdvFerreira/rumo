@@ -43,6 +43,29 @@ test('ambiguous electricity+internet search requires explicit selection', async 
   await expect(page.getByRole('heading', { name: 'Get internet connected' })).toBeVisible();
 });
 
+test('F4: typed single-result search requires explicit confirmation before entering the journey', async ({ page }) => {
+  await page.getByRole('textbox', { name: /precisa de resolver/i }).fill('Mudar de casa');
+  await page.getByRole('button', { name: 'Procurar' }).click();
+
+  await expect(page.getByText('Encontrámos uma correspondência')).toBeVisible();
+  await expect(page.getByText('Settle into your new address')).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Tem Cartão de Cidadão português?' })).not.toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Update your address on the Citizen Card' })).not.toBeVisible();
+
+  await page.getByRole('button', { name: 'Continuar' }).click();
+
+  await expect(page.getByRole('group', { name: 'Tem Cartão de Cidadão português?' })).toBeVisible();
+  await page.getByRole('button', { name: 'Sim' }).click();
+  await expect(page.getByRole('heading', { name: 'Update your address on the Citizen Card' })).toBeVisible();
+});
+
+test('F4: common-scenario button still continues directly without an extra confirmation step', async ({ page }) => {
+  await page.getByRole('button', { name: 'Mudar de casa' }).click();
+
+  await expect(page.getByText('Encontrámos uma correspondência')).not.toBeVisible();
+  await expect(page.getByRole('group', { name: 'Tem Cartão de Cidadão português?' })).toBeVisible();
+});
+
 test('J01 asks Citizen Card question and routes correctly on answer', async ({ page }) => {
   await page.getByRole('button', { name: 'Mudar de casa' }).click();
 
@@ -52,11 +75,31 @@ test('J01 asks Citizen Card question and routes correctly on answer', async ({ p
 
   await expect(page.getByText('Faça isto agora')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Update your address on the Citizen Card' })).toBeVisible();
+
+  // F3: the official source link is exposed alongside the provider/channel
+  // disclosure for a Step's own source relationship.
+  await expect(page.getByRole('link', { name: /Abrir fonte oficial/ })).toBeVisible();
+});
+
+test('F3: requirement provenance links the official source even with no provider/channel', async ({ page }) => {
+  await page.getByRole('textbox', { name: /precisa de resolver/i }).fill('Entrei numa casa arrendada em Évora');
+  await page.getByRole('button', { name: 'Procurar' }).click();
+  await page.getByRole('button', { name: 'Continuar' }).click();
+  await page.getByRole('button', { name: 'Sim' }).click();
+
+  await expect(page.getByText('Antes de avançar')).toBeVisible();
+  const officialSourceLinks = page.getByRole('link', { name: /Abrir fonte oficial/ });
+  await expect(officialSourceLinks.first()).toBeVisible();
+  const href = await officialSourceLinks.first().getAttribute('href');
+  expect(href).toMatch(/^https:\/\//);
 });
 
 test('Évora rental alias preserves municipality fact and still asks only the missing Citizen Card question', async ({ page }) => {
   await page.getByRole('textbox', { name: /precisa de resolver/i }).fill('Entrei numa casa arrendada em Évora');
   await page.getByRole('button', { name: 'Procurar' }).click();
+
+  await expect(page.getByText('Encontrámos uma correspondência')).toBeVisible();
+  await page.getByRole('button', { name: 'Continuar' }).click();
 
   await expect(page.getByRole('group', { name: 'Tem Cartão de Cidadão português?' })).toBeVisible();
   await page.getByRole('button', { name: 'Sim' }).click();
@@ -102,6 +145,9 @@ test('J03 keep-number alias selects portability behaviour without asking the que
   await page.getByRole('textbox', { name: /precisa de resolver/i }).fill('mudar de operador de internet e manter o meu número de telefone');
   await page.getByRole('button', { name: 'Procurar' }).click();
 
+  await expect(page.getByText('Encontrámos uma correspondência')).toBeVisible();
+  await page.getByRole('button', { name: 'Continuar' }).click();
+
   await expect(page.getByRole('heading', { name: 'Request number portability with your CVP code' })).toBeVisible();
   await expect(page.getByRole('group', { name: 'Quer manter o seu número de telefone atual?' })).not.toBeVisible();
 });
@@ -141,6 +187,7 @@ test('wait appears as A AGUARDAR only when executable work is exhausted', async 
 test('requirements/blockers cannot be executed before satisfaction', async ({ page }) => {
   await page.getByRole('textbox', { name: /precisa de resolver/i }).fill('Entrei numa casa arrendada em Évora');
   await page.getByRole('button', { name: 'Procurar' }).click();
+  await page.getByRole('button', { name: 'Continuar' }).click();
   await page.getByRole('button', { name: 'Sim' }).click();
 
   await expect(page.getByText('Antes de avançar')).toBeVisible();
@@ -200,6 +247,10 @@ test('mobile ~360px has no horizontal overflow', async ({ page }) => {
 test('keyboard smoke flow works end to end', async ({ page }) => {
   await page.getByRole('textbox', { name: /precisa de resolver/i }).focus();
   await page.keyboard.type('Mudar de casa');
+  await page.keyboard.press('Enter');
+
+  await expect(page.getByText('Encontrámos uma correspondência')).toBeVisible();
+  await page.getByRole('button', { name: 'Continuar' }).focus();
   await page.keyboard.press('Enter');
 
   await expect(page.getByRole('group', { name: 'Tem Cartão de Cidadão português?' })).toBeVisible();

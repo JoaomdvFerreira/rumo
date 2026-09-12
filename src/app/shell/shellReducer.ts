@@ -19,6 +19,7 @@ import {
 export type ShellPhase =
   | { readonly kind: 'intentEntry' }
   | { readonly kind: 'unsupported'; readonly query: string }
+  | { readonly kind: 'singleResult'; readonly query: string; readonly candidate: IntentCandidate }
   | { readonly kind: 'candidates'; readonly query: string; readonly candidates: readonly IntentCandidate[] }
   | { readonly kind: 'active' };
 
@@ -29,7 +30,23 @@ export interface ShellState {
 }
 
 export type ShellAction =
-  | { readonly type: 'searchSubmitted'; readonly query: string; readonly candidates: readonly IntentCandidate[]; readonly now: string }
+  | {
+      readonly type: 'searchSubmitted';
+      readonly query: string;
+      readonly candidates: readonly IntentCandidate[];
+      /**
+       * F4 remediation (Project Overseer review of WU007/C007): a common-
+       * scenario button click is already an explicit user choice (the WU007
+       * spec: "Common-scenario selection ... must use the same canonical
+       * WU006 intent path"; scenario buttons submit their exact label
+       * through the same `matchIntents` call as typed search), so a single
+       * match may continue directly. Typed free-text search must not: a
+       * single match there needs its own explicit Continue confirmation
+       * before a session is created.
+       */
+      readonly source: 'search' | 'scenario';
+      readonly now: string;
+    }
   | { readonly type: 'candidateSelected'; readonly candidate: IntentCandidate; readonly now: string }
   | { readonly type: 'factAnswered'; readonly factKey: string; readonly value: FactSet[string]; readonly now: string }
   | { readonly type: 'requirementConfirmed'; readonly requirementId: string; readonly satisfied: boolean; readonly now: string }
@@ -54,11 +71,20 @@ export function shellReducer(state: ShellState, action: ShellAction): ShellState
         return { ...state, phase: { kind: 'unsupported', query: action.query } };
       }
       if (action.candidates.length === 1) {
-        return shellReducer(state, {
-          type: 'candidateSelected',
-          candidate: action.candidates[0],
-          now: action.now,
-        });
+        if (action.source === 'scenario') {
+          return shellReducer(state, {
+            type: 'candidateSelected',
+            candidate: action.candidates[0],
+            now: action.now,
+          });
+        }
+        // F4 remediation: typed search never auto-creates a session, even
+        // with exactly one match -- the matched Destination is shown with
+        // an explicit Continue/Start CTA, and only that click proceeds.
+        return {
+          ...state,
+          phase: { kind: 'singleResult', query: action.query, candidate: action.candidates[0] },
+        };
       }
       return {
         ...state,

@@ -1,17 +1,16 @@
 'use client';
 
-import { useEffect, useMemo, useReducer, useRef } from 'react';
+import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 
 import type { AppBootstrap } from './bootstrap';
+import { persistShellSession } from './persistProgression';
 import { toDestinationGraph, toRevalidationContentIndex } from './reconstruct';
 import { restorationNoticeFor } from './restorationNotice';
-import { fromPersistedSession, toPersistedSession } from './sessionState';
+import { fromPersistedSession, selectMostRecentSession } from './sessionState';
 import { initialShellState, shellReducer } from './shellReducer';
 import type { ShellAction, ShellState } from './shellReducer';
 import { useHydratedSession } from '../../persistence/react/useHydratedSession';
 import { LocalStorageAdapter } from '../../persistence/localStorageAdapter';
-import { createEmptyEnvelope, savePersistedState } from '../../persistence/state';
-import type { PersistedStateEnvelope } from '../../persistence/schema';
 import { resolveDestination } from '../../domain/engine/destination';
 import type { DestinationResolution } from '../../domain/engine/destination';
 
@@ -49,44 +48,65 @@ export function useAppShell(bootstrap: AppBootstrap): AppShellRuntime {
     if (hydration.status === 'loading' || didConsumeHydration.current) return;
     didConsumeHydration.current = true;
 
-    const restoredPersistedSession = hydration.envelope.sessions[0];
+    // F2 remediation (Project Overseer review of WU007/C007): the MVP
+    // supports exactly one active session, but a persisted envelope can
+    // still (transiently, e.g. mid-migration) carry more than one. The
+    // session to resume must be selected deterministically -- by most
+    // recent `updatedAt`, with a stable id tie-break -- never by array
+    // position, which depends only on write order and is not a meaningful
+    // "most recent" signal.
+    const restoredPersistedSession = selectMostRecentSession(hydration.envelope.sessions);
     const restoredSession = restoredPersistedSession ? fromPersistedSession(restoredPersistedSession) : undefined;
     const notice = restorationNoticeFor(hydration.reason, hydration.discardedSessionIds);
 
     dispatch({ type: 'sessionRestored', session: restoredSession, notice });
   }, [hydration]);
 
-  const persistenceAvailable = hydration.status === 'ready';
   const hydrated = hydration.status !== 'loading';
+
+  /**
+   * F1 remediation (Project Overseer review of WU007/C007): a session that
+   * hydrated successfully can still fail to persist a later write (quota
+   * exceeded, storage revoked mid-session, private-mode eviction, etc).
+   * WU005's `savePersistedState` already reports this as a typed
+   * `SaveStateOutcome` rather than throwing -- this hook must actually
+   * consult that outcome instead of firing-and-forgetting it. Once any
+   * write (or the reset write) reports `storageUnavailable`, runtime
+   * persistence availability flips to `false` for the rest of this session
+   * so the existing non-blocking disclosure appears immediately; the
+   * in-memory session/reducer keep working exactly as before -- this never
+   * throws and never blocks the UI. A later successful write is not
+   * specially detected to auto-recover (no simple deterministic signal
+   * distinguishes "still broken" from "happened to work once"); the
+   * disclosure staying visible once storage has proven unreliable this
+   * session is the conservative, honest choice.
+   */
+  const [writeFailed, setWriteFailed] = useState(false);
+  const persistenceAvailable = hydration.status === 'ready' && !writeFailed;
 
   const previousSessionId = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (!hydrated) return;
-    if (!persistenceAvailable) return;
+    if (hydration.status !== 'ready') return;
+    if (writeFailed) return;
 
-    const adapter = new LocalStorageAdapter();
-    const timestamp = now();
-
-    if (!state.session) {
-      if (previousSessionId.current !== undefined) {
-        const emptyEnvelope = createEmptyEnvelope(bootstrap.contentVersion, timestamp);
-        savePersistedState(adapter, emptyEnvelope);
-      }
-      previousSessionId.current = undefined;
+    if (!state.session && previousSessionId.current === undefined) {
       return;
     }
+    previousSessionId.current = state.session?.id;
 
-    previousSessionId.current = state.session.id;
-    const persistedSession = toPersistedSession(state.session, revalidationIndex, timestamp);
-    const envelope: PersistedStateEnvelope = {
-      schemaVersion: 2,
-      contentVersion: bootstrap.contentVersion,
-      updatedAt: timestamp,
-      sessions: [persistedSession],
-    };
-    savePersistedState(adapter, envelope);
-  }, [state.session, hydrated, persistenceAvailable, bootstrap.contentVersion, revalidationIndex]);
+    const adapter = new LocalStorageAdapter();
+    const result = persistShellSession(adapter, bootstrap.contentVersion, state.session, revalidationIndex, now());
+    if (result.status !== 'ok') {
+      // Deferred rather than called synchronously within the effect body:
+      // this is a genuine external-system outcome (a storage write just
+      // failed), not state React can derive during render, so it is
+      // reported back on the next microtask instead of triggering a
+      // same-tick cascading re-render from inside the effect.
+      queueMicrotask(() => setWriteFailed(true));
+    }
+  }, [state.session, hydrated, hydration.status, writeFailed, bootstrap.contentVersion, revalidationIndex]);
 
   const resolution = useMemo(() => {
     if (!state.session) return undefined;

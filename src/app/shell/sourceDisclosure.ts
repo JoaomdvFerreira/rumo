@@ -16,6 +16,21 @@ export interface ResolvedSource {
   readonly latestVerification: SourceVerification | undefined;
 }
 
+/**
+ * F3 remediation (Project Overseer review of WU007/C007): the URL a source
+ * disclosure link opens. `finalUrl` from the latest SourceVerification is
+ * preferred when present -- it records where the canonical `url` actually
+ * resolved to at verification time (see domain/model/source.ts:
+ * SourceVerification is a distinct, later observation of a SourceDefinition,
+ * and a redirect target is more precisely "official" than a URL that may
+ * since have been redirected) -- falling back to the canonical
+ * `SourceDefinition.url` otherwise. Never synthesizes a URL from any other
+ * field.
+ */
+export function officialSourceUrl(source: ResolvedSource): string {
+  return source.latestVerification?.finalUrl ?? source.source.url;
+}
+
 export interface StepSourceDisclosure {
   readonly provider: Provider | undefined;
   readonly channel: Channel | undefined;

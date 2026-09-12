@@ -6,18 +6,26 @@ import styles from './IntentEntry.module.css';
 import { COMMON_SCENARIOS } from '../scenarios';
 
 export interface IntentEntryProps {
-  readonly onSubmit: (query: string) => void;
+  readonly onSearch: (query: string) => void;
+  readonly onSelectScenario: (label: string) => void;
 }
 
 /**
  * Homepage / intent entry (WU007 "HOME / INTENT ENTRY"): concise product
  * proposition, a single search input, and the three frozen common
- * scenarios. Both the search form and a scenario button call the same
- * `onSubmit(query)` -- the scenario label is submitted verbatim as the
- * query so it resolves through the identical WU006 `matchIntents` path as
- * typed search, never a separate scenario -> destination table.
+ * scenarios. Both the search form and a scenario button submit through the
+ * identical WU006 `matchIntents` path (the scenario label is submitted
+ * verbatim as the query), never a separate scenario -> destination table.
+ *
+ * `onSearch` and `onSelectScenario` are kept as two distinct callbacks (F4
+ * remediation, Project Overseer review of WU007/C007) purely to carry which
+ * UX applies on a single-candidate match: a scenario click is already an
+ * explicit user choice and may continue directly, while typed free-text
+ * search must show an explicit Continue confirmation first. Both still run
+ * through the same matching call in the parent -- only the outcome-handling
+ * differs.
  */
-export function IntentEntry({ onSubmit }: IntentEntryProps) {
+export function IntentEntry({ onSearch, onSelectScenario }: IntentEntryProps) {
   const [query, setQuery] = useState('');
   const inputId = useId();
 
@@ -29,7 +37,7 @@ export function IntentEntry({ onSubmit }: IntentEntryProps) {
           event.preventDefault();
           const trimmed = query.trim();
           if (trimmed.length === 0) return;
-          onSubmit(trimmed);
+          onSearch(trimmed);
         }}
       >
         <label className={styles.searchLabel} htmlFor={inputId}>
@@ -60,7 +68,7 @@ export function IntentEntry({ onSubmit }: IntentEntryProps) {
               <button
                 type="button"
                 className={styles.scenarioButton}
-                onClick={() => onSubmit(scenario.label)}
+                onClick={() => onSelectScenario(scenario.label)}
               >
                 {scenario.label}
               </button>

@@ -1,0 +1,70 @@
+.wrapper {
+  display: grid;
+  gap: var(--rumo-space-4);
+  border: 1px solid var(--rumo-border);
+  border-radius: var(--rumo-radius);
+  background: var(--rumo-surface);
+  padding: var(--rumo-space-6);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.body {
+  margin: 0;
+  color: var(--rumo-muted);
+  line-height: 1.55;
+}
+
+.match {
+  border: 2px solid var(--rumo-accent);
+  background: var(--rumo-accent-soft);
+  border-radius: var(--rumo-radius);
+  padding: var(--rumo-space-4);
+  display: grid;
+  gap: var(--rumo-space-1);
+}
+
+.matchTitle {
+  font-weight: 700;
+  font-size: 1.0625rem;
+}
+
+.matchDescription {
+  color: var(--rumo-muted);
+  font-size: 0.9375rem;
+}
+
+.actions {
+  display: flex;
+  gap: var(--rumo-space-3);
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.continueButton {
+  min-height: var(--rumo-touch-target);
+  padding: 0 var(--rumo-space-6);
+  border: none;
+  border-radius: var(--rumo-radius);
+  background: var(--rumo-accent);
+  color: var(--rumo-accent-contrast);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.continueButton:hover {
+  filter: brightness(1.08);
+}
+
+.backButton {
+  min-height: var(--rumo-touch-target);
+  border: none;
+  background: transparent;
+  color: var(--rumo-accent);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 var(--rumo-space-2);
+}

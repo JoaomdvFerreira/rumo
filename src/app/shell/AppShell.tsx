@@ -6,6 +6,7 @@ import styles from './AppShell.module.css';
 import { CandidatePicker } from './components/CandidatePicker';
 import { IntentEntry } from './components/IntentEntry';
 import { RouteView } from './components/RouteView';
+import { SingleResultConfirmation } from './components/SingleResultConfirmation';
 import { UnsupportedResult } from './components/UnsupportedResult';
 import { nextUnansweredQuestion } from './questions';
 import { SourceDisclosureIndex } from './sourceDisclosure';
@@ -44,9 +45,9 @@ export function AppShell({ bootstrap }: AppShellProps) {
   const pendingQuestion =
     state.session && rootDestination ? nextUnansweredQuestion(state.session.rootDestinationId, state.session.facts) : undefined;
 
-  function handleSearch(query: string) {
+  function handleSearch(query: string, source: 'search' | 'scenario') {
     const candidates = matchIntents(query, bootstrap.intentCatalog);
-    dispatch({ type: 'searchSubmitted', query, candidates, now: nowIso() });
+    dispatch({ type: 'searchSubmitted', query, candidates, source, now: nowIso() });
   }
 
   return (
@@ -79,15 +80,35 @@ export function AppShell({ bootstrap }: AppShellProps) {
           </div>
         )}
 
-        {state.phase.kind === 'intentEntry' && <IntentEntry onSubmit={handleSearch} />}
+        {state.phase.kind === 'intentEntry' && (
+          <IntentEntry
+            onSearch={(query) => handleSearch(query, 'search')}
+            onSelectScenario={(label) => handleSearch(label, 'scenario')}
+          />
+        )}
 
         {state.phase.kind === 'unsupported' && (
           <UnsupportedResult
             query={state.phase.query}
-            onSelectScenario={handleSearch}
+            onSelectScenario={(label) => handleSearch(label, 'scenario')}
             onBack={() => dispatch({ type: 'reset' })}
           />
         )}
+
+        {state.phase.kind === 'singleResult' &&
+          (() => {
+            const destination = destinationsById.get(state.phase.candidate.destinationId);
+            if (!destination) return null;
+            return (
+              <SingleResultConfirmation
+                query={state.phase.query}
+                candidate={state.phase.candidate}
+                destination={destination}
+                onContinue={(candidate) => dispatch({ type: 'candidateSelected', candidate, now: nowIso() })}
+                onBack={() => dispatch({ type: 'reset' })}
+              />
+            );
+          })()}
 
         {state.phase.kind === 'candidates' && (
           <CandidatePicker

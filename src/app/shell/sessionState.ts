@@ -21,6 +21,30 @@ export interface ActiveSession {
   readonly updatedAt: string;
 }
 
+/**
+ * Deterministic single-session selection (F2 remediation, Project Overseer
+ * review of WU007/C007): resuming must never trust array position -- a
+ * persisted envelope's `sessions` order reflects only how it was written
+ * (see `revalidateEnvelope`, which rebuilds the array by iterating the
+ * previous one), not recency. The MVP supports exactly one active session,
+ * so when more than one is present (e.g. transiently across a migration or
+ * a future multi-tab write), the one to resume is the most recently
+ * updated by `updatedAt`; equal timestamps fall back to the lexicographically
+ * greatest `id` as a stable, deterministic tie-break so the same input
+ * array always yields the same selection regardless of declaration order.
+ */
+export function selectMostRecentSession(
+  sessions: readonly PersistedSession[],
+): PersistedSession | undefined {
+  return sessions.reduce<PersistedSession | undefined>((mostRecent, candidate) => {
+    if (!mostRecent) return candidate;
+    if (candidate.updatedAt !== mostRecent.updatedAt) {
+      return candidate.updatedAt > mostRecent.updatedAt ? candidate : mostRecent;
+    }
+    return candidate.id > mostRecent.id ? candidate : mostRecent;
+  }, undefined);
+}
+
 export function fromPersistedSession(session: PersistedSession): ActiveSession {
   return {
     id: session.id,
