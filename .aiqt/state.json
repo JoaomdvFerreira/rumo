@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "review",
+  "projectStatus": "in_progress",
   "currentMilestoneId": "M001",
   "currentWorkUnitId": null,
   "workGraph": {
@@ -9,7 +9,7 @@
         "id": "M001",
         "title": "Production Foundation",
         "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
-        "status": "in_progress",
+        "status": "ready",
         "workUnitIds": [
           "WU001",
           "WU002",
@@ -215,13 +215,13 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "needs_review",
+        "status": "done",
         "dependencies": [
           "DEP-005",
           "DEP-006"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-12T08:52:38.261Z"
+        "updatedAt": "2026-09-12T09:24:52.344Z"
       },
       {
         "id": "WU006",
@@ -834,8 +834,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C005",
-  "lastUpdatedAt": "2026-09-12T08:52:38.261Z",
+  "nextRecommendedCommand": "aiqt next",
+  "lastUpdatedAt": "2026-09-12T09:24:52.344Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -955,6 +955,16 @@
       "validationResult": "passed",
       "reason": "Project Overseer review: WU005 requires bounded remediation for semantic content-version revalidation, React hydration purity, and typed storage-failure handling. Core persistence architecture otherwise accepted.",
       "amendedAt": "2026-09-12T08:58:05.424Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-013",
+      "checkpointId": "C005",
+      "workUnitId": "WU005",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance after WU005 remediation F1-F3. Final reviewed implementation: 0607d59.",
+      "amendedAt": "2026-09-12T09:24:52.344Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -1215,16 +1225,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C005",
       "current": {
-        "observationId": "sha256:0d5b41a6d9eaa26935585a8ba82a4d30cb16708f5537c99f55e78632a54886f5",
+        "observationId": "sha256:926f82ab3038c62f542bf193305723301b6a7c8f0464309cdb69a03cc81d69a7",
         "checkpointId": "C005",
         "workUnitId": "WU005",
         "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-12T08:58:05.424Z",
+        "asOf": "2026-09-12T09:24:52.344Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-12T08:58:05.424Z"
+        "recordedAt": "2026-09-12T09:24:52.344Z"
       },
       "history": [
         {
@@ -1250,6 +1260,18 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T08:58:05.424Z"
+        },
+        {
+          "observationId": "sha256:926f82ab3038c62f542bf193305723301b6a7c8f0464309cdb69a03cc81d69a7",
+          "checkpointId": "C005",
+          "workUnitId": "WU005",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T09:24:52.344Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T09:24:52.344Z"
         }
       ]
     }
