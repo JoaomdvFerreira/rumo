@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react';
 
 import type { AppBootstrap } from './bootstrap';
-import { persistShellSession } from './persistProgression';
+import { attemptResetCleanup, persistShellSession } from './persistProgression';
 import { toDestinationGraph, toRevalidationContentIndex } from './reconstruct';
 import { restorationNoticeFor } from './restorationNotice';
 import { fromPersistedSession, selectMostRecentSession } from './sessionState';
@@ -89,11 +89,36 @@ export function useAppShell(bootstrap: AppBootstrap): AppShellRuntime {
   useEffect(() => {
     if (!hydrated) return;
     if (hydration.status !== 'ready') return;
-    if (writeFailed) return;
 
-    if (!state.session && previousSessionId.current === undefined) {
+    const hadSession = previousSessionId.current !== undefined;
+    const isReset = hadSession && !state.session;
+
+    /**
+     * F5 remediation (Project Overseer review of WU007/C007): a prior write
+     * failure may permanently degrade normal progression writes for the
+     * rest of this visit (no auto-recovery, per F1) -- but it must never
+     * suppress the one bounded best-effort cleanup attempt an explicit
+     * "Começar de novo" reset makes. The two paths are handled separately
+     * below so a reset is never skipped merely because `writeFailed` is
+     * already `true`; a non-reset write, however, still short-circuits on
+     * `writeFailed` exactly as before.
+     */
+    if (isReset) {
+      previousSessionId.current = undefined;
+      const adapter = new LocalStorageAdapter();
+      // One bounded attempt per reset: `previousSessionId.current` has
+      // already been cleared above, so this effect will not see `isReset`
+      // true again until a new session exists and is reset once more --
+      // there is no loop, regardless of whether cleanup below succeeds.
+      const result = attemptResetCleanup(adapter);
+      if (result.status !== 'ok' && !writeFailed) {
+        queueMicrotask(() => setWriteFailed(true));
+      }
       return;
     }
+
+    if (writeFailed) return;
+    if (!state.session && !hadSession) return;
     previousSessionId.current = state.session?.id;
 
     const adapter = new LocalStorageAdapter();

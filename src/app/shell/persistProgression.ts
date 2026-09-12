@@ -1,4 +1,4 @@
-import { createEmptyEnvelope, savePersistedState } from '../../persistence/state';
+import { createEmptyEnvelope, resetPersistedState, savePersistedState } from '../../persistence/state';
 import type { SaveStateOutcome } from '../../persistence/state';
 import type { PersistedStateEnvelope } from '../../persistence/schema';
 import type { RevalidationContentIndex } from '../../persistence/revalidate';
@@ -42,4 +42,28 @@ export function persistShellSession(
     sessions: [persistedSession],
   };
   return savePersistedState(adapter, envelope);
+}
+
+/**
+ * F5 remediation (Project Overseer review of WU007/C007): a persistence
+ * write failure legitimately degrades the *visit* to `persistenceAvailable
+ * = false` (F1) -- normal progression writes may stay suppressed for the
+ * rest of the visit, no automatic recovery required. But that degradation
+ * must never prevent an explicit "Começar de novo" reset from making its
+ * own best-effort attempt to clear whatever stale session was last
+ * persisted: a user who resets in memory has a right to expect the app to
+ * *try* to honor that reset in storage too, even if storage has proven
+ * unreliable earlier in the visit. This uses WU005's dedicated
+ * `resetPersistedState` (an explicit key removal) rather than
+ * `persistShellSession(..., undefined, ...)` (which overwrites with an
+ * empty envelope) -- removal is the more direct, and more likely to
+ * succeed, primitive for "get rid of what's there," and matches the
+ * semantics WU005 already defines for discarding untrusted persisted data.
+ * Never throws; the caller is expected to keep runtime persistence
+ * unavailable regardless of the outcome (no auto-recovery either way) and
+ * to return to intent entry in memory immediately, independent of this
+ * result.
+ */
+export function attemptResetCleanup(adapter: StorageAdapter): SaveStateOutcome {
+  return resetPersistedState(adapter);
 }
