@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "in_progress",
+  "projectStatus": "review",
   "currentMilestoneId": "M001",
   "currentWorkUnitId": null,
   "workGraph": {
@@ -9,7 +9,7 @@
         "id": "M001",
         "title": "Production Foundation",
         "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
-        "status": "ready",
+        "status": "in_progress",
         "workUnitIds": [
           "WU001",
           "WU002",
@@ -215,13 +215,13 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "ready",
+        "status": "needs_review",
         "dependencies": [
           "DEP-005",
           "DEP-006"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-12T08:39:11.212Z"
+        "updatedAt": "2026-09-12T08:52:38.261Z"
       },
       {
         "id": "WU006",
@@ -736,15 +736,87 @@
       "finalWorkUnitStatus": "needs_review",
       "nextRecommendation": "aiqt checkpoint amend --checkpoint C004",
       "createdAt": "2026-09-12T07:53:15.227Z"
+    },
+    {
+      "id": "C005",
+      "workUnitId": "WU005",
+      "packetId": "PKT-006",
+      "summary": "Implemented a versioned browser-local persisted-state envelope, a testable storage-adapter boundary, migration/reset handling, and content-version-mismatch revalidation, plus a Next.js hydration boundary that never reads localStorage during server rendering.",
+      "completed": [
+        "Defined the persisted-state envelope schema (schemaVersion, contentVersion, updatedAt, sessions) and the PersistedSession/PersistedRuntimeProgress shapes in src/persistence/schema.ts, mirroring WU003's RuntimeProgress as the single routing-state model.",
+        "Implemented a StorageAdapter interface plus an InMemoryStorageAdapter for tests (src/persistence/storageAdapter.ts) and a browser LocalStorageAdapter (src/persistence/localStorageAdapter.ts), isolating the only module allowed to touch window.localStorage.",
+        "Implemented pure load/save/reset logic (src/persistence/state.ts) with explicit outcomes for empty, malformed JSON, schema-invalid data, unsupported schema versions, and storage-unavailable failures -- never throwing.",
+        "Implemented deterministic content-version revalidation (src/persistence/revalidate.ts, src/persistence/contentIndex.ts): a session whose root Destination no longer exists is discarded; step/requirement ids that no longer exist in current content are dropped from progress rather than trusted; the envelope is re-stamped with the current contentVersion after successful revalidation.",
+        "Implemented the orchestration entry point (src/persistence/resume.ts) composing load -> migrate -> revalidate -> (re)save into one deterministic outcome with an explicit ResumeReason.",
+        "Implemented progress (de)serialization between the persisted array shape and WU003's RuntimeProgress set shape (src/persistence/progress.ts), with deterministic (sorted) serialization.",
+        "Implemented the Next.js/browser hydration boundary as a useHydratedSession hook (src/persistence/react/useHydratedSession.ts) built on useSyncExternalStore, so the server snapshot and the client's initial render both resolve to an identical 'loading' state and the real localStorage read only happens after hydration completes.",
+        "Updated docs/governance/versioning.md with the persisted schema version vs content version distinction, migration/reset policy, content-mismatch revalidation, the browser-local/no-login boundary, and the no-raw-free-text-persistence rule.",
+        "Added tests covering all 14 required scenarios: valid round trip, malformed JSON, schema-invalid data, unsupported schema version, explicit reset, contentVersion match/mismatch, stale step/requirement ids not surviving as trusted progress, valid progress preserved, parent/subjourney progress round trip, storage unavailable/read/write failure, server-side no-localStorage-access, and deterministic serialization."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "src/persistence/schema.ts",
+        "src/persistence/storageAdapter.ts",
+        "src/persistence/state.ts",
+        "src/persistence/state.test.ts",
+        "src/persistence/revalidate.ts",
+        "src/persistence/revalidate.test.ts",
+        "src/persistence/contentIndex.ts",
+        "src/persistence/contentIndex.test.ts",
+        "src/persistence/progress.ts",
+        "src/persistence/progress.test.ts",
+        "src/persistence/resume.ts",
+        "src/persistence/resume.test.ts",
+        "src/persistence/localStorageAdapter.ts",
+        "src/persistence/localStorageAdapter.test.ts",
+        "src/persistence/react/useHydratedSession.ts",
+        "src/persistence/index.ts",
+        "docs/governance/versioning.md"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "No ESLint errors or warnings."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit completed with no errors."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "289 tests passed across 26 test files (vitest run), including all 14 required WU005 scenarios."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Runtime state is versioned and safe to resume.",
+          "result": "passed",
+          "evidence": "PersistedStateEnvelope carries schemaVersion/contentVersion; loadPersistedState/resumePersistedState never throw on malformed JSON, schema-invalid data, unsupported schema versions, or storage failures, and fall back to a safe fresh envelope in every case (state.test.ts, resume.test.ts)."
+        },
+        {
+          "criterion": "Content changes trigger revalidation.",
+          "result": "passed",
+          "evidence": "revalidateEnvelope/resumePersistedState detect a contentVersion mismatch, discard sessions whose root Destination no longer exists, drop stale step/requirement ids from progress, and re-stamp the envelope with the current contentVersion (revalidate.test.ts, resume.test.ts)."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "createdAt": "2026-09-12T08:52:38.261Z",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C005"
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-005",
-    "workUnitId": "WU004",
+    "id": "PKT-006",
+    "workUnitId": "WU005",
     "milestoneId": "M001",
-    "createdAt": "2026-09-12T07:38:26.550Z",
+    "createdAt": "2026-09-12T08:43:56.811Z",
     "format": "markdown",
-    "contentHash": "sha256:4a56f9fc7fe539ee951d0b6074e25d132b46b2f8a523b1ae57ff6f4e017a3444",
+    "contentHash": "sha256:cf46efa4ce4a2fcd5e250628c583df87958d2f6d26ebd24c0a5560f29f8ade0a",
     "sourceCommand": "aiqt next",
     "renderedSections": [
       "scope",
@@ -762,8 +834,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-12T08:39:11.212Z",
+  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C005",
+  "lastUpdatedAt": "2026-09-12T08:52:38.261Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -1126,6 +1198,36 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T08:39:11.212Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C005",
+      "current": {
+        "observationId": "sha256:e2a57ff6903d481321ea819ab2c803fb4c188ad3cd2b66739c7fb31e6c6822f0",
+        "checkpointId": "C005",
+        "workUnitId": "WU005",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-12T08:52:38.261Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-12T08:52:38.261Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:e2a57ff6903d481321ea819ab2c803fb4c188ad3cd2b66739c7fb31e6c6822f0",
+          "checkpointId": "C005",
+          "workUnitId": "WU005",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T08:52:38.261Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T08:52:38.261Z"
         }
       ]
     }
