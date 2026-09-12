@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "review",
+  "projectStatus": "in_progress",
   "currentMilestoneId": "M001",
   "currentWorkUnitId": null,
   "workGraph": {
@@ -9,7 +9,7 @@
         "id": "M001",
         "title": "Production Foundation",
         "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
-        "status": "in_progress",
+        "status": "ready",
         "workUnitIds": [
           "WU001",
           "WU002",
@@ -175,13 +175,13 @@
           "pnpm test",
           "pnpm content:check"
         ],
-        "status": "needs_review",
+        "status": "done",
         "dependencies": [
           "DEP-003",
           "DEP-004"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-12T07:53:15.227Z"
+        "updatedAt": "2026-09-12T08:39:11.212Z"
       },
       {
         "id": "WU005",
@@ -215,13 +215,13 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "planned",
+        "status": "ready",
         "dependencies": [
           "DEP-005",
           "DEP-006"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:56:25.144Z"
+        "updatedAt": "2026-09-12T08:39:11.212Z"
       },
       {
         "id": "WU006",
@@ -253,13 +253,13 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "planned",
+        "status": "ready",
         "dependencies": [
           "DEP-007",
           "DEP-008"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:56:25.144Z"
+        "updatedAt": "2026-09-12T08:39:11.212Z"
       },
       {
         "id": "WU007",
@@ -762,8 +762,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C004",
-  "lastUpdatedAt": "2026-09-12T07:59:41.469Z",
+  "nextRecommendedCommand": "aiqt next",
+  "lastUpdatedAt": "2026-09-12T08:39:11.212Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -863,6 +863,16 @@
       "validationResult": "passed",
       "reason": "Project Overseer review: WU004 requires bounded factual-content and provenance remediation for J01 address routing, J02 switching timing, and Évora-water decision provenance. Technical architecture otherwise accepted.",
       "amendedAt": "2026-09-12T07:59:41.469Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-011",
+      "checkpointId": "C004",
+      "workUnitId": "WU004",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance after factual-content and provenance remediation F1-F8. Final reviewed implementation: a9df75b.",
+      "amendedAt": "2026-09-12T08:39:11.212Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -1069,16 +1079,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C004",
       "current": {
-        "observationId": "sha256:fce1def55ba87e31899fa1bd42d93e1df950126a4e556e986b8d49f10f4e5633",
+        "observationId": "sha256:f0f3d7f850f5b45c083967005b057e2ae83179f4f209cf72273dc614a9ae83bd",
         "checkpointId": "C004",
         "workUnitId": "WU004",
         "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-12T07:59:41.469Z",
+        "asOf": "2026-09-12T08:39:11.212Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-12T07:59:41.469Z"
+        "recordedAt": "2026-09-12T08:39:11.212Z"
       },
       "history": [
         {
@@ -1104,6 +1114,18 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T07:59:41.469Z"
+        },
+        {
+          "observationId": "sha256:f0f3d7f850f5b45c083967005b057e2ae83179f4f209cf72273dc614a9ae83bd",
+          "checkpointId": "C004",
+          "workUnitId": "WU004",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T08:39:11.212Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T08:39:11.212Z"
         }
       ]
     }
