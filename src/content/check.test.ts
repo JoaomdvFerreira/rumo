@@ -177,4 +177,48 @@ describe('content:check', () => {
       'https://anacom.pt/render.jsp?contentId=1801193',
     );
   });
+
+  /**
+   * F7 remediation guard (third Project Overseer review of WU004/C004):
+   * Regulation 38/2025 has the outgoing/current provider generate and
+   * communicate the CVP to the user, who then supplies it to the
+   * receiving/new provider -- not the receiving provider obtaining the
+   * CVP directly from the outgoing provider. Pinned so that incorrect
+   * flow direction cannot silently reappear.
+   */
+  it('does not state that the receiving provider obtains the CVP directly from the outgoing provider', () => {
+    const decision = canonicalContent.decisionReferences.find(
+      (entry) => entry.id === 'decision.portability-is-free-with-cvp-code',
+    );
+    expect(decision?.summary).not.toMatch(
+      /receiving[^.]*obtain[^.]*from[^.]*outgoing/i,
+    );
+    expect(decision?.summary).toContain(
+      'outgoing/current provider generates and communicates the CVP',
+    );
+    expect(decision?.summary).toContain(
+      'user supplies that CVP to the receiving/new provider',
+    );
+  });
+
+  /**
+   * F8 remediation guard (third Project Overseer review of WU004/C004):
+   * the Évora individual-contract requirements decision must cite both
+   * current municipal documents (the contract form and its process/
+   * channel sheet) rather than the contract form alone, since its summary
+   * draws on facts confirmed across both.
+   */
+  it('cites both current Évora municipal documents on the individual-contract requirements decision', () => {
+    const decision = canonicalContent.decisionReferences.find(
+      (entry) =>
+        entry.id ===
+        'decision.evora-water-individual-contract-requires-id-nif-and-occupancy-proof',
+    );
+    expect(decision?.sourceIds).toContain(
+      'source.cm-evora-formulario-celebracao-contrato',
+    );
+    expect(decision?.sourceIds).toContain(
+      'source.cm-evora-ficha-servico-celebracao-contrato',
+    );
+  });
 });

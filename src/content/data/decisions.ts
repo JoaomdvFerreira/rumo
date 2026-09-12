@@ -19,6 +19,15 @@ import type { DecisionReference } from '../../domain/model/decision';
  * 38/2025 entered into force 9, not 10, November 2025), dropping the
  * specific date from the operational summary since it adds no ongoing
  * value there.
+ *
+ * F7/F8 remediation (third Project Overseer review of WU004/C004):
+ * corrected the ANACOM portability decision's CVP responsibility flow
+ * (the outgoing/current provider generates and communicates the CVP; the
+ * user supplies it to the receiving/new provider -- not the receiving
+ * provider obtaining it directly from the outgoing one), and cited both
+ * current Évora water municipal documents (contract form and process
+ * sheet) on the individual-contract requirements decision rather than the
+ * contract form alone.
  */
 export const decisionReferences: DecisionReference[] = [
   {
@@ -46,17 +55,20 @@ export const decisionReferences: DecisionReference[] = [
       'source.anacom-portabilidade',
     ],
     summary:
-      'Under the current ANACOM portability rules, companies are not permitted to charge end users direct fees for number portability, and the receiving operator must obtain the CVP (Código de Validação da Portabilidade) code from the outgoing operator to process the request.',
+      'Under the current ANACOM portability rules, companies may not charge end users direct portability fees. The outgoing/current provider generates and communicates the CVP to the user, and the user supplies that CVP to the receiving/new provider as part of the portability request.',
     citation:
       'ANACOM, Regulamento n.º 38/2025; ANACOM, "Portabilidade de número"',
   },
   {
     id: 'decision.evora-water-individual-contract-requires-id-nif-and-occupancy-proof',
-    sourceIds: ['source.cm-evora-formulario-celebracao-contrato'],
+    sourceIds: [
+      'source.cm-evora-formulario-celebracao-contrato',
+      'source.cm-evora-ficha-servico-celebracao-contrato',
+    ],
     summary:
-      'For an individual (non-corporate) water supply contract with Câmara Municipal de Évora, the user must present a valid identification document (Cartão de Cidadão, Bilhete de Identidade, Passaporte, or Autorização de Residência), a Cartão de Contribuinte (tax identification), and proof of a valid title to occupy the property (ownership or tenancy documentation, varying by case).',
+      'For an individual (non-corporate) water supply contract with Câmara Municipal de Évora, the user must provide valid identification, NIF / tax-identification information, and proof of legal right/legitimacy to occupy the property (ownership or tenancy documentation, varying by case).',
     citation:
-      'Câmara Municipal de Évora, "Celebração de Contrato de Fornecimento" (RE.ASAN.005V03, 2026-05-05), secção "Documentos a Apresentar"',
+      'Câmara Municipal de Évora, "Celebração de Contrato de Fornecimento": formulário (RE.ASAN.005V03, 2026-05-05) and ficha de serviço (FS.ASAN.005V01, 2023), secção "Documentos a Apresentar"',
   },
   {
     id: 'decision.evora-water-connection-max-five-business-days',

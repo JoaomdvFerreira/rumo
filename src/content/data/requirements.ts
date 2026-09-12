@@ -13,6 +13,13 @@ import type {
  * per the content:check rule that a routing-participating Requirement
  * cannot silently lack provenance (see validate.ts,
  * checkDecisionBearingRequirementProvenance).
+ *
+ * F8 remediation (third Project Overseer review of WU004/C004):
+ * requirement.evora-water-nif no longer equates the NIF with presenting a
+ * physical "Cartão de Contribuinte" -- the current municipal material does
+ * not establish that a standalone physical card must be presented in
+ * every channel, only that NIF/tax-identification information is
+ * required.
  */
 export const requirements: Requirement[] = [
   {
@@ -37,7 +44,7 @@ export const requirements: Requirement[] = [
     id: 'requirement.evora-water-nif',
     title: 'Tax identification number (NIF)',
     description:
-      'Portuguese tax identification number (Cartão de Contribuinte) for billing.',
+      'Portuguese NIF / tax-identification information for the person requesting the contract, for billing.',
     decisionReferenceIds: [
       'decision.evora-water-individual-contract-requires-id-nif-and-occupancy-proof',
     ],
