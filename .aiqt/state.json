@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "in_progress",
+  "projectStatus": "review",
   "currentMilestoneId": "M001",
   "currentWorkUnitId": null,
   "workGraph": {
@@ -9,7 +9,7 @@
         "id": "M001",
         "title": "Production Foundation",
         "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
-        "status": "ready",
+        "status": "in_progress",
         "workUnitIds": [
           "WU001",
           "WU002",
@@ -253,13 +253,13 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "ready",
+        "status": "needs_review",
         "dependencies": [
           "DEP-007",
           "DEP-008"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-12T08:39:11.212Z"
+        "updatedAt": "2026-09-12T10:08:31.905Z"
       },
       {
         "id": "WU007",
@@ -808,15 +808,74 @@
       "finalWorkUnitStatus": "needs_review",
       "nextRecommendation": "aiqt checkpoint amend --checkpoint C005",
       "createdAt": "2026-09-12T08:52:38.261Z"
+    },
+    {
+      "id": "C006",
+      "workUnitId": "WU006",
+      "packetId": "PKT-007",
+      "summary": "Implemented a deterministic, framework-independent intent matcher and a separately validated declarative alias catalog for the three frozen MVP destinations, with explicit fact extraction and stable candidate ordering.",
+      "completed": [
+        "Defined Zod-validated IntentDefinition and AliasDefinition contracts plus the typed IntentCandidate result containing canonical destinationId, score, confidence, match evidence, and canonical FactSet values.",
+        "Implemented deterministic case/diacritic/punctuation/whitespace normalization, stable tokenization, token-boundary phrase matching, an explicit acceptance threshold, and canonical-id tie-breaking.",
+        "Added repository-controlled J01/J02/J03 intent and alias data, including the Évora rented-home alias, explicit existing-gas extraction, and explicit internet number-portability extraction.",
+        "Kept aliases outside ContentGraph/contentHash while validating every intent target against canonical Destination ids at canonical content initialization.",
+        "Added tests for canonical titles, aliases, normalization, unsupported and generic input, deterministic ambiguity/order, canonical destination resolution, explicit-only facts, dangling targets, and content-hash separation."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "src/domain/model/intent.ts",
+        "src/domain/model/index.ts",
+        "src/domain/engine/intent.ts",
+        "src/domain/engine/intent.test.ts",
+        "src/domain/engine/index.ts",
+        "src/content/intents.ts",
+        "src/content/intents.test.ts",
+        "src/content/index.ts"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "ESLint completed with no errors or warnings."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit completed with no errors."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "317 tests passed across 29 test files, including 16 WU006 cases."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Unsupported input returns zero candidates.",
+          "result": "passed",
+          "evidence": "INTENT_ACCEPTANCE_THRESHOLD and token-boundary rules reject unsupported, misspelled, partial-substring, and generic embedded-word inputs; covered in src/domain/engine/intent.test.ts."
+        },
+        {
+          "criterion": "Aliases resolve to canonical destinations deterministically.",
+          "result": "passed",
+          "evidence": "Alias targets are validated against canonical Destination ids, results are deduplicated by destination and ordered by score, confidence, canonical destinationId, then aliasId; repeated and reversed-catalog tests prove stable results."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "createdAt": "2026-09-12T10:08:31.905Z",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C006"
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-006",
-    "workUnitId": "WU005",
+    "id": "PKT-007",
+    "workUnitId": "WU006",
     "milestoneId": "M001",
-    "createdAt": "2026-09-12T08:43:56.811Z",
+    "createdAt": "2026-09-12T10:03:37.896Z",
     "format": "markdown",
-    "contentHash": "sha256:cf46efa4ce4a2fcd5e250628c583df87958d2f6d26ebd24c0a5560f29f8ade0a",
+    "contentHash": "sha256:3cd43bdc15a77a752aa4eb99fad037ea8b5b3eae8406123f41b0e929f417dbc4",
     "sourceCommand": "aiqt next",
     "renderedSections": [
       "scope",
@@ -824,18 +883,19 @@
       "constraints",
       "acceptance",
       "validation",
+      "designGuidance",
       "sourceControlExpectations"
     ],
     "guidanceFlags": {
-      "includesDesignGuidance": false,
+      "includesDesignGuidance": true,
       "includesWorkingDirectoryDiscipline": false,
       "includesComponentSystemGuidance": false,
       "includesRecoveryGuidance": false,
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-12T09:24:52.344Z",
+  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C006",
+  "lastUpdatedAt": "2026-09-12T10:08:31.905Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -1272,6 +1332,36 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T09:24:52.344Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C006",
+      "current": {
+        "observationId": "sha256:822a18f4f5629ba64c1ee3de35e8e1a365e1416569b41e77935c1ed666aba1c7",
+        "checkpointId": "C006",
+        "workUnitId": "WU006",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-12T10:08:31.905Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-12T10:08:31.905Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:822a18f4f5629ba64c1ee3de35e8e1a365e1416569b41e77935c1ed666aba1c7",
+          "checkpointId": "C006",
+          "workUnitId": "WU006",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T10:08:31.905Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T10:08:31.905Z"
         }
       ]
     }

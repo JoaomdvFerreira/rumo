@@ -7,3 +7,4 @@ export * from './provider';
 export * from './requirement';
 export * from './step';
 export * from './routing';
+export * from './intent';

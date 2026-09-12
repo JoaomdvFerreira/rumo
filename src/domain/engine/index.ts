@@ -6,3 +6,4 @@ export * from './requirement';
 export * from './route';
 export * from './step';
 export * from './destination';
+export * from './intent';
