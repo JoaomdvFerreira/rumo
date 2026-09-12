@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "in_progress",
+  "projectStatus": "review",
   "currentMilestoneId": "M001",
   "currentWorkUnitId": null,
   "workGraph": {
@@ -9,7 +9,7 @@
         "id": "M001",
         "title": "Production Foundation",
         "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
-        "status": "ready",
+        "status": "in_progress",
         "workUnitIds": [
           "WU001",
           "WU002",
@@ -293,13 +293,13 @@
           "pnpm test:e2e",
           "pnpm build"
         ],
-        "status": "ready",
+        "status": "needs_review",
         "dependencies": [
           "DEP-009",
           "DEP-010"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-12T13:34:09.990Z"
+        "updatedAt": "2026-09-12T14:44:47.754Z"
       },
       {
         "id": "WU008",
@@ -867,15 +867,116 @@
       "finalWorkUnitStatus": "needs_review",
       "nextRecommendation": "aiqt checkpoint amend --checkpoint C006",
       "createdAt": "2026-09-12T10:08:31.905Z"
+    },
+    {
+      "id": "C007",
+      "workUnitId": "WU007",
+      "packetId": "PKT-008",
+      "summary": "Integrated WU003 (domain routing engine), WU005 (persistence/revalidation), and WU006 (intent matching) into the validated Rumo interaction hierarchy: a Next.js App Router application shell with a server-only bootstrap boundary, homepage/intent entry, ambiguous-candidate selection, unsupported-search UX, bounded fact questions, requirements/blockers panel, primary/parallel/wait/complete routing states, subjourney progression, manual/external-outcome task completion, provider/source disclosure, browser-local session persistence with reload/reset, and WCAG 2.2 AA accessibility baseline.",
+      "completed": [
+        "Server Component bootstrap (src/app/shell/bootstrap.ts) computes contentHash/semantic fingerprints server-side and serializes a plain AppBootstrap payload; Client Component reconstruction (src/app/shell/reconstruct.ts) rebuilds Map/Set structures without importing node:crypto -- verified no createHash/node:crypto reference reaches any client chunk after pnpm build.",
+        "Homepage/intent entry: product proposition, search input, and the three frozen common scenarios (Mudar de casa; Eletricidade e gás na nova casa; Internet numa mudança), all routed through the shared WU006 matchIntents path.",
+        "Zero-candidate search renders an explicit unsupported-case message and the common scenarios, never a fabricated route; multiple-candidate search requires explicit user selection (no candidate[0] auto-selection).",
+        "Bounded fact-question catalog (src/app/shell/questions.ts) covering exactly J01 household.hasCitizenCard, J02 household.hasGasConnection, J03 household.wantsToKeepPhoneNumber; WU006 alias-extracted facts (Évora rental, existing-gas, keep-number) pre-populate/skip the corresponding question without inventing new canonical facts.",
+        "RouteView renders the frozen hierarchy directly from WU003's DestinationResolution: primary action (Faça isto agora), parallel work, waits (A aguardar), blocked work surfaced only via the requirements panel, and an explicit completion state -- no routing/grouping logic reimplemented in React.",
+        "RequirementsPanel resolves allOf/anyOf gating only through the domain engine's own resolution output; user confirmations write to satisfiedRequirementIds and the destination is re-resolved after every change.",
+        "Manual task completion (manualCompletedStepIds) and external-outcome confirmation (externalOutcomeCompletedStepIds) wired per Step.completion mode; subjourney completion is never manually set, only derived by WU003.",
+        "Source/provider disclosure (src/app/shell/sourceDisclosure.ts) resolves only real canonical relationships (Step->Provider/Channel->Source; Requirement->DecisionReference->Source), rendered as a secondary disclosure block.",
+        "One active MVP session integrates WU005 end-to-end: creation from an IntentCandidate, save on every meaningful progression, SSR-safe hydration boundary (useHydratedSession), fingerprint-aware revalidation, non-blocking persistence-unavailable disclosure, restoration notice on discarded progress, and an explicit reset that clears the session and returns to intent entry.",
+        "WCAG 2.2 AA baseline: semantic headings, label/fieldset-legend association, visible focus, aria-live on the routing region, ~44px touch targets, no color-only state, no horizontal overflow at 360px.",
+        "Playwright/axe e2e suite (src/test/e2e/home.spec.ts) covering all 15 required scenarios plus the pre-existing homepage smoke assertions.",
+        "Fixed a hydration-race defect in the shell reducer: a late-resolving WU005 hydration result could otherwise clobber an interaction the user had already started before storage finished loading (sessionRestored now only applies while still in the intentEntry phase).",
+        "Fixed a dev-only Next.js cross-origin guard (allowedDevOrigins) that silently prevented client hydration when Playwright's fixed 127.0.0.1 baseURL differed from pnpm dev's localhost bind -- no effect on pnpm build/next start."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "src/app/page.tsx",
+        "src/app/globals.css",
+        "next.config.ts",
+        "src/test/e2e/home.spec.ts",
+        "src/app/shell/bootstrap.ts",
+        "src/app/shell/reconstruct.ts",
+        "src/app/shell/sourceDisclosure.ts",
+        "src/app/shell/questions.ts",
+        "src/app/shell/scenarios.ts",
+        "src/app/shell/sessionState.ts",
+        "src/app/shell/shellReducer.ts",
+        "src/app/shell/restorationNotice.ts",
+        "src/app/shell/useAppShell.ts",
+        "src/app/shell/AppShell.tsx",
+        "src/app/shell/AppShell.module.css",
+        "src/app/shell/styles/tokens.css",
+        "src/app/shell/components/IntentEntry.tsx",
+        "src/app/shell/components/IntentEntry.module.css",
+        "src/app/shell/components/UnsupportedResult.tsx",
+        "src/app/shell/components/UnsupportedResult.module.css",
+        "src/app/shell/components/CandidatePicker.tsx",
+        "src/app/shell/components/CandidatePicker.module.css",
+        "src/app/shell/components/QuestionPanel.tsx",
+        "src/app/shell/components/QuestionPanel.module.css",
+        "src/app/shell/components/SourceDisclosure.tsx",
+        "src/app/shell/components/SourceDisclosure.module.css",
+        "src/app/shell/components/RequirementsPanel.tsx",
+        "src/app/shell/components/RequirementsPanel.module.css",
+        "src/app/shell/components/StepCard.tsx",
+        "src/app/shell/components/StepCard.module.css",
+        "src/app/shell/components/RouteView.tsx",
+        "src/app/shell/components/RouteView.module.css"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "ESLint reported no issues."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit reported no errors."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "Vitest: 29 test files, 331 tests passed; no regressions in WU002-WU006 suites."
+        },
+        {
+          "command": "pnpm test:e2e",
+          "result": "passed",
+          "summary": "Playwright: 16/16 tests passed, including axe scans on homepage/question/active-journey states, mobile 360px overflow check, and keyboard smoke flow."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "next build succeeded; homepage statically prerendered; confirmed no createHash/node:crypto reference in any client chunk."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Core interaction hierarchy works on mobile and desktop.",
+          "result": "passed",
+          "evidence": "e2e coverage for J01/J02/J03 primary/parallel/wait/blocked/complete states, subjourney progression, ambiguous/unsupported search, reload/reset, and a dedicated 360px no-horizontal-overflow check."
+        },
+        {
+          "criterion": "Accessibility and smoke checks pass.",
+          "result": "passed",
+          "evidence": "axe scans (homepage, question state, active journey state) report zero serious/critical violations; keyboard-only smoke flow test passes; fieldset/legend, label association, aria-live, and touch-target sizing implemented per the WCAG 2.2 AA baseline."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "createdAt": "2026-09-12T14:44:47.754Z",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C007"
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-007",
-    "workUnitId": "WU006",
+    "id": "PKT-008",
+    "workUnitId": "WU007",
     "milestoneId": "M001",
-    "createdAt": "2026-09-12T10:03:37.896Z",
+    "createdAt": "2026-09-12T14:23:39.237Z",
     "format": "markdown",
-    "contentHash": "sha256:3cd43bdc15a77a752aa4eb99fad037ea8b5b3eae8406123f41b0e929f417dbc4",
+    "contentHash": "sha256:c4d81e56c191d8ba742cd0a7f49715289a46c09d0f974c1c9e00a9fc704f7100",
     "sourceCommand": "aiqt next",
     "renderedSections": [
       "scope",
@@ -894,8 +995,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-12T13:34:09.990Z",
+  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C007",
+  "lastUpdatedAt": "2026-09-12T14:44:47.754Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -1406,6 +1507,36 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T13:34:09.990Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C007",
+      "current": {
+        "observationId": "sha256:f9c64ed604becc69f8a8d8d1119739a02b144a7de2782c8f5a8818018ee490fc",
+        "checkpointId": "C007",
+        "workUnitId": "WU007",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-12T14:44:47.754Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-12T14:44:47.754Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:f9c64ed604becc69f8a8d8d1119739a02b144a7de2782c8f5a8818018ee490fc",
+          "checkpointId": "C007",
+          "workUnitId": "WU007",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T14:44:47.754Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T14:44:47.754Z"
         }
       ]
     }

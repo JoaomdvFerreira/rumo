@@ -1,0 +1,35 @@
+:root {
+  --rumo-background: #f6f7f5;
+  --rumo-surface: #ffffff;
+  --rumo-foreground: #1f2923;
+  --rumo-muted: #55645c;
+  --rumo-border: #d8ddd7;
+  --rumo-accent: #246a4b;
+  --rumo-accent-contrast: #ffffff;
+  --rumo-accent-soft: #e4f0e9;
+  --rumo-warn: #8a5a12;
+  --rumo-warn-soft: #fbf0dd;
+  --rumo-danger: #93291e;
+  --rumo-danger-soft: #f9e7e5;
+  --rumo-focus: #0b4f8a;
+  --rumo-radius: 0.75rem;
+  --rumo-space-1: 0.25rem;
+  --rumo-space-2: 0.5rem;
+  --rumo-space-3: 0.75rem;
+  --rumo-space-4: 1rem;
+  --rumo-space-6: 1.5rem;
+  --rumo-space-8: 2rem;
+  --rumo-touch-target: 2.75rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root {
+    --rumo-transition: 150ms ease;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --rumo-transition: 0ms;
+  }
+}

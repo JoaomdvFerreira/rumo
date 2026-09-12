@@ -1,0 +1,38 @@
+.panel {
+  border: 2px solid var(--rumo-accent);
+  border-radius: var(--rumo-radius);
+  background: var(--rumo-accent-soft);
+  padding: var(--rumo-space-4);
+  margin: 0;
+  display: grid;
+  gap: var(--rumo-space-3);
+}
+
+.legend {
+  padding: 0 var(--rumo-space-1);
+  font-weight: 700;
+  font-size: 1.0625rem;
+}
+
+.options {
+  display: flex;
+  gap: var(--rumo-space-2);
+  flex-wrap: wrap;
+}
+
+.optionButton {
+  min-height: var(--rumo-touch-target);
+  min-width: var(--rumo-touch-target);
+  padding: 0 var(--rumo-space-6);
+  border: 1px solid var(--rumo-accent);
+  border-radius: var(--rumo-radius);
+  background: var(--rumo-surface);
+  color: var(--rumo-accent);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.optionButton:hover {
+  background: var(--rumo-accent);
+  color: var(--rumo-accent-contrast);
+}

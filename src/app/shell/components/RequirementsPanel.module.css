@@ -1,0 +1,63 @@
+.panel {
+  border: 1px solid var(--rumo-warn);
+  background: var(--rumo-warn-soft);
+  border-radius: var(--rumo-radius);
+  padding: var(--rumo-space-4);
+  display: grid;
+  gap: var(--rumo-space-3);
+}
+
+.heading {
+  margin: 0;
+  font-size: 1.0625rem;
+  color: var(--rumo-warn);
+}
+
+.intro {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--rumo-foreground);
+}
+
+.blockedList {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.9375rem;
+}
+
+.requirementList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--rumo-space-3);
+}
+
+.requirementItem {
+  border: 1px solid var(--rumo-border);
+  background: var(--rumo-surface);
+  border-radius: var(--rumo-radius);
+  padding: var(--rumo-space-3);
+}
+
+.requirementLabel {
+  display: flex;
+  gap: var(--rumo-space-2);
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.requirementLabel input {
+  margin-top: 0.2rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  flex: none;
+}
+
+.requirementTitle {
+  font-weight: 700;
+}
+
+.requirementDescription {
+  color: var(--rumo-muted);
+}

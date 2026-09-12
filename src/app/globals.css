@@ -1,7 +1,9 @@
+@import './shell/styles/tokens.css';
+
 :root {
-  --background: #f6f7f5;
-  --foreground: #1f2923;
-  --accent: #246a4b;
+  --background: var(--rumo-background);
+  --foreground: var(--rumo-foreground);
+  --accent: var(--rumo-accent);
 }
 
 * {
@@ -16,6 +18,18 @@ body {
   margin: 0;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+a,
+button,
+input,
+[tabindex] {
+  font: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--rumo-focus);
+  outline-offset: 2px;
 }
 
 .foundation-shell {
