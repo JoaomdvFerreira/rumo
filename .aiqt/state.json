@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "review",
+  "projectStatus": "in_progress",
   "currentMilestoneId": "M001",
   "currentWorkUnitId": null,
   "workGraph": {
@@ -9,7 +9,7 @@
         "id": "M001",
         "title": "Production Foundation",
         "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
-        "status": "in_progress",
+        "status": "ready",
         "workUnitIds": [
           "WU001",
           "WU002",
@@ -293,13 +293,13 @@
           "pnpm test:e2e",
           "pnpm build"
         ],
-        "status": "needs_review",
+        "status": "done",
         "dependencies": [
           "DEP-009",
           "DEP-010"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-12T14:44:47.754Z"
+        "updatedAt": "2026-09-12T18:31:12.356Z"
       },
       {
         "id": "WU008",
@@ -333,12 +333,12 @@
           "pnpm build",
           "git diff --check"
         ],
-        "status": "planned",
+        "status": "ready",
         "dependencies": [
           "DEP-011"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:56:25.144Z"
+        "updatedAt": "2026-09-12T18:31:12.356Z"
       }
     ],
     "dependencies": [
@@ -995,8 +995,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C007",
-  "lastUpdatedAt": "2026-09-12T17:01:58.979Z",
+  "nextRecommendedCommand": "aiqt next",
+  "lastUpdatedAt": "2026-09-12T18:31:12.356Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -1156,6 +1156,16 @@
       "validationResult": "passed",
       "reason": "Project Overseer review: WU007 requires bounded remediation for post-hydration persistence failures, deterministic most-recent session resume, official source URL disclosure, and explicit confirmation of single-result typed search. Core integration architecture otherwise accepted.",
       "amendedAt": "2026-09-12T17:01:58.979Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-017",
+      "checkpointId": "C007",
+      "workUnitId": "WU007",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance after WU007 remediation F1-F6. Final reviewed implementation: b0795bd.",
+      "amendedAt": "2026-09-12T18:31:12.356Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -1524,16 +1534,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C007",
       "current": {
-        "observationId": "sha256:8b5bcb88676e18cabc41e84cae50e74d7ea7636dee64f8e4a5d2bb4954d86c4a",
+        "observationId": "sha256:d2eb1948c733f4fb414982d1ea4d2d72508362f96e248d61874b4ead8cd9dbc6",
         "checkpointId": "C007",
         "workUnitId": "WU007",
         "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-12T17:01:58.979Z",
+        "asOf": "2026-09-12T18:31:12.356Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-12T17:01:58.979Z"
+        "recordedAt": "2026-09-12T18:31:12.356Z"
       },
       "history": [
         {
@@ -1559,6 +1569,18 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T17:01:58.979Z"
+        },
+        {
+          "observationId": "sha256:d2eb1948c733f4fb414982d1ea4d2d72508362f96e248d61874b4ead8cd9dbc6",
+          "checkpointId": "C007",
+          "workUnitId": "WU007",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T18:31:12.356Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T18:31:12.356Z"
         }
       ]
     }
