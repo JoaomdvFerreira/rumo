@@ -27,6 +27,23 @@ export interface ShellState {
   readonly phase: ShellPhase;
   readonly session: ActiveSession | undefined;
   readonly restorationNotice: string | undefined;
+  /**
+   * F6 remediation (Project Overseer review of WU007/C007): transient
+   * hydration-race guard, never persisted (WU005 has no field for it and
+   * none should be added). `sessionRestored`'s prior guard checked only
+   * `state.phase.kind === 'intentEntry'`, but an explicit `reset` also
+   * lands on `intentEntry` -- so this sequence could restore stale data:
+   *   persisted session A -> hydration still loading -> user starts an
+   *   interaction -> user resets -> phase is intentEntry again -> late
+   *   hydration resolves -> sessionRestored(A) -> stale A reactivated.
+   * `hasUserInteracted` tracks *whether the user has meaningfully acted
+   * during this mount at all*, independent of which phase that interaction
+   * currently leaves them on. Once true, it is never cleared -- not even by
+   * `reset`, which is itself one of the interactions that must permanently
+   * close the late-restoration window -- so a late `sessionRestored` is
+   * ignored for the rest of this mount's lifetime once the user has acted.
+   */
+  readonly hasUserInteracted: boolean;
 }
 
 export type ShellAction =
@@ -61,18 +78,25 @@ export function initialShellState(restoredSession: ActiveSession | undefined, no
     phase: restoredSession ? { kind: 'active' } : { kind: 'intentEntry' },
     session: restoredSession,
     restorationNotice: notice,
+    hasUserInteracted: false,
   };
 }
 
 export function shellReducer(state: ShellState, action: ShellAction): ShellState {
   switch (action.type) {
     case 'searchSubmitted': {
+      // F6 remediation: a search submission -- typed or a common-scenario
+      // click, which submits through this same action (F4) -- is one of
+      // the interactions that must permanently close the late-restoration
+      // window, regardless of which phase it resolves to below.
+      const interacted = { ...state, hasUserInteracted: true };
+
       if (action.candidates.length === 0) {
-        return { ...state, phase: { kind: 'unsupported', query: action.query } };
+        return { ...interacted, phase: { kind: 'unsupported', query: action.query } };
       }
       if (action.candidates.length === 1) {
         if (action.source === 'scenario') {
-          return shellReducer(state, {
+          return shellReducer(interacted, {
             type: 'candidateSelected',
             candidate: action.candidates[0],
             now: action.now,
@@ -82,19 +106,19 @@ export function shellReducer(state: ShellState, action: ShellAction): ShellState
         // with exactly one match -- the matched Destination is shown with
         // an explicit Continue/Start CTA, and only that click proceeds.
         return {
-          ...state,
+          ...interacted,
           phase: { kind: 'singleResult', query: action.query, candidate: action.candidates[0] },
         };
       }
       return {
-        ...state,
+        ...interacted,
         phase: { kind: 'candidates', query: action.query, candidates: action.candidates },
       };
     }
 
     case 'candidateSelected': {
       const session = createSessionFromCandidate(action.candidate, action.now);
-      return { ...state, phase: { kind: 'active' }, session };
+      return { ...state, phase: { kind: 'active' }, session, hasUserInteracted: true };
     }
 
     case 'factAnswered': {
@@ -130,24 +154,35 @@ export function shellReducer(state: ShellState, action: ShellAction): ShellState
     }
 
     case 'reset': {
-      return { phase: { kind: 'intentEntry' }, session: undefined, restorationNotice: undefined };
+      // F6 remediation: reset/back-to-home is itself a required
+      // interaction that must permanently close the late-restoration
+      // window -- it lands back on `intentEntry`, so the guard below must
+      // not mistake that for the untouched initial visit and let a late
+      // hydration result reactivate whatever was persisted before the
+      // reset.
+      return { phase: { kind: 'intentEntry' }, session: undefined, restorationNotice: undefined, hasUserInteracted: true };
     }
 
     case 'sessionRestored': {
-      // Hydration resolves asynchronously (WU005 hydration boundary) and can
-      // land after the user has already started an interaction (e.g.
-      // clicked a scenario before storage finished loading). Restoration
-      // must never clobber interaction that has already happened -- once
-      // the user has moved past the initial intent-entry phase, a late
-      // restoration result is silently ignored rather than resetting them
-      // back to a restored (or empty) session.
-      if (state.phase.kind !== 'intentEntry') {
+      // F6 remediation (Project Overseer review of WU007/C007): the prior
+      // guard here checked only `state.phase.kind !== 'intentEntry'`, which
+      // is not equivalent to "the user has not yet interacted" -- an
+      // explicit reset also lands on `intentEntry`, so a persisted-session-A
+      // -> interaction -> reset -> late-hydration(A) sequence could
+      // reactivate stale session A after the user had explicitly reset.
+      // `hasUserInteracted` tracks the real invariant: hydration may only
+      // restore persisted state while this mount remains genuinely
+      // untouched, regardless of which phase that untouched state happens
+      // to be. Once true, it can never flip back via this action -- a
+      // second late-arriving restoration result is likewise ignored.
+      if (state.hasUserInteracted) {
         return state;
       }
       return {
         phase: action.session ? { kind: 'active' } : { kind: 'intentEntry' },
         session: action.session,
         restorationNotice: action.notice,
+        hasUserInteracted: state.hasUserInteracted,
       };
     }
 
