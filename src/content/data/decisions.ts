@@ -10,15 +10,27 @@ import type { DecisionReference } from '../../domain/model/decision';
  * timing decision to state the regulatory maximum (never a fabricated
  * "typical" duration), and added the two Évora water decisions the
  * representative requirements and 5-business-day wait step depend on.
+ *
+ * F4/F5/F6 remediation (second Project Overseer review of WU004/C004):
+ * added the gov.pt evidence source to the Citizen Card decision without
+ * weakening it; repointed the Évora water requirements decision at the
+ * current (not superseded) municipal contract form; and corrected the
+ * ANACOM portability decision's effective date and source (Regulation
+ * 38/2025 entered into force 9, not 10, November 2025), dropping the
+ * specific date from the operational summary since it adds no ongoing
+ * value there.
  */
 export const decisionReferences: DecisionReference[] = [
   {
     id: 'decision.citizen-card-address-change-notifies-at-ss-sns',
-    sourceIds: ['source.autenticacao-gov-alteracao-morada'],
+    sourceIds: [
+      'source.gov-pt-mudar-de-casa',
+      'source.autenticacao-gov-alteracao-morada',
+    ],
     summary:
       'Changing the address on a Portuguese Citizen Card automatically communicates the new address to the Tax Authority (AT), Social Security, and the National Health Service (SNS); a separate fiscal-address change on Portal das Finanças is neither required nor correct for a Citizen Card holder.',
     citation:
-      'Autenticação.gov.pt / IRN, "Alterar a morada do Cartão de Cidadão"',
+      'gov.pt, "Mudar de casa"; Autenticação.gov.pt / IRN, "Alterar a morada do Cartão de Cidadão"',
   },
   {
     id: 'decision.energy-switch-is-free-and-supplier-led',
@@ -29,18 +41,22 @@ export const decisionReferences: DecisionReference[] = [
   },
   {
     id: 'decision.portability-is-free-with-cvp-code',
-    sourceIds: ['source.anacom-portabilidade'],
+    sourceIds: [
+      'source.anacom-regulamento-38-2025',
+      'source.anacom-portabilidade',
+    ],
     summary:
-      'Since 10 November 2025, number portability between telecom operators in Portugal is free of charge and requires the 12-digit CVP (Código de Validação da Portabilidade) code from the outgoing operator.',
-    citation: 'ANACOM, "Portabilidade de número"',
+      'Under the current ANACOM portability rules, companies are not permitted to charge end users direct fees for number portability, and the receiving operator must obtain the CVP (Código de Validação da Portabilidade) code from the outgoing operator to process the request.',
+    citation:
+      'ANACOM, Regulamento n.º 38/2025; ANACOM, "Portabilidade de número"',
   },
   {
     id: 'decision.evora-water-individual-contract-requires-id-nif-and-occupancy-proof',
-    sourceIds: ['source.cm-evora-informacao-contratacao-agua'],
+    sourceIds: ['source.cm-evora-formulario-celebracao-contrato'],
     summary:
       'For an individual (non-corporate) water supply contract with Câmara Municipal de Évora, the user must present a valid identification document (Cartão de Cidadão, Bilhete de Identidade, Passaporte, or Autorização de Residência), a Cartão de Contribuinte (tax identification), and proof of a valid title to occupy the property (ownership or tenancy documentation, varying by case).',
     citation:
-      'Câmara Municipal de Évora, "Informação sobre Fornecimento de Água", secção 1 (Contratação)',
+      'Câmara Municipal de Évora, "Celebração de Contrato de Fornecimento" (RE.ASAN.005V03, 2026-05-05), secção "Documentos a Apresentar"',
   },
   {
     id: 'decision.evora-water-connection-max-five-business-days',

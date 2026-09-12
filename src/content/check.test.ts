@@ -109,4 +109,72 @@ describe('content:check', () => {
       value: false,
     });
   });
+
+  /**
+   * F4 remediation guard (second Project Overseer review of WU004/C004):
+   * the Autenticação.gov action page alone was not the strongest evidence
+   * for the auto-notification claim -- source.gov-pt-mudar-de-casa was
+   * added as authoritative gov.pt evidence for it. Pinned so a future edit
+   * cannot silently drop that evidence source while leaving the claim in
+   * place.
+   */
+  it('cites the gov.pt "Mudar de casa" evidence source on the Citizen Card auto-notification decision', () => {
+    const decision = canonicalContent.decisionReferences.find(
+      (entry) =>
+        entry.id === 'decision.citizen-card-address-change-notifies-at-ss-sns',
+    );
+    expect(decision?.sourceIds).toContain('source.gov-pt-mudar-de-casa');
+    const evidenceSource = canonicalContent.sources.find(
+      (source) => source.id === 'source.gov-pt-mudar-de-casa',
+    );
+    expect(evidenceSource?.url).toBe('https://www.gov.pt/guias/mudar-de-casa');
+    expect(evidenceSource?.kind).toBe('evidence');
+  });
+
+  /**
+   * F5 remediation guard: the 2018 CM Évora contract-information PDF is
+   * superseded by the current (2026-05-05) contract form and its 2023
+   * process/channel sheet. Pinned so canonical provenance cannot silently
+   * fall back to the obsolete source set.
+   */
+  it('does not cite the superseded 2018 Évora water contract-information source', () => {
+    const sourceIds = canonicalContent.sources.map((source) => source.id);
+    expect(sourceIds).not.toContain(
+      'source.cm-evora-informacao-contratacao-agua',
+    );
+    for (const source of canonicalContent.sources) {
+      expect(source.url).not.toContain(
+        'INFORMACAO_CONTRATACAO_AGUA_atualizada_marco_2018',
+      );
+    }
+    expect(sourceIds).toContain(
+      'source.cm-evora-formulario-celebracao-contrato',
+    );
+    expect(sourceIds).toContain(
+      'source.cm-evora-ficha-servico-celebracao-contrato',
+    );
+  });
+
+  /**
+   * F6 remediation guard: ANACOM Regulation 38/2025 entered into force on
+   * 9 November 2025, not 10 November. Pinned across both the decision and
+   * every source's `caution` text so the incorrect date cannot silently
+   * reappear anywhere in canonical content.
+   */
+  it('does not state the incorrect 10 November 2025 ANACOM portability effective date anywhere', () => {
+    const decision = canonicalContent.decisionReferences.find(
+      (entry) => entry.id === 'decision.portability-is-free-with-cvp-code',
+    );
+    expect(decision?.summary).not.toContain('10 November 2025');
+    expect(decision?.citation).not.toContain('10 November 2025');
+    for (const source of canonicalContent.sources) {
+      expect(source.caution ?? '').not.toContain('10 November 2025');
+    }
+    const regulationSource = canonicalContent.sources.find(
+      (source) => source.id === 'source.anacom-regulamento-38-2025',
+    );
+    expect(regulationSource?.url).toBe(
+      'https://anacom.pt/render.jsp?contentId=1801193',
+    );
+  });
 });

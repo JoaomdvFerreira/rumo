@@ -5,6 +5,15 @@ import type { Provider } from '../../domain/model/provider';
  * SourceDefinition its channel/contact detail is drawn from (`sourceId`),
  * keeping provenance intact down to the concrete phone number or URL a
  * user would act on.
+ *
+ * F5 remediation (Project Overseer review of WU004/C004): the CM Évora
+ * water provider now cites the current process/channel sheet
+ * (source.cm-evora-ficha-servico-celebracao-contrato) rather than the
+ * superseded 2018 PDF, and its channels were extended to match that
+ * sheet's confirmed "Canais de Interação" (Presencial, Serviços Online,
+ * Correio Eletrónico, Telefone); Correio Postal is also listed there but
+ * is omitted here since no concrete postal address for this specific
+ * request is asserted, avoiding an unsupported claim.
  */
 export const providers: Provider[] = [
   {
@@ -39,18 +48,23 @@ export const providers: Provider[] = [
     id: 'provider.cm-evora-aguas',
     name: 'Câmara Municipal de Évora - Águas',
     jurisdiction: 'PT-Évora',
-    sourceId: 'source.cm-evora-informacao-contratacao-agua',
+    sourceId: 'source.cm-evora-ficha-servico-celebracao-contrato',
     channels: [
       {
         id: 'channel.cm-evora-aguas-online',
         type: 'online',
-        label: 'Contratos e Informações Gerais (Águas)',
-        url: 'https://www.cm-evora.pt/en/municipe/areas-de-acao/aguas/contratos-e-informacoes-gerais/',
+        label: 'Balcão Online - Águas e Saneamento',
+        url: 'https://formularios.cm-evora.pt/BalcaoOnline/',
       },
       {
         id: 'channel.cm-evora-aguas-phone',
         type: 'phone',
         label: 'Câmara Municipal de Évora - Atendimento geral',
+      },
+      {
+        id: 'channel.cm-evora-aguas-email',
+        type: 'email',
+        label: 'Câmara Municipal de Évora - Correio eletrónico',
       },
       {
         id: 'channel.cm-evora-aguas-in-person',
