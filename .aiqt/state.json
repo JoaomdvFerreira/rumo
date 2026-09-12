@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "in_progress",
+  "projectStatus": "review",
   "currentMilestoneId": "M001",
   "currentWorkUnitId": null,
   "workGraph": {
@@ -9,7 +9,7 @@
         "id": "M001",
         "title": "Production Foundation",
         "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
-        "status": "ready",
+        "status": "in_progress",
         "workUnitIds": [
           "WU001",
           "WU002",
@@ -333,12 +333,12 @@
           "pnpm build",
           "git diff --check"
         ],
-        "status": "ready",
+        "status": "needs_review",
         "dependencies": [
           "DEP-011"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-12T18:31:12.356Z"
+        "updatedAt": "2026-09-12T18:42:35.050Z"
       }
     ],
     "dependencies": [
@@ -968,15 +968,101 @@
       "finalWorkUnitStatus": "needs_review",
       "nextRecommendation": "aiqt checkpoint amend --checkpoint C007",
       "createdAt": "2026-09-12T14:44:47.754Z"
+    },
+    {
+      "id": "C008",
+      "workUnitId": "WU008",
+      "packetId": "PKT-009",
+      "summary": "M03.1 Integration & Release Gate: reconciled WU001-WU007 as one integrated production foundation, gathered architecture/product-contract/persistence/content/accessibility evidence against the frozen contract, ran all canonical and supplemental validation commands, checked build client-boundary isolation, inspected branch/PR readiness against origin/main and origin/milestone, and produced a consolidated M03.1 release-evidence document. No product functionality was added or changed.",
+      "completed": [
+        "Verified WU001-WU007 are all done, WU008 is ready, and currentWorkUnitId was null before starting; selected WU008 via aiqt next.",
+        "Reconciled the full foundation against the frozen architecture boundaries: domain/content/persistence/shell/server-bootstrap/client-shell separation, and confirmed no Redux/Zustand/XState, DB/ORM, auth, AI SDK, or external search dependency exists anywhere in src/.",
+        "Verified package.json/lockfile dependencies remain exactly the frozen stack (next, react, react-dom, zod; @axe-core/playwright, @playwright/test, eslint/eslint-config-next, fast-check, prettier, typescript, vitest).",
+        "Proved the frozen product-contract hierarchy (current situation -> facts -> requirements/dependencies -> primary action -> parallel work -> waits -> completion) end to end in src/domain/engine/destination.ts and its pure presentation in RouteView.tsx, including zero-result search, ambiguous-selection, single-typed-result confirmation, alias fact extraction/aggregation, and J01/J02/J03 wiring.",
+        "Verified all 11 WU005/WU007 persistence and hydration invariants (server-HTML purity, render-pure hydration, deterministic most-recent-session selection, fingerprint-aware revalidation, conservative staleness discard, honest post-hydration failure disclosure, in-memory continuity, reset-after-degradation cleanup (F5), hydration/reset race guard (F6), no raw free-text persistence, no facts in URLs).",
+        "Ran pnpm content:check (11/11 passed) and verified reference/alias resolution, requirement provenance, SourceDefinition/SourceVerification separation, high-freshness-risk staleness handling (link health does not imply freshness), real provider/channel/source id relationships, official source URL exposure, deterministic contentHash, and alias/content-hash separation.",
+        "Ran pnpm test:e2e (19/19 Playwright tests including axe) as supplemental release evidence and confirmed coverage of 360px overflow, keyboard smoke, axe zero-serious/critical assertions on three states, J01/J02/J03 flows, reload/resume, reset, requirements gating, waiting state, and source disclosure; confirmed no dev/Playwright server was left running afterward.",
+        "Ran pnpm build and confirmed zero createHash/node:crypto references in any .next/static client chunk, and that server/client bootstrap payloads remain plain JSON-serializable data with no Node-only module leaking into the Client Component graph.",
+        "Fetched origin and inspected origin/main vs origin/milestone/m03-production-foundation: merge-base equals origin/main's tip (0 ahead / 27 behind), so no main drift exists and a clean milestone PR appears viable; no merge, rebase, or PR was performed.",
+        "Identified and recorded one pre-existing, already-accepted architectural detail as a documentation-clarity finding rather than silently fixing it: src/content/hash.ts's node:crypto usage (part of WU004's original accepted implementation, a9df75b) is the same Node-dependent hash preparation the frozen contract assigns to server bootstrap, proven never to reach a client chunk, but its location under src/content/ could be misread as a content-layer violation.",
+        "Authored docs/release/m03.1-evidence.md: a consolidated M03.1 release-evidence document covering milestone objective, WU001-WU007 closure summary with accepted SHAs and tags, architecture/product-contract/persistence/content/accessibility/build evidence, the full validation matrix (canonical vs supplemental), known deferred items (explicitly including that G2.3 external-user comprehension/trust and independent AI benchmark remain deferred and are not claimed as passed), and the deviation finding above."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "docs/release/m03.1-evidence.md"
+      ],
+      "issues": [
+        {
+          "title": "src/content/hash.ts imports node:crypto",
+          "description": "src/content/hash.ts uses node:crypto's createHash to compute the deterministic contentHash. This is pre-existing WU004 architecture (introduced in 7899d48, accepted at a9df75b after full Project Overseer review including two remediation rounds that never flagged it) and functionally matches the frozen contract's own 'server bootstrap -> Node-dependent fingerprint/hash preparation' boundary: the production build confirms zero createHash/node:crypto references reach any client chunk. It is recorded as a low-severity documentation-clarity finding, not a defect, because its physical location under src/content/ (nominally declarative content) could be misread as a content-layer boundary violation on a future review. No product-code change was made under WU008's non-behavioural-only rule; returned to the Project Overseer for triage (e.g., optional future relocation of hash.ts, or an explicit written carve-out in docs/architecture/guardrails.md).",
+          "severity": "low",
+          "status": "open",
+          "agentCanFix": false
+        }
+      ],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "eslint . completed with zero issues."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit completed with zero errors."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "vitest run: 33 test files, 362 tests passed, no regressions."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "next build succeeded; static prerender of / and /_not-found; zero createHash/node:crypto references found in any .next/static client chunk."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed",
+          "summary": "No whitespace errors; only line-ending notices on pre-existing .aiqt state files."
+        },
+        {
+          "command": "pnpm content:check",
+          "result": "passed",
+          "summary": "vitest run src/content/check.test.ts: 1 test file, 11 tests passed; zero cross-reference/condition/source/freshness issues."
+        },
+        {
+          "command": "pnpm test:e2e",
+          "result": "passed",
+          "summary": "Playwright: 19/19 tests passed, including axe scans on homepage/question/active-journey states with zero serious/critical violations, mobile 360px overflow check, and keyboard smoke flow."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "M03.1 evidence package supports Overseer review.",
+          "result": "passed",
+          "evidence": "docs/release/m03.1-evidence.md consolidates milestone objective, WU001-WU007 closure/evidence summary with accepted SHAs and tags, architecture boundary evidence, product-contract evidence, persistence/hydration evidence, content/provenance evidence, accessibility/smoke evidence, production-build evidence, the full validation matrix, known deferred items (G2.3 explicitly deferred, not claimed passed), and one recorded deviation finding, with exact reviewed HEAD 6dd15113561fea1f39bd49837f80ce8995ca6988 plus this evidence commit."
+        },
+        {
+          "criterion": "Production validation gates pass.",
+          "result": "passed",
+          "evidence": "All 5 canonical checkpoint commands (pnpm lint, pnpm typecheck, pnpm test, pnpm build, git diff --check) passed verbatim, and both supplemental commands (pnpm content:check, pnpm test:e2e) also passed, recorded in the validation matrix above and in docs/release/m03.1-evidence.md."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "createdAt": "2026-09-12T18:42:35.050Z",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C008"
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-008",
-    "workUnitId": "WU007",
+    "id": "PKT-009",
+    "workUnitId": "WU008",
     "milestoneId": "M001",
-    "createdAt": "2026-09-12T14:23:39.237Z",
+    "createdAt": "2026-09-12T18:37:17.330Z",
     "format": "markdown",
-    "contentHash": "sha256:c4d81e56c191d8ba742cd0a7f49715289a46c09d0f974c1c9e00a9fc704f7100",
+    "contentHash": "sha256:70f9d07628aacdc563a9a45e83e89a4259eab5d5f02f7cb75017bb96d25f0c13",
     "sourceCommand": "aiqt next",
     "renderedSections": [
       "scope",
@@ -995,8 +1081,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-12T18:31:12.356Z",
+  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C008",
+  "lastUpdatedAt": "2026-09-12T18:42:35.050Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -1581,6 +1667,36 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T18:31:12.356Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C008",
+      "current": {
+        "observationId": "sha256:0ef90c9a55b7e83a2dcf8c1074f9ceba5cfd93d3934247f96952d357fcc0beb0",
+        "checkpointId": "C008",
+        "workUnitId": "WU008",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-12T18:42:35.050Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-12T18:42:35.050Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:0ef90c9a55b7e83a2dcf8c1074f9ceba5cfd93d3934247f96952d357fcc0beb0",
+          "checkpointId": "C008",
+          "workUnitId": "WU008",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T18:42:35.050Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T18:42:35.050Z"
         }
       ]
     }
