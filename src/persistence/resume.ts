@@ -18,6 +18,7 @@ import type { StorageAdapter } from './storageAdapter';
  */
 export type ResumeReason =
   | 'freshStart'
+  | 'migratedSchema'
   | 'restoredCurrent'
   | 'revalidatedContentChange'
   | 'resetMalformedJson'
@@ -29,6 +30,7 @@ export interface ResumeResult {
   readonly envelope: PersistedStateEnvelope;
   readonly reason: ResumeReason;
   readonly discardedSessionIds: readonly string[];
+  readonly persistenceStatus: 'persisted' | 'unavailable';
 }
 
 export function resumePersistedState(
@@ -42,25 +44,44 @@ export function resumePersistedState(
   if (outcome.status !== 'ok') {
     const fresh = createEmptyEnvelope(currentContentVersion, now);
     if (outcome.status !== 'empty') {
-      resetPersistedState(adapter);
-      savePersistedState(adapter, fresh);
-      return { envelope: fresh, reason: toResetReason(outcome.status), discardedSessionIds: [] };
+      const reset = resetPersistedState(adapter);
+      const save = savePersistedState(adapter, fresh);
+      return {
+        envelope: fresh,
+        reason: toResetReason(outcome.status),
+        discardedSessionIds: [],
+        persistenceStatus:
+          outcome.status === 'storageUnavailable' || reset.status !== 'ok' || save.status !== 'ok'
+            ? 'unavailable'
+            : 'persisted',
+      };
     }
-    savePersistedState(adapter, fresh);
-    return { envelope: fresh, reason: 'freshStart', discardedSessionIds: [] };
-  }
-
-  const revalidation = revalidateEnvelope(outcome.state, currentContentVersion, content, now);
-  if (revalidation.changed) {
-    savePersistedState(adapter, revalidation.envelope);
+    const save = savePersistedState(adapter, fresh);
     return {
-      envelope: revalidation.envelope,
-      reason: 'revalidatedContentChange',
-      discardedSessionIds: revalidation.discardedSessionIds,
+      envelope: fresh,
+      reason: 'freshStart',
+      discardedSessionIds: [],
+      persistenceStatus: save.status === 'ok' ? 'persisted' : 'unavailable',
     };
   }
 
-  return { envelope: outcome.state, reason: 'restoredCurrent', discardedSessionIds: [] };
+  const revalidation = revalidateEnvelope(outcome.state, currentContentVersion, content, now);
+  if (revalidation.changed || outcome.migrated) {
+    const save = savePersistedState(adapter, revalidation.envelope);
+    return {
+      envelope: revalidation.envelope,
+      reason: revalidation.changed ? 'revalidatedContentChange' : 'migratedSchema',
+      discardedSessionIds: revalidation.discardedSessionIds,
+      persistenceStatus: save.status === 'ok' ? 'persisted' : 'unavailable',
+    };
+  }
+
+  return {
+    envelope: outcome.state,
+    reason: 'restoredCurrent',
+    discardedSessionIds: [],
+    persistenceStatus: 'persisted',
+  };
 }
 
 function toResetReason(

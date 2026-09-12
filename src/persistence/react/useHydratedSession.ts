@@ -1,95 +1,87 @@
 'use client';
 
-import { useRef, useSyncExternalStore } from 'react';
+import { useEffect, useMemo, useSyncExternalStore } from 'react';
 
-import { isLocalStorageAvailable, LocalStorageAdapter } from '../localStorageAdapter';
+import { LocalStorageAdapter } from '../localStorageAdapter';
 import { resumePersistedState } from '../resume';
 import type { ResumeReason } from '../resume';
 import type { RevalidationContentIndex } from '../revalidate';
 import type { PersistedStateEnvelope } from '../schema';
+import type { StorageAdapter } from '../storageAdapter';
 
 /**
- * Next.js/browser hydration boundary (docs/architecture/guardrails.md):
+ * Render-pure Next.js/browser hydration boundary:
  *
- *   server render -> stable non-personal shell -> client hydration
- *   -> browser storage load -> validated/revalidated session available
+ *   server render -> loading -> first client hydration render -> loading
+ *   -> post-mount effect initializes storage -> ready/unavailable
  *
- * Built on `useSyncExternalStore`, the standard React primitive for reading
- * an external, browser-only data source that legitimately differs between
- * server and client: React renders `getServerSnapshot`'s value
- * (`'loading'`) during server rendering *and* during the client's initial
- * hydration pass, so the first client render matches server-rendered
- * markup exactly. Only after hydration completes does React re-render with
- * `getSnapshot`'s real (client-only) value, which is the point at which the
- * `localStorage` read actually happens -- never earlier, never on the
- * server.
- *
- * `getSnapshot` must return a referentially-stable value when nothing has
- * changed (`useSyncExternalStore` compares with `Object.is` and would
- * otherwise re-render forever), so the resolved snapshot is memoized per
- * `currentContentVersion` in a ref local to this hook instance -- resumption
- * runs at most once per mount per content version, not on every render.
- *
- * There is no subscription target -- this hook does not observe live
- * storage mutations from other tabs -- so `subscribe` never calls its
- * listener.
- *
- * This hook intentionally renders no journey UI (WU007's responsibility):
- * it only exposes the explicit state machine a consuming component needs to
- * decide what to show.
+ * `getSnapshot` only reads an in-memory value. All availability checks,
+ * reads, migrations, revalidation, resets, and writes happen in
+ * `initialize`, which the hook invokes from `useEffect` after hydration.
  */
 export type HydratedSessionState =
   | { readonly status: 'loading' }
-  | { readonly status: 'unavailable' }
-  | { readonly status: 'ready'; readonly envelope: PersistedStateEnvelope; readonly reason: ResumeReason; readonly discardedSessionIds: readonly string[] };
+  | {
+      readonly status: 'unavailable' | 'ready';
+      readonly envelope: PersistedStateEnvelope;
+      readonly reason: ResumeReason;
+      readonly discardedSessionIds: readonly string[];
+      readonly persistenceStatus: 'persisted' | 'unavailable';
+    };
 
-const LOADING_STATE: HydratedSessionState = { status: 'loading' };
+export const LOADING_STATE: HydratedSessionState = { status: 'loading' };
 
-function subscribe(): () => void {
-  return () => {
-    // No live external updates are observed; the memoized snapshot is
-    // resolved once per content version, not pushed by a storage
-    // subscription.
-  };
+export interface HydratedSessionStore {
+  readonly getSnapshot: () => HydratedSessionState;
+  readonly subscribe: (listener: () => void) => () => void;
+  readonly initialize: () => void;
 }
 
-function resolveHydratedSessionSnapshot(
+export function createHydratedSessionStore(
   currentContentVersion: string,
   content: RevalidationContentIndex,
-): HydratedSessionState {
-  if (!isLocalStorageAvailable()) {
-    return { status: 'unavailable' };
-  }
+  createAdapter: () => StorageAdapter = () => new LocalStorageAdapter(),
+  now: () => string = () => new Date().toISOString(),
+): HydratedSessionStore {
+  let state = LOADING_STATE;
+  let initialized = false;
+  const listeners = new Set<() => void>();
 
-  const adapter = new LocalStorageAdapter();
-  const result = resumePersistedState(adapter, currentContentVersion, content, new Date().toISOString());
   return {
-    status: 'ready',
-    envelope: result.envelope,
-    reason: result.reason,
-    discardedSessionIds: result.discardedSessionIds,
+    getSnapshot: () => state,
+    subscribe: (listener) => {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+    initialize: () => {
+      if (initialized) return;
+      initialized = true;
+      const result = resumePersistedState(createAdapter(), currentContentVersion, content, now());
+      state = {
+        status: result.persistenceStatus === 'persisted' ? 'ready' : 'unavailable',
+        envelope: result.envelope,
+        reason: result.reason,
+        discardedSessionIds: result.discardedSessionIds,
+        persistenceStatus: result.persistenceStatus,
+      };
+      listeners.forEach((listener) => listener());
+    },
   };
-}
-
-interface SnapshotCache {
-  contentVersion: string | undefined;
-  state: HydratedSessionState;
 }
 
 export function useHydratedSession(
   currentContentVersion: string,
   content: RevalidationContentIndex,
 ): HydratedSessionState {
-  const cacheRef = useRef<SnapshotCache>({ contentVersion: undefined, state: LOADING_STATE });
+  const store = useMemo(
+    () => createHydratedSessionStore(currentContentVersion, content),
+    [currentContentVersion, content],
+  );
+  const state = useSyncExternalStore(store.subscribe, store.getSnapshot, () => LOADING_STATE);
 
-  const getSnapshot = (): HydratedSessionState => {
-    if (cacheRef.current.contentVersion === currentContentVersion) {
-      return cacheRef.current.state;
-    }
-    const state = resolveHydratedSessionSnapshot(currentContentVersion, content);
-    cacheRef.current = { contentVersion: currentContentVersion, state };
-    return state;
-  };
+  useEffect(() => {
+    store.initialize();
+  }, [store]);
 
-  return useSyncExternalStore(subscribe, getSnapshot, () => LOADING_STATE);
+  return state;
 }

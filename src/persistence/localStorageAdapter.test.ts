@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { isLocalStorageAvailable, LocalStorageAdapter } from './localStorageAdapter';
 
@@ -20,11 +20,30 @@ describe('LocalStorageAdapter on a server-like (no window) environment', () => {
     const adapter = new LocalStorageAdapter();
 
     expect(() => adapter.read('any-key')).not.toThrow();
-    expect(adapter.read('any-key')).toBeUndefined();
+    expect(adapter.read('any-key').status).toBe('unavailable');
 
     expect(() => adapter.write('any-key', 'value')).not.toThrow();
-    expect(adapter.write('any-key', 'value')).toBe(false);
+    expect(adapter.write('any-key', 'value').status).toBe('unavailable');
 
     expect(() => adapter.remove('any-key')).not.toThrow();
+    expect(adapter.remove('any-key').status).toBe('unavailable');
+  });
+});
+
+describe('LocalStorageAdapter with throwing browser storage', () => {
+  afterEach(() => vi.unstubAllGlobals());
+
+  it('returns typed failures for read, write, and remove without throwing', () => {
+    const fail = () => {
+      throw new Error('browser storage blocked');
+    };
+    vi.stubGlobal('window', {
+      localStorage: { getItem: fail, setItem: fail, removeItem: fail },
+    });
+    const adapter = new LocalStorageAdapter();
+
+    expect(adapter.read('key')).toEqual({ status: 'unavailable', reason: 'browser storage blocked' });
+    expect(adapter.write('key', 'value')).toEqual({ status: 'unavailable', reason: 'browser storage blocked' });
+    expect(adapter.remove('key')).toEqual({ status: 'unavailable', reason: 'browser storage blocked' });
   });
 });

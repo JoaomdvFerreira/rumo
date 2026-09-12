@@ -1,4 +1,4 @@
-import type { StorageAdapter } from './storageAdapter';
+import type { StorageAdapter, StorageMutationResult, StorageReadResult } from './storageAdapter';
 
 /**
  * Browser localStorage implementation of `StorageAdapter`. This is the only
@@ -14,39 +14,43 @@ import type { StorageAdapter } from './storageAdapter';
  * never crash the application.
  */
 export class LocalStorageAdapter implements StorageAdapter {
-  read(key: string): string | undefined {
+  read(key: string): StorageReadResult {
     try {
       const value = window.localStorage.getItem(key);
-      return value === null ? undefined : value;
-    } catch {
-      return undefined;
+      return value === null ? { status: 'missing' } : { status: 'found', value };
+    } catch (error) {
+      return { status: 'unavailable', reason: describeError(error) };
     }
   }
 
-  write(key: string, value: string): boolean {
+  write(key: string, value: string): StorageMutationResult {
     try {
       window.localStorage.setItem(key, value);
-      return true;
-    } catch {
-      return false;
+      return { status: 'ok' };
+    } catch (error) {
+      return { status: 'unavailable', reason: describeError(error) };
     }
   }
 
-  remove(key: string): void {
+  remove(key: string): StorageMutationResult {
     try {
       window.localStorage.removeItem(key);
-    } catch {
-      // A remove failure leaves stale data in place; callers already treat
-      // load failures as untrusted, so this is safe to ignore.
+      return { status: 'ok' };
+    } catch (error) {
+      return { status: 'unavailable', reason: describeError(error) };
     }
   }
 }
 
+function describeError(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
 /**
- * `true` only in an environment where `window.localStorage` can plausibly be
- * used. Never called during server rendering (see hydration.ts) -- this is
- * a defensive guard for browsers that expose `window` but disable storage,
- * not a substitute for the client/server boundary.
+ * Optional browser capability probe. The hydration boundary does not use it
+ * as a correctness signal: every read/write/remove still returns its own
+ * typed result because storage may fail after a successful probe. Callers
+ * must invoke this only after mount, never from render or getSnapshot.
  */
 export function isLocalStorageAvailable(): boolean {
   if (typeof window === 'undefined') return false;

@@ -1,5 +1,6 @@
 import {
   CURRENT_SCHEMA_VERSION,
+  persistedStateEnvelopeV1Schema,
   persistedStateEnvelopeSchema,
   type PersistedStateEnvelope,
 } from './schema';
@@ -9,7 +10,7 @@ export const PERSISTENCE_STORAGE_KEY = 'rumo.persistedState';
 
 export type LoadStateOutcome =
   | { readonly status: 'empty' }
-  | { readonly status: 'ok'; readonly state: PersistedStateEnvelope }
+  | { readonly status: 'ok'; readonly state: PersistedStateEnvelope; readonly migrated: boolean }
   | { readonly status: 'malformedJson'; readonly reason: string }
   | { readonly status: 'invalidSchema'; readonly reason: string }
   | { readonly status: 'unsupportedVersion'; readonly foundVersion: number | undefined }
@@ -24,20 +25,23 @@ export type LoadStateOutcome =
  * likewise a value, not an exception.
  */
 export function loadPersistedState(adapter: StorageAdapter): LoadStateOutcome {
-  let raw: string | undefined;
+  let readResult: ReturnType<StorageAdapter['read']>;
   try {
-    raw = adapter.read(PERSISTENCE_STORAGE_KEY);
+    readResult = adapter.read(PERSISTENCE_STORAGE_KEY);
   } catch (error) {
     return { status: 'storageUnavailable', reason: describeError(error) };
   }
 
-  if (raw === undefined) {
+  if (readResult.status === 'unavailable') {
+    return { status: 'storageUnavailable', reason: readResult.reason };
+  }
+  if (readResult.status === 'missing') {
     return { status: 'empty' };
   }
 
   let candidate: unknown;
   try {
-    candidate = JSON.parse(raw);
+    candidate = JSON.parse(readResult.value);
   } catch (error) {
     return { status: 'malformedJson', reason: describeError(error) };
   }
@@ -52,11 +56,11 @@ export function loadPersistedState(adapter: StorageAdapter): LoadStateOutcome {
     return { status: 'invalidSchema', reason: result.error.message };
   }
 
-  return { status: 'ok', state: result.data };
+  return { status: 'ok', state: result.data, migrated: migrated.migrated };
 }
 
 type MigrationOutcome =
-  | { readonly status: 'migrated'; readonly candidate: unknown }
+  | { readonly status: 'migrated'; readonly candidate: unknown; readonly migrated: boolean }
   | { readonly status: 'unsupportedVersion'; readonly foundVersion: number | undefined };
 
 /**
@@ -73,7 +77,32 @@ function migrateEnvelope(candidate: unknown): MigrationOutcome {
 
   const foundVersion = (candidate as { schemaVersion: unknown }).schemaVersion;
   if (foundVersion === CURRENT_SCHEMA_VERSION) {
-    return { status: 'migrated', candidate };
+    return { status: 'migrated', candidate, migrated: false };
+  }
+
+  if (foundVersion === 1) {
+    const legacy = persistedStateEnvelopeV1Schema.safeParse(candidate);
+    if (!legacy.success) {
+      return { status: 'migrated', candidate, migrated: false };
+    }
+    return {
+      status: 'migrated',
+      migrated: true,
+      candidate: {
+        ...legacy.data,
+        schemaVersion: CURRENT_SCHEMA_VERSION,
+        sessions: legacy.data.sessions.map((session) => ({
+          ...session,
+          // V1 stored bare ids. Compatibility cannot be proved, so retain
+          // the session and structured facts but discard all progress.
+          progress: {
+            manualCompletedStepIds: [],
+            externalOutcomeCompletedStepIds: [],
+            satisfiedRequirementIds: [],
+          },
+        })),
+      },
+    };
   }
 
   return {
@@ -82,14 +111,16 @@ function migrateEnvelope(candidate: unknown): MigrationOutcome {
   };
 }
 
-export type SaveStateOutcome = { readonly status: 'ok' } | { readonly status: 'storageUnavailable'; readonly reason: string };
+export type SaveStateOutcome =
+  | { readonly status: 'ok' }
+  | { readonly status: 'storageUnavailable'; readonly reason: string };
 
 export function savePersistedState(adapter: StorageAdapter, state: PersistedStateEnvelope): SaveStateOutcome {
   const parsed = persistedStateEnvelopeSchema.parse(state);
   try {
-    const ok = adapter.write(PERSISTENCE_STORAGE_KEY, JSON.stringify(parsed));
-    if (!ok) {
-      return { status: 'storageUnavailable', reason: 'adapter reported write failure' };
+    const result = adapter.write(PERSISTENCE_STORAGE_KEY, JSON.stringify(parsed));
+    if (result.status === 'unavailable') {
+      return { status: 'storageUnavailable', reason: result.reason };
     }
     return { status: 'ok' };
   } catch (error) {
@@ -102,12 +133,14 @@ export function savePersistedState(adapter: StorageAdapter, state: PersistedStat
  * JSON, schema-invalid, unsupported version) and no migration applies.
  * Never partially reinterprets the incompatible structure.
  */
-export function resetPersistedState(adapter: StorageAdapter): void {
+export function resetPersistedState(adapter: StorageAdapter): SaveStateOutcome {
   try {
-    adapter.remove(PERSISTENCE_STORAGE_KEY);
-  } catch {
-    // Best-effort: an adapter that cannot remove a key still leaves the
-    // application free to proceed with a fresh in-memory envelope.
+    const result = adapter.remove(PERSISTENCE_STORAGE_KEY);
+    return result.status === 'ok'
+      ? result
+      : { status: 'storageUnavailable', reason: result.reason };
+  } catch (error) {
+    return { status: 'storageUnavailable', reason: describeError(error) };
   }
 }
 

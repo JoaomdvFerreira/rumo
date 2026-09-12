@@ -1,4 +1,5 @@
 import type { PersistedRuntimeProgress } from './schema';
+import type { RevalidationContentIndex } from './revalidate';
 import type { RuntimeProgress } from '../domain/engine/runtime';
 
 /**
@@ -9,16 +10,34 @@ import type { RuntimeProgress } from '../domain/engine/runtime';
  */
 export function toRuntimeProgress(persisted: PersistedRuntimeProgress): RuntimeProgress {
   return {
-    manualCompletedStepIds: new Set(persisted.manualCompletedStepIds),
-    externalOutcomeCompletedStepIds: new Set(persisted.externalOutcomeCompletedStepIds),
-    satisfiedRequirementIds: new Set(persisted.satisfiedRequirementIds),
+    manualCompletedStepIds: new Set(persisted.manualCompletedStepIds.map((entry) => entry.id)),
+    externalOutcomeCompletedStepIds: new Set(persisted.externalOutcomeCompletedStepIds.map((entry) => entry.id)),
+    satisfiedRequirementIds: new Set(persisted.satisfiedRequirementIds.map((entry) => entry.id)),
   };
 }
 
-export function toPersistedRuntimeProgress(progress: RuntimeProgress): PersistedRuntimeProgress {
+export function toPersistedRuntimeProgress(
+  progress: RuntimeProgress,
+  rootDestinationId: string,
+  content: RevalidationContentIndex,
+): PersistedRuntimeProgress {
+  const reachableSteps = content.reachableStepIdsByDestination.get(rootDestinationId) ?? new Set<string>();
+  const reachableRequirements =
+    content.reachableRequirementIdsByDestination.get(rootDestinationId) ?? new Set<string>();
+  const stepEntries = (ids: ReadonlySet<string>) =>
+    [...ids]
+      .filter((id) => reachableSteps.has(id) && content.stepFingerprints.has(id))
+      .sort()
+      .map((id) => ({ id, fingerprint: content.stepFingerprints.get(id) as string }));
+  const requirementEntries = (ids: ReadonlySet<string>) =>
+    [...ids]
+      .filter((id) => reachableRequirements.has(id) && content.requirementFingerprints.has(id))
+      .sort()
+      .map((id) => ({ id, fingerprint: content.requirementFingerprints.get(id) as string }));
+
   return {
-    manualCompletedStepIds: [...progress.manualCompletedStepIds].sort(),
-    externalOutcomeCompletedStepIds: [...progress.externalOutcomeCompletedStepIds].sort(),
-    satisfiedRequirementIds: [...progress.satisfiedRequirementIds].sort(),
+    manualCompletedStepIds: stepEntries(progress.manualCompletedStepIds),
+    externalOutcomeCompletedStepIds: stepEntries(progress.externalOutcomeCompletedStepIds),
+    satisfiedRequirementIds: requirementEntries(progress.satisfiedRequirementIds),
   };
 }

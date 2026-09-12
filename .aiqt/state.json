@@ -806,8 +806,8 @@
         }
       ],
       "finalWorkUnitStatus": "needs_review",
-      "createdAt": "2026-09-12T08:52:38.261Z",
-      "nextRecommendation": "aiqt checkpoint amend --checkpoint C005"
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C005",
+      "createdAt": "2026-09-12T08:52:38.261Z"
     }
   ],
   "lastAgentPacket": {
@@ -945,6 +945,16 @@
       "validationResult": "passed",
       "reason": "Project Overseer final acceptance after factual-content and provenance remediation F1-F8. Final reviewed implementation: a9df75b.",
       "amendedAt": "2026-09-12T08:39:11.212Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-012",
+      "checkpointId": "C005",
+      "workUnitId": "WU005",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "Project Overseer review: WU005 requires bounded remediation for semantic content-version revalidation, React hydration purity, and typed storage-failure handling. Core persistence architecture otherwise accepted.",
+      "amendedAt": "2026-09-12T08:58:05.424Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -1205,16 +1215,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C005",
       "current": {
-        "observationId": "sha256:e2a57ff6903d481321ea819ab2c803fb4c188ad3cd2b66739c7fb31e6c6822f0",
+        "observationId": "sha256:0d5b41a6d9eaa26935585a8ba82a4d30cb16708f5537c99f55e78632a54886f5",
         "checkpointId": "C005",
         "workUnitId": "WU005",
-        "trigger": "checkpoint",
+        "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-12T08:52:38.261Z",
+        "asOf": "2026-09-12T08:58:05.424Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-12T08:52:38.261Z"
+        "recordedAt": "2026-09-12T08:58:05.424Z"
       },
       "history": [
         {
@@ -1228,6 +1238,18 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T08:52:38.261Z"
+        },
+        {
+          "observationId": "sha256:0d5b41a6d9eaa26935585a8ba82a4d30cb16708f5537c99f55e78632a54886f5",
+          "checkpointId": "C005",
+          "workUnitId": "WU005",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T08:58:05.424Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T08:58:05.424Z"
         }
       ]
     }

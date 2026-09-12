@@ -1,15 +1,17 @@
 import type { PersistedSession, PersistedStateEnvelope } from './schema';
 
 /**
- * The minimal current-content surface revalidation needs: which ids still
- * exist. Callers build this from the live `ContentGraph`/`DestinationGraph`
- * (WU003/WU004) rather than this module importing content directly, so
- * persistence stays decoupled from how content is assembled.
+ * The current-content compatibility surface: existing Destinations,
+ * semantic fingerprints, and root-relative structural reachability.
+ * Callers build it from the live ContentGraph rather than this module
+ * importing content directly.
  */
 export interface RevalidationContentIndex {
   readonly destinationIds: ReadonlySet<string>;
-  readonly stepIds: ReadonlySet<string>;
-  readonly requirementIds: ReadonlySet<string>;
+  readonly stepFingerprints: ReadonlyMap<string, string>;
+  readonly requirementFingerprints: ReadonlyMap<string, string>;
+  readonly reachableStepIdsByDestination: ReadonlyMap<string, ReadonlySet<string>>;
+  readonly reachableRequirementIdsByDestination: ReadonlyMap<string, ReadonlySet<string>>;
 }
 
 export interface SessionRevalidationResult {
@@ -21,11 +23,10 @@ export interface SessionRevalidationResult {
 
 /**
  * Deterministic per-session revalidation against current canonical content:
- * ids that still exist are preserved; ids that no longer exist (a step or
- * requirement removed or renamed by a content change) are dropped rather
- * than trusted, and a session whose root Destination itself no longer
- * exists is discarded entirely rather than resumed against content it can
- * no longer address. This never re-derives routing state (actionable /
+ * progress is preserved only when its persisted semantic fingerprint
+ * matches the current entity and that entity remains structurally reachable
+ * from the session root. Missing, moved, or semantically changed entities
+ * are dropped rather than trusted. This never re-derives routing state (actionable /
  * waiting / blocked) -- that stays the engine's job (WU003) the next time
  * the session is resolved; revalidation only guarantees the *inputs* to
  * that resolution are honest.
@@ -38,18 +39,26 @@ export function revalidateSession(
     return { session: undefined, discardedStepIds: [], discardedRequirementIds: [] };
   }
 
-  const keepStep = (id: string): boolean => content.stepIds.has(id);
-  const keepRequirement = (id: string): boolean => content.requirementIds.has(id);
+  const reachableStepIds =
+    content.reachableStepIdsByDestination.get(session.rootDestinationId) ?? new Set<string>();
+  const reachableRequirementIds =
+    content.reachableRequirementIdsByDestination.get(session.rootDestinationId) ?? new Set<string>();
+  const keepStep = (entry: PersistedSession['progress']['manualCompletedStepIds'][number]): boolean =>
+    reachableStepIds.has(entry.id) && content.stepFingerprints.get(entry.id) === entry.fingerprint;
+  const keepRequirement = (entry: PersistedSession['progress']['satisfiedRequirementIds'][number]): boolean =>
+    reachableRequirementIds.has(entry.id) && content.requirementFingerprints.get(entry.id) === entry.fingerprint;
 
   const manualCompletedStepIds = session.progress.manualCompletedStepIds.filter(keepStep);
   const externalOutcomeCompletedStepIds = session.progress.externalOutcomeCompletedStepIds.filter(keepStep);
   const satisfiedRequirementIds = session.progress.satisfiedRequirementIds.filter(keepRequirement);
 
   const discardedStepIds = [
-    ...session.progress.manualCompletedStepIds.filter((id) => !keepStep(id)),
-    ...session.progress.externalOutcomeCompletedStepIds.filter((id) => !keepStep(id)),
+    ...session.progress.manualCompletedStepIds.filter((entry) => !keepStep(entry)).map((entry) => entry.id),
+    ...session.progress.externalOutcomeCompletedStepIds.filter((entry) => !keepStep(entry)).map((entry) => entry.id),
   ];
-  const discardedRequirementIds = session.progress.satisfiedRequirementIds.filter((id) => !keepRequirement(id));
+  const discardedRequirementIds = session.progress.satisfiedRequirementIds
+    .filter((entry) => !keepRequirement(entry))
+    .map((entry) => entry.id);
 
   return {
     session: {

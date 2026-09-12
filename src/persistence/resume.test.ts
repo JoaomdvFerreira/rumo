@@ -4,8 +4,7 @@ import { resumePersistedState } from './resume';
 import type { RevalidationContentIndex } from './revalidate';
 import { CURRENT_SCHEMA_VERSION } from './schema';
 import type { PersistedStateEnvelope } from './schema';
-import { InMemoryStorageAdapter } from './storageAdapter';
-import type { StorageAdapter } from './storageAdapter';
+import type { StorageAdapter, StorageMutationResult, StorageReadResult } from './storageAdapter';
 import { PERSISTENCE_STORAGE_KEY } from './state';
 
 const NOW = '2026-03-01T00:00:00.000Z';
@@ -13,105 +12,135 @@ const NOW = '2026-03-01T00:00:00.000Z';
 function contentIndex(): RevalidationContentIndex {
   return {
     destinationIds: new Set(['dest-root']),
-    stepIds: new Set(['step-a']),
-    requirementIds: new Set(['req-a']),
+    stepFingerprints: new Map([['step-a', 'fp-step-a']]),
+    requirementFingerprints: new Map([['req-a', 'fp-req-a']]),
+    reachableStepIdsByDestination: new Map([['dest-root', new Set(['step-a'])]]),
+    reachableRequirementIdsByDestination: new Map([['dest-root', new Set(['req-a'])]]),
   };
 }
 
-class FailingStorageAdapter implements StorageAdapter {
-  read(): string | undefined {
-    throw new Error('unavailable');
+class ControllableStorageAdapter implements StorageAdapter {
+  value: string | undefined;
+  readFails = false;
+  writeFails = false;
+  removeFails = false;
+
+  read(_key: string): StorageReadResult {
+    if (this.readFails) return { status: 'unavailable', reason: 'read failed' };
+    return this.value === undefined ? { status: 'missing' } : { status: 'found', value: this.value };
   }
-  write(): boolean {
-    return false;
+  write(_key: string, value: string): StorageMutationResult {
+    if (this.writeFails) return { status: 'unavailable', reason: 'write failed' };
+    this.value = value;
+    return { status: 'ok' };
   }
-  remove(): void {
-    // no-op
+  remove(_key: string): StorageMutationResult {
+    if (this.removeFails) return { status: 'unavailable', reason: 'remove failed' };
+    this.value = undefined;
+    return { status: 'ok' };
   }
 }
 
-describe('resumePersistedState', () => {
-  it('creates and persists a fresh envelope when nothing was saved', () => {
-    const adapter = new InMemoryStorageAdapter();
-
-    const result = resumePersistedState(adapter, 'hash-current', contentIndex(), NOW);
-
-    expect(result.reason).toBe('freshStart');
-    expect(result.envelope.contentVersion).toBe('hash-current');
-    expect(adapter.read(PERSISTENCE_STORAGE_KEY)).toBeDefined();
-  });
-
-  it('restores a current-version envelope unchanged', () => {
-    const adapter = new InMemoryStorageAdapter();
-    const saved: PersistedStateEnvelope = {
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-      contentVersion: 'hash-current',
-      updatedAt: NOW,
-      sessions: [],
-    };
-    adapter.write(PERSISTENCE_STORAGE_KEY, JSON.stringify(saved));
-
-    const result = resumePersistedState(adapter, 'hash-current', contentIndex(), NOW);
-
-    expect(result.reason).toBe('restoredCurrent');
-    expect(result.envelope).toEqual(saved);
-  });
-
-  it('revalidates and re-persists when contentVersion has changed', () => {
-    const adapter = new InMemoryStorageAdapter();
-    const saved: PersistedStateEnvelope = {
-      schemaVersion: CURRENT_SCHEMA_VERSION,
-      contentVersion: 'hash-old',
+function savedEnvelope(contentVersion = 'hash-current'): PersistedStateEnvelope {
+  return {
+    schemaVersion: CURRENT_SCHEMA_VERSION,
+    contentVersion,
+    updatedAt: '2026-01-01T00:00:00.000Z',
+    sessions: [{
+      id: 'session-1',
+      rootDestinationId: 'dest-root',
+      facts: {},
+      progress: {
+        manualCompletedStepIds: [{ id: 'step-a', fingerprint: 'fp-step-a' }],
+        externalOutcomeCompletedStepIds: [],
+        satisfiedRequirementIds: [],
+      },
+      createdAt: '2026-01-01T00:00:00.000Z',
       updatedAt: '2026-01-01T00:00:00.000Z',
-      sessions: [
-        {
-          id: 'session-1',
-          rootDestinationId: 'dest-root',
-          facts: {},
-          progress: { manualCompletedStepIds: ['step-a'], externalOutcomeCompletedStepIds: [], satisfiedRequirementIds: [] },
-          createdAt: '2026-01-01T00:00:00.000Z',
-          updatedAt: '2026-01-01T00:00:00.000Z',
-        },
-      ],
-    };
-    adapter.write(PERSISTENCE_STORAGE_KEY, JSON.stringify(saved));
+    }],
+  };
+}
 
+describe('resumePersistedState', () => {
+  it('creates and successfully persists a fresh envelope', () => {
+    const adapter = new ControllableStorageAdapter();
+    const result = resumePersistedState(adapter, 'hash-current', contentIndex(), NOW);
+    expect(result.reason).toBe('freshStart');
+    expect(result.persistenceStatus).toBe('persisted');
+    expect(adapter.read(PERSISTENCE_STORAGE_KEY).status).toBe('found');
+  });
+
+  it('reports unavailable when fresh-start persistence fails without throwing', () => {
+    const adapter = new ControllableStorageAdapter();
+    adapter.writeFails = true;
+    expect(() => resumePersistedState(adapter, 'hash-current', contentIndex(), NOW)).not.toThrow();
+    expect(resumePersistedState(adapter, 'hash-current', contentIndex(), NOW).persistenceStatus).toBe('unavailable');
+  });
+
+  it('restores a current envelope as persisted', () => {
+    const adapter = new ControllableStorageAdapter();
+    adapter.value = JSON.stringify(savedEnvelope());
+    const result = resumePersistedState(adapter, 'hash-current', contentIndex(), NOW);
+    expect(result.reason).toBe('restoredCurrent');
+    expect(result.persistenceStatus).toBe('persisted');
+  });
+
+  it('revalidates and persists under the current content version', () => {
+    const adapter = new ControllableStorageAdapter();
+    adapter.value = JSON.stringify(savedEnvelope('hash-old'));
     const result = resumePersistedState(adapter, 'hash-new', contentIndex(), NOW);
-
     expect(result.reason).toBe('revalidatedContentChange');
     expect(result.envelope.contentVersion).toBe('hash-new');
-    const persisted = adapter.read(PERSISTENCE_STORAGE_KEY);
-    expect(persisted).toBeDefined();
-    expect(JSON.parse(persisted as string).contentVersion).toBe('hash-new');
+    expect(result.persistenceStatus).toBe('persisted');
+    expect(JSON.parse(adapter.value as string).contentVersion).toBe('hash-new');
   });
 
-  it('resets and persists a fresh envelope for malformed JSON', () => {
-    const adapter = new InMemoryStorageAdapter();
-    adapter.write(PERSISTENCE_STORAGE_KEY, '{not json');
+  it('reports unavailable when the post-revalidation write fails', () => {
+    const adapter = new ControllableStorageAdapter();
+    adapter.value = JSON.stringify(savedEnvelope('hash-old'));
+    adapter.writeFails = true;
+    const result = resumePersistedState(adapter, 'hash-new', contentIndex(), NOW);
+    expect(result.envelope.contentVersion).toBe('hash-new');
+    expect(result.persistenceStatus).toBe('unavailable');
+  });
 
+  it('keeps an in-memory envelope but reports unavailable after a read failure', () => {
+    const adapter = new ControllableStorageAdapter();
+    adapter.readFails = true;
     const result = resumePersistedState(adapter, 'hash-current', contentIndex(), NOW);
-
-    expect(result.reason).toBe('resetMalformedJson');
+    expect(result.reason).toBe('resetStorageUnavailable');
     expect(result.envelope.sessions).toEqual([]);
+    expect(result.persistenceStatus).toBe('unavailable');
   });
 
-  it('resets and persists a fresh envelope for an unsupported schema version', () => {
-    const adapter = new InMemoryStorageAdapter();
-    adapter.write(PERSISTENCE_STORAGE_KEY, JSON.stringify({ schemaVersion: 999, contentVersion: 'x', updatedAt: NOW, sessions: [] }));
-
-    const result = resumePersistedState(adapter, 'hash-current', contentIndex(), NOW);
-
-    expect(result.reason).toBe('resetUnsupportedVersion');
-    expect(result.envelope.schemaVersion).toBe(CURRENT_SCHEMA_VERSION);
+  it('reports unavailable when reset removal fails and remains non-throwing', () => {
+    const adapter = new ControllableStorageAdapter();
+    adapter.value = '{not json';
+    adapter.removeFails = true;
+    let result: ReturnType<typeof resumePersistedState> | undefined;
+    expect(() => {
+      result = resumePersistedState(adapter, 'hash-current', contentIndex(), NOW);
+    }).not.toThrow();
+    expect(result?.reason).toBe('resetMalformedJson');
+    expect(result?.persistenceStatus).toBe('unavailable');
   });
 
-  it('falls back to a safe, unsaved-but-usable fresh envelope when storage is unavailable', () => {
-    const adapter = new FailingStorageAdapter();
-
-    expect(() => resumePersistedState(adapter, 'hash-current', contentIndex(), NOW)).not.toThrow();
+  it('migrates v1 without trusting its bare-id progress and persists v2', () => {
+    const adapter = new ControllableStorageAdapter();
+    adapter.value = JSON.stringify({
+      schemaVersion: 1,
+      contentVersion: 'hash-current',
+      updatedAt: NOW,
+      sessions: [{
+        id: 'session-1', rootDestinationId: 'dest-root', facts: { 'household.size': 2 },
+        progress: { manualCompletedStepIds: ['step-a'], externalOutcomeCompletedStepIds: [], satisfiedRequirementIds: [] },
+        createdAt: NOW, updatedAt: NOW,
+      }],
+    });
     const result = resumePersistedState(adapter, 'hash-current', contentIndex(), NOW);
-
-    expect(result.envelope.sessions).toEqual([]);
-    expect(result.envelope.contentVersion).toBe('hash-current');
+    expect(result.reason).toBe('migratedSchema');
+    expect(result.envelope.sessions[0]?.facts).toEqual({ 'household.size': 2 });
+    expect(result.envelope.sessions[0]?.progress.manualCompletedStepIds).toEqual([]);
+    expect(result.persistenceStatus).toBe('persisted');
   });
 });
