@@ -15,7 +15,9 @@ export type ContentIssueKind =
   | 'danglingReference'
   | 'invalidCondition'
   | 'missingSourceVerification'
-  | 'staleHighRiskSource';
+  | 'staleHighRiskSource'
+  | 'missingDecisionProvenance'
+  | 'missingDurationProvenance';
 
 export interface ContentIssue {
   readonly kind: ContentIssueKind;
@@ -24,7 +26,12 @@ export interface ContentIssue {
   readonly detail: string;
 }
 
-function issue(kind: ContentIssueKind, entityKind: string, id: string, detail: string): ContentIssue {
+function issue(
+  kind: ContentIssueKind,
+  entityKind: string,
+  id: string,
+  detail: string,
+): ContentIssue {
   return { kind, entityKind, id, detail };
 }
 
@@ -36,7 +43,10 @@ function issue(kind: ContentIssueKind, entityKind: string, id: string, detail: s
  * within-collection duplicates would make `content:check`'s own duplicate
  * detection ambiguous about which entity a reference resolves to.
  */
-function checkDuplicateIds(entityKind: string, items: readonly { id: string }[]): ContentIssue[] {
+function checkDuplicateIds(
+  entityKind: string,
+  items: readonly { id: string }[],
+): ContentIssue[] {
   const seen = new Map<string, number>();
   for (const item of items) {
     seen.set(item.id, (seen.get(item.id) ?? 0) + 1);
@@ -44,7 +54,14 @@ function checkDuplicateIds(entityKind: string, items: readonly { id: string }[])
   const issues: ContentIssue[] = [];
   for (const [id, count] of seen) {
     if (count > 1) {
-      issues.push(issue('duplicateId', entityKind, id, `id declared ${count} times in ${entityKind}`));
+      issues.push(
+        issue(
+          'duplicateId',
+          entityKind,
+          id,
+          `id declared ${count} times in ${entityKind}`,
+        ),
+      );
     }
   }
   return issues;
@@ -59,7 +76,14 @@ function checkRef(
   issues: ContentIssue[],
 ): void {
   if (!index.has(refId)) {
-    issues.push(issue('danglingReference', entityKind, id, `references unknown ${refKind} "${refId}"`));
+    issues.push(
+      issue(
+        'danglingReference',
+        entityKind,
+        id,
+        `references unknown ${refKind} "${refId}"`,
+      ),
+    );
   }
 }
 
@@ -71,7 +95,12 @@ function checkRef(
  * than membership in a closed set. An empty/whitespace-only fact key can
  * never evaluate meaningfully and is treated as an invalid condition.
  */
-function checkCondition(entityKind: string, id: string, condition: Condition, issues: ContentIssue[]): void {
+function checkCondition(
+  entityKind: string,
+  id: string,
+  condition: Condition,
+  issues: ContentIssue[],
+): void {
   switch (condition.kind) {
     case 'factEquals':
     case 'factIn':
@@ -79,15 +108,120 @@ function checkCondition(entityKind: string, id: string, condition: Condition, is
     case 'factTruthy':
     case 'factPresent':
       if (condition.fact.trim().length === 0) {
-        issues.push(issue('invalidCondition', entityKind, id, 'condition references a blank fact key'));
+        issues.push(
+          issue(
+            'invalidCondition',
+            entityKind,
+            id,
+            'condition references a blank fact key',
+          ),
+        );
       }
       return;
     case 'allOf':
     case 'anyOf':
-      for (const child of condition.conditions) checkCondition(entityKind, id, child, issues);
+      for (const child of condition.conditions)
+        checkCondition(entityKind, id, child, issues);
       return;
     case 'not':
       checkCondition(entityKind, id, condition.condition, issues);
+  }
+}
+
+/**
+ * F1-F3 remediation hardening (Project Overseer review of WU004/C004): a
+ * Requirement that actually participates in routing/blocking -- referenced
+ * directly by a Step's `requirementIds`, or indirectly via a
+ * RequirementGroup referenced by a Step's `requirementGroupIds` -- is
+ * decision-bearing and must not silently lack authoritative provenance.
+ * Requirements declared in canonical content but never wired into any
+ * Step/RequirementGroup are not routing-participating and are out of this
+ * check's scope (nothing depends on their correctness at resolution time).
+ */
+function collectRoutingParticipatingRequirementIds(
+  content: ContentGraph,
+): Set<string> {
+  const groupRequirementIds = new Map<string, readonly string[]>(
+    content.requirementGroups.map((group) => [group.id, group.requirementIds]),
+  );
+
+  const participating = new Set<string>();
+  for (const step of content.steps) {
+    for (const requirementId of step.requirementIds) {
+      participating.add(requirementId);
+    }
+    for (const groupId of step.requirementGroupIds) {
+      for (const requirementId of groupRequirementIds.get(groupId) ?? []) {
+        participating.add(requirementId);
+      }
+    }
+  }
+  return participating;
+}
+
+/**
+ * A Requirement's `decisionReferenceIds` entry only counts as provenance
+ * when it actually resolves to a declared DecisionReference -- a dangling
+ * id (already separately reported as `danglingReference`) must not also
+ * count toward satisfying this check, or a typo'd id would silently pass.
+ */
+function checkDecisionBearingRequirementProvenance(
+  content: ContentGraph,
+  issues: ContentIssue[],
+): void {
+  const decisionReferenceIds = new Set(
+    content.decisionReferences.map((entity) => entity.id),
+  );
+  const participatingIds = collectRoutingParticipatingRequirementIds(content);
+
+  for (const requirement of content.requirements) {
+    if (!participatingIds.has(requirement.id)) continue;
+    const hasValidDecisionReference = requirement.decisionReferenceIds.some(
+      (id) => decisionReferenceIds.has(id),
+    );
+    if (!hasValidDecisionReference) {
+      issues.push(
+        issue(
+          'missingDecisionProvenance',
+          'requirement',
+          requirement.id,
+          'requirement participates in routing/blocking but has no valid DecisionReference citing an authoritative source',
+        ),
+      );
+    }
+  }
+}
+
+/**
+ * A Step's `estimatedDurationDays` is a factual claim about how long
+ * something takes; F2 remediation established that such a claim must
+ * never be a fabricated "typical" figure invented by content authors. The
+ * content-level guarantee is that the claim is at least traceable to an
+ * authoritative Source via the existing `supports` relationship (the only
+ * approved WU002 provenance mechanism available at Step granularity; no
+ * schema was changed for this remediation).
+ */
+function checkEstimatedDurationProvenance(
+  content: ContentGraph,
+  issues: ContentIssue[],
+): void {
+  const supportedIds = new Set(
+    content.sources.flatMap((source) => source.supports),
+  );
+
+  for (const step of content.steps) {
+    if (step.kind !== 'wait' || step.estimatedDurationDays === undefined)
+      continue;
+    if (!supportedIds.has(step.id)) {
+      issues.push(
+        issue(
+          'missingDurationProvenance',
+          'step',
+          step.id,
+          'step declares estimatedDurationDays but no SourceDefinition "supports" it',
+        ),
+      );
+    }
   }
 }
 
@@ -100,30 +234,58 @@ export function checkContentGraph(content: ContentGraph): ContentIssue[] {
   issues.push(...checkDuplicateIds('routeVariant', content.routeVariants));
   issues.push(...checkDuplicateIds('step', content.steps));
   issues.push(...checkDuplicateIds('requirement', content.requirements));
-  issues.push(...checkDuplicateIds('requirementGroup', content.requirementGroups));
+  issues.push(
+    ...checkDuplicateIds('requirementGroup', content.requirementGroups),
+  );
   issues.push(...checkDuplicateIds('provider', content.providers));
   issues.push(...checkDuplicateIds('source', content.sources));
-  issues.push(...checkDuplicateIds('decisionReference', content.decisionReferences));
+  issues.push(
+    ...checkDuplicateIds('decisionReference', content.decisionReferences),
+  );
 
-  const destinationIds = new Set(content.destinations.map((entity) => entity.id));
+  const destinationIds = new Set(
+    content.destinations.map((entity) => entity.id),
+  );
   const routeIds = new Set(content.routes.map((entity) => entity.id));
-  const routeVariantIds = new Set(content.routeVariants.map((entity) => entity.id));
+  const routeVariantIds = new Set(
+    content.routeVariants.map((entity) => entity.id),
+  );
   const stepIds = new Set(content.steps.map((entity) => entity.id));
-  const requirementIds = new Set(content.requirements.map((entity) => entity.id));
-  const requirementGroupIds = new Set(content.requirementGroups.map((entity) => entity.id));
+  const requirementIds = new Set(
+    content.requirements.map((entity) => entity.id),
+  );
+  const requirementGroupIds = new Set(
+    content.requirementGroups.map((entity) => entity.id),
+  );
   const providerIds = new Set(content.providers.map((entity) => entity.id));
   const sourceIds = new Set(content.sources.map((entity) => entity.id));
-  const decisionReferenceIds = new Set(content.decisionReferences.map((entity) => entity.id));
+  const decisionReferenceIds = new Set(
+    content.decisionReferences.map((entity) => entity.id),
+  );
 
   for (const lifeEvent of content.lifeEvents) {
     for (const destinationId of lifeEvent.destinationIds) {
-      checkRef('lifeEvent', lifeEvent.id, 'destination', destinationId, destinationIds, issues);
+      checkRef(
+        'lifeEvent',
+        lifeEvent.id,
+        'destination',
+        destinationId,
+        destinationIds,
+        issues,
+      );
     }
   }
 
   for (const destination of content.destinations) {
     for (const routeId of destination.routeIds) {
-      checkRef('destination', destination.id, 'route', routeId, routeIds, issues);
+      checkRef(
+        'destination',
+        destination.id,
+        'route',
+        routeId,
+        routeIds,
+        issues,
+      );
     }
   }
 
@@ -132,9 +294,17 @@ export function checkContentGraph(content: ContentGraph): ContentIssue[] {
       checkRef('route', route.id, 'step', stepId, stepIds, issues);
     }
     for (const variantId of route.variantIds) {
-      checkRef('route', route.id, 'routeVariant', variantId, routeVariantIds, issues);
+      checkRef(
+        'route',
+        route.id,
+        'routeVariant',
+        variantId,
+        routeVariantIds,
+        issues,
+      );
     }
-    if (route.appliesWhen) checkCondition('route', route.id, route.appliesWhen, issues);
+    if (route.appliesWhen)
+      checkCondition('route', route.id, route.appliesWhen, issues);
   }
 
   for (const variant of content.routeVariants) {
@@ -146,52 +316,124 @@ export function checkContentGraph(content: ContentGraph): ContentIssue[] {
 
   for (const step of content.steps) {
     for (const requirementId of step.requirementIds) {
-      checkRef('step', step.id, 'requirement', requirementId, requirementIds, issues);
+      checkRef(
+        'step',
+        step.id,
+        'requirement',
+        requirementId,
+        requirementIds,
+        issues,
+      );
     }
     for (const groupId of step.requirementGroupIds) {
-      checkRef('step', step.id, 'requirementGroup', groupId, requirementGroupIds, issues);
+      checkRef(
+        'step',
+        step.id,
+        'requirementGroup',
+        groupId,
+        requirementGroupIds,
+        issues,
+      );
     }
     for (const dependsOnId of step.dependsOnStepIds) {
       checkRef('step', step.id, 'step', dependsOnId, stepIds, issues);
     }
-    if (step.appliesWhen) checkCondition('step', step.id, step.appliesWhen, issues);
+    if (step.appliesWhen)
+      checkCondition('step', step.id, step.appliesWhen, issues);
     if (step.kind === 'task' && step.providerId !== undefined) {
-      checkRef('step', step.id, 'provider', step.providerId, providerIds, issues);
+      checkRef(
+        'step',
+        step.id,
+        'provider',
+        step.providerId,
+        providerIds,
+        issues,
+      );
     }
     if (step.kind === 'task' && step.channelId !== undefined) {
-      const provider = step.providerId ? content.providers.find((entity) => entity.id === step.providerId) : undefined;
-      const channelIds = new Set((provider?.channels ?? []).map((channel) => channel.id));
+      const provider = step.providerId
+        ? content.providers.find((entity) => entity.id === step.providerId)
+        : undefined;
+      const channelIds = new Set(
+        (provider?.channels ?? []).map((channel) => channel.id),
+      );
       if (!channelIds.has(step.channelId)) {
         issues.push(
-          issue('danglingReference', 'step', step.id, `references unknown channel "${step.channelId}" on its provider`),
+          issue(
+            'danglingReference',
+            'step',
+            step.id,
+            `references unknown channel "${step.channelId}" on its provider`,
+          ),
         );
       }
     }
     if (step.kind === 'subjourney') {
-      checkRef('step', step.id, 'destination', step.destinationId, destinationIds, issues);
+      checkRef(
+        'step',
+        step.id,
+        'destination',
+        step.destinationId,
+        destinationIds,
+        issues,
+      );
     }
   }
 
   for (const requirement of content.requirements) {
-    if (requirement.appliesWhen) checkCondition('requirement', requirement.id, requirement.appliesWhen, issues);
+    if (requirement.appliesWhen)
+      checkCondition(
+        'requirement',
+        requirement.id,
+        requirement.appliesWhen,
+        issues,
+      );
     for (const decisionId of requirement.decisionReferenceIds) {
-      checkRef('requirement', requirement.id, 'decisionReference', decisionId, decisionReferenceIds, issues);
+      checkRef(
+        'requirement',
+        requirement.id,
+        'decisionReference',
+        decisionId,
+        decisionReferenceIds,
+        issues,
+      );
     }
   }
 
   for (const group of content.requirementGroups) {
     for (const requirementId of group.requirementIds) {
-      checkRef('requirementGroup', group.id, 'requirement', requirementId, requirementIds, issues);
+      checkRef(
+        'requirementGroup',
+        group.id,
+        'requirement',
+        requirementId,
+        requirementIds,
+        issues,
+      );
     }
   }
 
   for (const provider of content.providers) {
-    checkRef('provider', provider.id, 'source', provider.sourceId, sourceIds, issues);
+    checkRef(
+      'provider',
+      provider.id,
+      'source',
+      provider.sourceId,
+      sourceIds,
+      issues,
+    );
   }
 
   for (const decisionReference of content.decisionReferences) {
     for (const sourceId of decisionReference.sourceIds) {
-      checkRef('decisionReference', decisionReference.id, 'source', sourceId, sourceIds, issues);
+      checkRef(
+        'decisionReference',
+        decisionReference.id,
+        'source',
+        sourceId,
+        sourceIds,
+        issues,
+      );
     }
   }
 
@@ -204,15 +446,29 @@ export function checkContentGraph(content: ContentGraph): ContentIssue[] {
         providerIds.has(supportedId);
       if (!known) {
         issues.push(
-          issue('danglingReference', 'source', source.id, `"supports" references unknown entity "${supportedId}"`),
+          issue(
+            'danglingReference',
+            'source',
+            source.id,
+            `"supports" references unknown entity "${supportedId}"`,
+          ),
         );
       }
     }
   }
 
-  const verifiedSourceIds = new Set(content.sourceVerifications.map((verification) => verification.sourceId));
+  const verifiedSourceIds = new Set(
+    content.sourceVerifications.map((verification) => verification.sourceId),
+  );
   for (const verification of content.sourceVerifications) {
-    checkRef('sourceVerification', verification.sourceId, 'source', verification.sourceId, sourceIds, issues);
+    checkRef(
+      'sourceVerification',
+      verification.sourceId,
+      'source',
+      verification.sourceId,
+      sourceIds,
+      issues,
+    );
   }
 
   /**
@@ -249,7 +505,9 @@ export function checkContentGraph(content: ContentGraph): ContentIssue[] {
    */
   for (const source of content.sources) {
     if (source.freshnessRisk !== 'high') continue;
-    const verifications = content.sourceVerifications.filter((entry) => entry.sourceId === source.id);
+    const verifications = content.sourceVerifications.filter(
+      (entry) => entry.sourceId === source.id,
+    );
     if (verifications.length === 0) continue; // already reported as missingSourceVerification
     const latest = verifications.reduce((mostRecent, entry) =>
       entry.checkedAt > mostRecent.checkedAt ? entry : mostRecent,
@@ -265,6 +523,9 @@ export function checkContentGraph(content: ContentGraph): ContentIssue[] {
       );
     }
   }
+
+  checkDecisionBearingRequirementProvenance(content, issues);
+  checkEstimatedDurationProvenance(content, issues);
 
   return issues;
 }

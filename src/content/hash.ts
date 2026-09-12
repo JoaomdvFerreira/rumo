@@ -32,5 +32,7 @@ export function canonicalContentString(content: ContentGraph): string {
 }
 
 export function computeContentHash(content: ContentGraph): string {
-  return createHash('sha256').update(canonicalContentString(content)).digest('hex');
+  return createHash('sha256')
+    .update(canonicalContentString(content))
+    .digest('hex');
 }

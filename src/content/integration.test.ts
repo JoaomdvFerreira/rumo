@@ -40,11 +40,62 @@ function context(overrides: Partial<RoutingContext> = {}): RoutingContext {
 }
 
 describe('representative content resolves through the routing engine', () => {
-  it('resolves J01 settle-new-address with no unresolved references, outside Évora', () => {
-    const resolution = resolveDestination('destination.j01-settle-new-address', graph(), context());
+  /**
+   * F1 remediation (Project Overseer review of WU004/C004): address
+   * routing is two mutually exclusive, explicitly fact-gated Routes.
+   * Neither may be an unconditional default -- these tests prove both
+   * paths individually, and that the unknown-fact case resolves
+   * `unresolved` rather than assuming/surfacing either path.
+   */
+  it('surfaces only the Citizen Card address step when household.hasCitizenCard is true', () => {
+    const resolution = resolveDestination(
+      'destination.j01-settle-new-address',
+      graph(),
+      context({ facts: { 'household.hasCitizenCard': true } }),
+    );
     expect(resolution.issues).toEqual([]);
     expect(resolution.state).toBe('actionable');
-    expect(resolution.primaryAction?.step.id).toBe('step.j01-update-citizen-card-address');
+    expect(resolution.primaryAction?.step.id).toBe(
+      'step.j01-update-citizen-card-address',
+    );
+    const allActionIds = [
+      resolution.primaryAction,
+      ...resolution.parallelActions,
+    ]
+      .filter((entry) => entry !== undefined)
+      .map((entry) => entry.step.id);
+    expect(allActionIds).not.toContain('step.j01-update-fiscal-address');
+  });
+
+  it('surfaces only the direct fiscal-address step when household.hasCitizenCard is false', () => {
+    const resolution = resolveDestination(
+      'destination.j01-settle-new-address',
+      graph(),
+      context({ facts: { 'household.hasCitizenCard': false } }),
+    );
+    expect(resolution.issues).toEqual([]);
+    expect(resolution.state).toBe('actionable');
+    expect(resolution.primaryAction?.step.id).toBe(
+      'step.j01-update-fiscal-address',
+    );
+    const allActionIds = [
+      resolution.primaryAction,
+      ...resolution.parallelActions,
+    ]
+      .filter((entry) => entry !== undefined)
+      .map((entry) => entry.step.id);
+    expect(allActionIds).not.toContain('step.j01-update-citizen-card-address');
+  });
+
+  it('resolves as unresolved with no resolver issues when household.hasCitizenCard is unknown', () => {
+    const resolution = resolveDestination(
+      'destination.j01-settle-new-address',
+      graph(),
+      context(),
+    );
+    expect(resolution.issues).toEqual([]);
+    expect(resolution.state).toBe('unresolved');
+    expect(resolution.primaryAction).toBeUndefined();
   });
 
   it('surfaces the Évora water subjourney as parallel work once its requirements are satisfied', () => {
@@ -52,7 +103,10 @@ describe('representative content resolves through the routing engine', () => {
       'destination.j01-settle-new-address',
       graph(),
       context({
-        facts: { 'household.municipality': 'evora' },
+        facts: {
+          'household.hasCitizenCard': true,
+          'household.municipality': 'evora',
+        },
         progress: {
           manualCompletedStepIds: new Set(),
           externalOutcomeCompletedStepIds: new Set(),
@@ -66,7 +120,10 @@ describe('representative content resolves through the routing engine', () => {
     );
     expect(resolution.issues).toEqual([]);
     expect(resolution.state).toBe('actionable');
-    const allActionIds = [resolution.primaryAction, ...resolution.parallelActions]
+    const allActionIds = [
+      resolution.primaryAction,
+      ...resolution.parallelActions,
+    ]
       .filter((entry) => entry !== undefined)
       .map((entry) => entry.step.id);
     expect(allActionIds).toContain('step.j01-evora-water-request-contract');
@@ -76,10 +133,18 @@ describe('representative content resolves through the routing engine', () => {
     const resolution = resolveDestination(
       'destination.j01-settle-new-address',
       graph(),
-      context({ facts: { 'household.municipality': 'evora' } }),
+      context({
+        facts: {
+          'household.hasCitizenCard': true,
+          'household.municipality': 'evora',
+        },
+      }),
     );
     expect(resolution.issues).toEqual([]);
-    const allActionIds = [resolution.primaryAction, ...resolution.parallelActions]
+    const allActionIds = [
+      resolution.primaryAction,
+      ...resolution.parallelActions,
+    ]
       .filter((entry) => entry !== undefined)
       .map((entry) => entry.step.id);
     expect(allActionIds).not.toContain('step.j01-evora-water-request-contract');
@@ -89,16 +154,28 @@ describe('representative content resolves through the routing engine', () => {
     const resolution = resolveDestination(
       'destination.j01-settle-new-address',
       graph(),
-      context({ facts: { 'household.municipality': 'lisboa' } }),
+      context({
+        facts: {
+          'household.hasCitizenCard': true,
+          'household.municipality': 'lisboa',
+        },
+      }),
     );
-    const allActionIds = [resolution.primaryAction, ...resolution.parallelActions]
+    const allActionIds = [
+      resolution.primaryAction,
+      ...resolution.parallelActions,
+    ]
       .filter((entry) => entry !== undefined)
       .map((entry) => entry.step.id);
     expect(allActionIds).not.toContain('step.j01-evora-water-request-contract');
   });
 
   it('resolves the Évora water destination directly and blocks on its requirement group until satisfied', () => {
-    const blocked = resolveDestination('destination.j01-evora-water-connection', graph(), context());
+    const blocked = resolveDestination(
+      'destination.j01-evora-water-connection',
+      graph(),
+      context(),
+    );
     expect(blocked.issues).toEqual([]);
     expect(blocked.state).toBe('blocked');
 
@@ -119,14 +196,25 @@ describe('representative content resolves through the routing engine', () => {
     );
     expect(satisfied.issues).toEqual([]);
     expect(satisfied.state).toBe('actionable');
-    expect(satisfied.primaryAction?.step.id).toBe('step.j01-evora-water-request-contract');
+    expect(satisfied.primaryAction?.step.id).toBe(
+      'step.j01-evora-water-request-contract',
+    );
   });
 
   it('resolves J02 electricity/gas, gating the gas steps on household.hasGasConnection', () => {
-    const withoutGas = resolveDestination('destination.j02-energy-connected', graph(), context());
+    const withoutGas = resolveDestination(
+      'destination.j02-energy-connected',
+      graph(),
+      context(),
+    );
     expect(withoutGas.issues).toEqual([]);
-    expect(withoutGas.primaryAction?.step.id).toBe('step.j02-choose-electricity-supplier');
-    const withoutGasAllIds = [withoutGas.primaryAction, ...withoutGas.parallelActions]
+    expect(withoutGas.primaryAction?.step.id).toBe(
+      'step.j02-choose-electricity-supplier',
+    );
+    const withoutGasAllIds = [
+      withoutGas.primaryAction,
+      ...withoutGas.parallelActions,
+    ]
       .filter((entry) => entry !== undefined)
       .map((entry) => entry.step.id);
     expect(withoutGasAllIds).not.toContain('step.j02-choose-gas-supplier');
@@ -144,9 +232,15 @@ describe('representative content resolves through the routing engine', () => {
   });
 
   it('resolves J03 internet with the default new-installation route when portability is not requested', () => {
-    const resolution = resolveDestination('destination.j03-internet-connected', graph(), context());
+    const resolution = resolveDestination(
+      'destination.j03-internet-connected',
+      graph(),
+      context(),
+    );
     expect(resolution.issues).toEqual([]);
-    expect(resolution.primaryAction?.step.id).toBe('step.j03-choose-internet-operator');
+    expect(resolution.primaryAction?.step.id).toBe(
+      'step.j03-choose-internet-operator',
+    );
   });
 
   it('resolves J03 internet with the portability RouteVariant when the household wants to keep its number', () => {
@@ -156,13 +250,18 @@ describe('representative content resolves through the routing engine', () => {
       context({ facts: { 'household.wantsToKeepPhoneNumber': true } }),
     );
     expect(resolution.issues).toEqual([]);
-    expect(resolution.primaryAction?.step.id).toBe('step.j03-request-portability');
+    expect(resolution.primaryAction?.step.id).toBe(
+      'step.j03-request-portability',
+    );
   });
 
   it('resolves every declared destination without resolver issues in the default (empty facts) context', () => {
     for (const destination of canonicalContent.destinations) {
       const resolution = resolveDestination(destination.id, graph(), context());
-      expect(resolution.issues, `destination ${destination.id} should resolve without issues`).toEqual([]);
+      expect(
+        resolution.issues,
+        `destination ${destination.id} should resolve without issues`,
+      ).toEqual([]);
     }
   });
 });

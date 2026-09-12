@@ -31,12 +31,24 @@ const evoraWaterRequestContractStep: Step = {
   completion: 'externalOutcome',
 };
 
+/**
+ * F3 remediation (Project Overseer review of WU004/C004): the 5-business-
+ * day figure is preserved only because it is an actual regulatory maximum
+ * (Regulamento do Serviço de Abastecimento Público de Água do Município de
+ * Évora, Artigo 56.º, n.º 1 -- see source.cm-evora-regulamento-
+ * abastecimento-agua, cited via decision.evora-water-connection-max-five-
+ * business-days), not a fabricated typical duration. content:check
+ * (checkEstimatedDurationProvenance) enforces that any Step declaring
+ * `estimatedDurationDays` is supported by an authoritative Source through
+ * the `supports` relationship.
+ */
 const evoraWaterConnectionWaitStep: Step = {
   kind: 'wait',
   completion: 'externalOutcome',
   id: 'step.j01-evora-water-connection-wait',
   title: 'Wait for the water connection to be activated',
-  description: 'CM Évora processes the request and activates the supply once connection conditions are confirmed.',
+  description:
+    'CM Évora activates supply once connection conditions are confirmed. The municipal regulation sets a maximum of five business days from the contract request, subject to force-majeure exceptions; this is a regulatory maximum, not a typical duration.',
   requirementIds: [],
   requirementGroupIds: [],
   dependsOnStepIds: ['step.j01-evora-water-request-contract'],
@@ -44,7 +56,10 @@ const evoraWaterConnectionWaitStep: Step = {
   estimatedDurationDays: 5,
 };
 
-export const evoraWaterSteps: Step[] = [evoraWaterRequestContractStep, evoraWaterConnectionWaitStep];
+export const evoraWaterSteps: Step[] = [
+  evoraWaterRequestContractStep,
+  evoraWaterConnectionWaitStep,
+];
 
 export const evoraWaterRoute: Route = {
   id: 'route.j01-evora-water-request',
@@ -57,6 +72,7 @@ export const evoraWaterRoute: Route = {
 export const evoraWaterDestination: Destination = {
   id: 'destination.j01-evora-water-connection',
   title: 'Set up water supply in Évora',
-  description: 'Get water supply connected at your new Évora address through the municipal provider.',
+  description:
+    'Get water supply connected at your new Évora address through the municipal provider.',
   routeIds: [evoraWaterRoute.id],
 };

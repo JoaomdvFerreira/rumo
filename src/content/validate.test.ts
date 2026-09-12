@@ -28,35 +28,70 @@ describe('checkContentGraph', () => {
   it('detects a duplicate id within a single collection', () => {
     const graph = emptyGraph({
       destinations: [
-        { id: 'destination.a', title: 'A', description: 'A', routeIds: ['route.a'] },
-        { id: 'destination.a', title: 'A dup', description: 'A dup', routeIds: ['route.a'] },
+        {
+          id: 'destination.a',
+          title: 'A',
+          description: 'A',
+          routeIds: ['route.a'],
+        },
+        {
+          id: 'destination.a',
+          title: 'A dup',
+          description: 'A dup',
+          routeIds: ['route.a'],
+        },
       ],
     });
     const issues = checkContentGraph(graph);
     expect(issues).toContainEqual(
-      expect.objectContaining({ kind: 'duplicateId', entityKind: 'destination', id: 'destination.a' }),
+      expect.objectContaining({
+        kind: 'duplicateId',
+        entityKind: 'destination',
+        id: 'destination.a',
+      }),
     );
   });
 
   it('detects a dangling reference from a life event to an unknown destination', () => {
     const graph = emptyGraph({
       lifeEvents: [
-        { id: 'lifeEvent.a', title: 'A', description: 'A', destinationIds: ['destination.missing'] },
+        {
+          id: 'lifeEvent.a',
+          title: 'A',
+          description: 'A',
+          destinationIds: ['destination.missing'],
+        },
       ],
     });
     const issues = checkContentGraph(graph);
     expect(issues).toContainEqual(
-      expect.objectContaining({ kind: 'danglingReference', entityKind: 'lifeEvent', id: 'lifeEvent.a' }),
+      expect.objectContaining({
+        kind: 'danglingReference',
+        entityKind: 'lifeEvent',
+        id: 'lifeEvent.a',
+      }),
     );
   });
 
   it('detects a dangling step reference from a route', () => {
     const graph = emptyGraph({
-      routes: [{ id: 'route.a', title: 'A', priority: 0, stepIds: ['step.missing'], variantIds: [] }],
+      routes: [
+        {
+          id: 'route.a',
+          title: 'A',
+          priority: 0,
+          stepIds: ['step.missing'],
+          variantIds: [],
+        },
+      ],
     });
     const issues = checkContentGraph(graph);
     expect(issues).toContainEqual(
-      expect.objectContaining({ kind: 'danglingReference', entityKind: 'route', id: 'route.a' }),
+      expect.objectContaining({
+        kind: 'danglingReference',
+        entityKind: 'route',
+        id: 'route.a',
+      }),
     );
   });
 
@@ -79,7 +114,11 @@ describe('checkContentGraph', () => {
     });
     const issues = checkContentGraph(graph);
     expect(issues).toContainEqual(
-      expect.objectContaining({ kind: 'danglingReference', entityKind: 'step', id: 'step.a' }),
+      expect.objectContaining({
+        kind: 'danglingReference',
+        entityKind: 'step',
+        id: 'step.a',
+      }),
     );
   });
 
@@ -133,7 +172,11 @@ describe('checkContentGraph', () => {
     });
     const issues = checkContentGraph(graph);
     expect(issues).toContainEqual(
-      expect.objectContaining({ kind: 'danglingReference', entityKind: 'step', id: 'step.a' }),
+      expect.objectContaining({
+        kind: 'danglingReference',
+        entityKind: 'step',
+        id: 'step.a',
+      }),
     );
   });
 
@@ -168,7 +211,11 @@ describe('checkContentGraph', () => {
     });
     const issues = checkContentGraph(graph);
     expect(issues).toContainEqual(
-      expect.objectContaining({ kind: 'invalidCondition', entityKind: 'route', id: 'route.a' }),
+      expect.objectContaining({
+        kind: 'invalidCondition',
+        entityKind: 'route',
+        id: 'route.a',
+      }),
     );
   });
 
@@ -189,7 +236,11 @@ describe('checkContentGraph', () => {
     });
     const issues = checkContentGraph(graph);
     expect(issues).toContainEqual(
-      expect.objectContaining({ kind: 'missingSourceVerification', entityKind: 'source', id: 'source.a' }),
+      expect.objectContaining({
+        kind: 'missingSourceVerification',
+        entityKind: 'source',
+        id: 'source.a',
+      }),
     );
   });
 
@@ -226,7 +277,11 @@ describe('checkContentGraph', () => {
     });
     const issues = checkContentGraph(graph);
     expect(issues).toContainEqual(
-      expect.objectContaining({ kind: 'staleHighRiskSource', entityKind: 'source', id: 'source.a' }),
+      expect.objectContaining({
+        kind: 'staleHighRiskSource',
+        entityKind: 'source',
+        id: 'source.a',
+      }),
     );
   });
 
@@ -262,7 +317,9 @@ describe('checkContentGraph', () => {
       ],
     });
     const issues = checkContentGraph(graph);
-    expect(issues).not.toContainEqual(expect.objectContaining({ kind: 'staleHighRiskSource' }));
+    expect(issues).not.toContainEqual(
+      expect.objectContaining({ kind: 'staleHighRiskSource' }),
+    );
   });
 
   it('does not treat link health as proof of content freshness (ok link health with stale content still flags)', () => {
@@ -290,7 +347,9 @@ describe('checkContentGraph', () => {
       ],
     });
     const issues = checkContentGraph(graph);
-    expect(issues).toContainEqual(expect.objectContaining({ kind: 'staleHighRiskSource' }));
+    expect(issues).toContainEqual(
+      expect.objectContaining({ kind: 'staleHighRiskSource' }),
+    );
   });
 
   it('detects a dangling source reference in a provider sourceId', () => {
@@ -307,17 +366,27 @@ describe('checkContentGraph', () => {
     });
     const issues = checkContentGraph(graph);
     expect(issues).toContainEqual(
-      expect.objectContaining({ kind: 'danglingReference', entityKind: 'provider', id: 'provider.a' }),
+      expect.objectContaining({
+        kind: 'danglingReference',
+        entityKind: 'provider',
+        id: 'provider.a',
+      }),
     );
   });
 
   it('detects a dangling source reference in a decision reference sourceIds', () => {
     const graph = emptyGraph({
-      decisionReferences: [{ id: 'decision.a', sourceIds: ['source.missing'], summary: 'A' }],
+      decisionReferences: [
+        { id: 'decision.a', sourceIds: ['source.missing'], summary: 'A' },
+      ],
     });
     const issues = checkContentGraph(graph);
     expect(issues).toContainEqual(
-      expect.objectContaining({ kind: 'danglingReference', entityKind: 'decisionReference', id: 'decision.a' }),
+      expect.objectContaining({
+        kind: 'danglingReference',
+        entityKind: 'decisionReference',
+        id: 'decision.a',
+      }),
     );
   });
 
@@ -347,7 +416,11 @@ describe('checkContentGraph', () => {
     });
     const issues = checkContentGraph(graph);
     expect(issues).toContainEqual(
-      expect.objectContaining({ kind: 'danglingReference', entityKind: 'source', id: 'source.a' }),
+      expect.objectContaining({
+        kind: 'danglingReference',
+        entityKind: 'source',
+        id: 'source.a',
+      }),
     );
   });
 
@@ -365,7 +438,288 @@ describe('checkContentGraph', () => {
     });
     const issues = checkContentGraph(graph);
     expect(issues).toContainEqual(
-      expect.objectContaining({ kind: 'danglingReference', entityKind: 'sourceVerification', id: 'source.missing' }),
+      expect.objectContaining({
+        kind: 'danglingReference',
+        entityKind: 'sourceVerification',
+        id: 'source.missing',
+      }),
     );
+  });
+
+  describe('checkDecisionBearingRequirementProvenance (F1-F3 remediation hardening)', () => {
+    it('flags a Requirement referenced directly by a Step with no valid DecisionReference', () => {
+      const graph = emptyGraph({
+        requirements: [
+          {
+            id: 'requirement.a',
+            title: 'A',
+            description: 'A',
+            decisionReferenceIds: [],
+          },
+        ],
+        steps: [
+          {
+            kind: 'task',
+            id: 'step.a',
+            title: 'A',
+            description: 'A',
+            requirementIds: ['requirement.a'],
+            requirementGroupIds: [],
+            dependsOnStepIds: [],
+            priority: 0,
+            completion: 'manual',
+          },
+        ],
+      });
+      const issues = checkContentGraph(graph);
+      expect(issues).toContainEqual(
+        expect.objectContaining({
+          kind: 'missingDecisionProvenance',
+          entityKind: 'requirement',
+          id: 'requirement.a',
+        }),
+      );
+    });
+
+    it('flags a Requirement referenced only indirectly via a RequirementGroup', () => {
+      const graph = emptyGraph({
+        requirements: [
+          {
+            id: 'requirement.a',
+            title: 'A',
+            description: 'A',
+            decisionReferenceIds: [],
+          },
+        ],
+        requirementGroups: [
+          {
+            id: 'requirementGroup.a',
+            mode: 'allOf',
+            requirementIds: ['requirement.a'],
+          },
+        ],
+        steps: [
+          {
+            kind: 'task',
+            id: 'step.a',
+            title: 'A',
+            description: 'A',
+            requirementIds: [],
+            requirementGroupIds: ['requirementGroup.a'],
+            dependsOnStepIds: [],
+            priority: 0,
+            completion: 'manual',
+          },
+        ],
+      });
+      const issues = checkContentGraph(graph);
+      expect(issues).toContainEqual(
+        expect.objectContaining({
+          kind: 'missingDecisionProvenance',
+          entityKind: 'requirement',
+          id: 'requirement.a',
+        }),
+      );
+    });
+
+    it('treats a decisionReferenceIds entry that only points at a dangling id as no provenance', () => {
+      const graph = emptyGraph({
+        requirements: [
+          {
+            id: 'requirement.a',
+            title: 'A',
+            description: 'A',
+            decisionReferenceIds: ['decision.missing'],
+          },
+        ],
+        steps: [
+          {
+            kind: 'task',
+            id: 'step.a',
+            title: 'A',
+            description: 'A',
+            requirementIds: ['requirement.a'],
+            requirementGroupIds: [],
+            dependsOnStepIds: [],
+            priority: 0,
+            completion: 'manual',
+          },
+        ],
+      });
+      const issues = checkContentGraph(graph);
+      expect(issues).toContainEqual(
+        expect.objectContaining({
+          kind: 'missingDecisionProvenance',
+          entityKind: 'requirement',
+          id: 'requirement.a',
+        }),
+      );
+    });
+
+    it('does not flag a routing-participating Requirement with a valid DecisionReference', () => {
+      const graph = emptyGraph({
+        sources: [
+          {
+            id: 'source.a',
+            title: 'A',
+            publisher: 'A',
+            url: 'https://example.com/a',
+            jurisdiction: 'PT',
+            kind: 'evidence',
+            freshnessRisk: 'low',
+            supports: [],
+          },
+        ],
+        sourceVerifications: [
+          {
+            sourceId: 'source.a',
+            checkedAt: '2026-01-01T00:00:00.000Z',
+            checkedBy: 'test',
+            linkHealth: 'ok',
+            contentFreshness: 'current',
+          },
+        ],
+        decisionReferences: [
+          { id: 'decision.a', sourceIds: ['source.a'], summary: 'A' },
+        ],
+        requirements: [
+          {
+            id: 'requirement.a',
+            title: 'A',
+            description: 'A',
+            decisionReferenceIds: ['decision.a'],
+          },
+        ],
+        steps: [
+          {
+            kind: 'task',
+            id: 'step.a',
+            title: 'A',
+            description: 'A',
+            requirementIds: ['requirement.a'],
+            requirementGroupIds: [],
+            dependsOnStepIds: [],
+            priority: 0,
+            completion: 'manual',
+          },
+        ],
+      });
+      const issues = checkContentGraph(graph);
+      expect(issues).not.toContainEqual(
+        expect.objectContaining({ kind: 'missingDecisionProvenance' }),
+      );
+    });
+
+    it('does not flag a Requirement that is declared but never wired into any Step or RequirementGroup', () => {
+      const graph = emptyGraph({
+        requirements: [
+          {
+            id: 'requirement.unused',
+            title: 'Unused',
+            description: 'Unused',
+            decisionReferenceIds: [],
+          },
+        ],
+      });
+      const issues = checkContentGraph(graph);
+      expect(issues).not.toContainEqual(
+        expect.objectContaining({ kind: 'missingDecisionProvenance' }),
+      );
+    });
+  });
+
+  describe('checkEstimatedDurationProvenance (F1-F3 remediation hardening)', () => {
+    it('flags a wait Step declaring estimatedDurationDays with no supporting Source', () => {
+      const graph = emptyGraph({
+        steps: [
+          {
+            kind: 'wait',
+            id: 'step.a',
+            title: 'A',
+            description: 'A',
+            requirementIds: [],
+            requirementGroupIds: [],
+            dependsOnStepIds: [],
+            priority: 0,
+            completion: 'externalOutcome',
+            estimatedDurationDays: 5,
+          },
+        ],
+      });
+      const issues = checkContentGraph(graph);
+      expect(issues).toContainEqual(
+        expect.objectContaining({
+          kind: 'missingDurationProvenance',
+          entityKind: 'step',
+          id: 'step.a',
+        }),
+      );
+    });
+
+    it('does not flag a wait Step whose estimatedDurationDays is supported by a Source', () => {
+      const graph = emptyGraph({
+        sources: [
+          {
+            id: 'source.a',
+            title: 'A',
+            publisher: 'A',
+            url: 'https://example.com/a',
+            jurisdiction: 'PT',
+            kind: 'evidence',
+            freshnessRisk: 'low',
+            supports: ['step.a'],
+          },
+        ],
+        sourceVerifications: [
+          {
+            sourceId: 'source.a',
+            checkedAt: '2026-01-01T00:00:00.000Z',
+            checkedBy: 'test',
+            linkHealth: 'ok',
+            contentFreshness: 'current',
+          },
+        ],
+        steps: [
+          {
+            kind: 'wait',
+            id: 'step.a',
+            title: 'A',
+            description: 'A',
+            requirementIds: [],
+            requirementGroupIds: [],
+            dependsOnStepIds: [],
+            priority: 0,
+            completion: 'externalOutcome',
+            estimatedDurationDays: 5,
+          },
+        ],
+      });
+      const issues = checkContentGraph(graph);
+      expect(issues).not.toContainEqual(
+        expect.objectContaining({ kind: 'missingDurationProvenance' }),
+      );
+    });
+
+    it('does not flag a wait Step with no estimatedDurationDays at all', () => {
+      const graph = emptyGraph({
+        steps: [
+          {
+            kind: 'wait',
+            id: 'step.a',
+            title: 'A',
+            description: 'A',
+            requirementIds: [],
+            requirementGroupIds: [],
+            dependsOnStepIds: [],
+            priority: 0,
+            completion: 'externalOutcome',
+          },
+        ],
+      });
+      const issues = checkContentGraph(graph);
+      expect(issues).not.toContainEqual(
+        expect.objectContaining({ kind: 'missingDurationProvenance' }),
+      );
+    });
   });
 });

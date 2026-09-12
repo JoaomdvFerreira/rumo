@@ -23,7 +23,14 @@ function emptyGraph(overrides: Partial<ContentGraph> = {}): ContentGraph {
 describe('computeContentHash', () => {
   it('is deterministic across repeated calls with the same content', () => {
     const graph = emptyGraph({
-      lifeEvents: [{ id: 'lifeEvent.a', title: 'A', description: 'A', destinationIds: ['destination.a'] }],
+      lifeEvents: [
+        {
+          id: 'lifeEvent.a',
+          title: 'A',
+          description: 'A',
+          destinationIds: ['destination.a'],
+        },
+      ],
     });
     expect(computeContentHash(graph)).toBe(computeContentHash(graph));
   });
@@ -63,10 +70,24 @@ describe('computeContentHash', () => {
 
   it('changes when a semantically meaningful value changes', () => {
     const base = emptyGraph({
-      lifeEvents: [{ id: 'lifeEvent.a', title: 'A', description: 'A', destinationIds: ['destination.a'] }],
+      lifeEvents: [
+        {
+          id: 'lifeEvent.a',
+          title: 'A',
+          description: 'A',
+          destinationIds: ['destination.a'],
+        },
+      ],
     });
     const changed = emptyGraph({
-      lifeEvents: [{ id: 'lifeEvent.a', title: 'A changed', description: 'A', destinationIds: ['destination.a'] }],
+      lifeEvents: [
+        {
+          id: 'lifeEvent.a',
+          title: 'A changed',
+          description: 'A',
+          destinationIds: ['destination.a'],
+        },
+      ],
     });
     expect(computeContentHash(base)).not.toBe(computeContentHash(changed));
   });
@@ -74,12 +95,22 @@ describe('computeContentHash', () => {
   it('is sensitive to array element order (declaration order is semantically meaningful)', () => {
     const first = emptyGraph({
       destinations: [
-        { id: 'destination.a', title: 'A', description: 'A', routeIds: ['route.x', 'route.y'] },
+        {
+          id: 'destination.a',
+          title: 'A',
+          description: 'A',
+          routeIds: ['route.x', 'route.y'],
+        },
       ],
     });
     const second = emptyGraph({
       destinations: [
-        { id: 'destination.a', title: 'A', description: 'A', routeIds: ['route.y', 'route.x'] },
+        {
+          id: 'destination.a',
+          title: 'A',
+          description: 'A',
+          routeIds: ['route.y', 'route.x'],
+        },
       ],
     });
     expect(computeContentHash(first)).not.toBe(computeContentHash(second));

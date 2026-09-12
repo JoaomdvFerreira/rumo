@@ -16,7 +16,9 @@ export * from './validate';
  */
 const parsed = parseContentGraph(contentGraph);
 if (!parsed.success) {
-  throw new Error(`Canonical content failed schema validation: ${parsed.error.message}`);
+  throw new Error(
+    `Canonical content failed schema validation: ${parsed.error.message}`,
+  );
 }
 
 export const canonicalContent: ContentGraph = parsed.content;

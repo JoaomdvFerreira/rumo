@@ -1,5 +1,10 @@
 import type { Step } from '../../domain/model/step';
-import type { Destination, LifeEvent, Route, RouteVariant } from '../../domain/model/routing';
+import type {
+  Destination,
+  LifeEvent,
+  Route,
+  RouteVariant,
+} from '../../domain/model/routing';
 
 /**
  * J03 Internet. Models the ANACOM number-portability path (keep an
@@ -12,7 +17,8 @@ const chooseInternetOperatorStep: Step = {
   kind: 'task',
   id: 'step.j03-choose-internet-operator',
   title: 'Choose an internet/telecom operator and sign up',
-  description: 'Compare operators and sign up for internet service at your new address.',
+  description:
+    'Compare operators and sign up for internet service at your new address.',
   requirementIds: [],
   requirementGroupIds: [],
   dependsOnStepIds: [],
@@ -25,7 +31,8 @@ const installationWaitStep: Step = {
   completion: 'externalOutcome',
   id: 'step.j03-installation-wait',
   title: 'Wait for technician installation',
-  description: 'The operator schedules and completes on-site installation of your internet connection.',
+  description:
+    'The operator schedules and completes on-site installation of your internet connection.',
   requirementIds: [],
   requirementGroupIds: [],
   dependsOnStepIds: ['step.j03-choose-internet-operator'],
@@ -50,7 +57,8 @@ const portabilityWindowWaitStep: Step = {
   completion: 'externalOutcome',
   id: 'step.j03-portability-window-wait',
   title: 'Wait through the portability window',
-  description: 'Number portability completes within one business day, with a service interruption of at most three hours.',
+  description:
+    'Number portability completes within one business day, with a service interruption of at most three hours.',
   requirementIds: [],
   requirementGroupIds: [],
   dependsOnStepIds: ['step.j03-request-portability'],
@@ -84,7 +92,8 @@ export const internetPortabilityVariant: RouteVariant = {
 export const internetDestination: Destination = {
   id: 'destination.j03-internet-connected',
   title: 'Get internet connected',
-  description: 'Set up internet service at your new address, keeping your existing phone number if you have one.',
+  description:
+    'Set up internet service at your new address, keeping your existing phone number if you have one.',
   routeIds: [internetRoute.id],
 };
 

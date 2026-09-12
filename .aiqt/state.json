@@ -734,8 +734,8 @@
         }
       ],
       "finalWorkUnitStatus": "needs_review",
-      "createdAt": "2026-09-12T07:53:15.227Z",
-      "nextRecommendation": "aiqt checkpoint amend --checkpoint C004"
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C004",
+      "createdAt": "2026-09-12T07:53:15.227Z"
     }
   ],
   "lastAgentPacket": {
@@ -763,7 +763,7 @@
     }
   },
   "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C004",
-  "lastUpdatedAt": "2026-09-12T07:53:15.227Z",
+  "lastUpdatedAt": "2026-09-12T07:59:41.469Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -853,6 +853,16 @@
       "validationResult": "passed",
       "reason": "Project Overseer final acceptance restored after technical recovery reset; C003 canonical acceptance-criterion identities are corrected and match WU003 exactly. Final reviewed implementation: 2dfccf5.",
       "amendedAt": "2026-09-12T07:28:38.347Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-010",
+      "checkpointId": "C004",
+      "workUnitId": "WU004",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "Project Overseer review: WU004 requires bounded factual-content and provenance remediation for J01 address routing, J02 switching timing, and Évora-water decision provenance. Technical architecture otherwise accepted.",
+      "amendedAt": "2026-09-12T07:59:41.469Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -1059,16 +1069,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C004",
       "current": {
-        "observationId": "sha256:31974f1e666f6a49296a5abf649c855d633949deb638d4acc1496590b451b6b1",
+        "observationId": "sha256:fce1def55ba87e31899fa1bd42d93e1df950126a4e556e986b8d49f10f4e5633",
         "checkpointId": "C004",
         "workUnitId": "WU004",
-        "trigger": "checkpoint",
+        "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-12T07:53:15.227Z",
+        "asOf": "2026-09-12T07:59:41.469Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-12T07:53:15.227Z"
+        "recordedAt": "2026-09-12T07:59:41.469Z"
       },
       "history": [
         {
@@ -1082,6 +1092,18 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T07:53:15.227Z"
+        },
+        {
+          "observationId": "sha256:fce1def55ba87e31899fa1bd42d93e1df950126a4e556e986b8d49f10f4e5633",
+          "checkpointId": "C004",
+          "workUnitId": "WU004",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T07:59:41.469Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T07:59:41.469Z"
         }
       ]
     }

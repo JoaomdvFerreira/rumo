@@ -48,7 +48,9 @@ describe('parseContentGraph', () => {
 
   it('rejects a candidate with a structurally invalid entity', () => {
     const result = parseContentGraph({
-      lifeEvents: [{ id: 'lifeEvent.a', title: 'A', description: 'A', destinationIds: [] }],
+      lifeEvents: [
+        { id: 'lifeEvent.a', title: 'A', description: 'A', destinationIds: [] },
+      ],
       destinations: [],
       routes: [],
       routeVariants: [],

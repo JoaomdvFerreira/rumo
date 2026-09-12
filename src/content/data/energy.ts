@@ -7,6 +7,13 @@ import type { Destination, LifeEvent, Route } from '../../domain/model/routing';
  * describes switching electricity and switching gas as the same
  * administrative process a household typically does together when
  * setting up a new home -- not two separate outcomes.
+ *
+ * F2 remediation (Project Overseer review of WU004/C004): ERSE states the
+ * switch must complete within a maximum of three weeks and that supply is
+ * never interrupted during the process -- it does not say switches
+ * "typically" take five business days. `estimatedDurationDays` is omitted
+ * on both wait steps (there is no authoritative "typical" figure to cite),
+ * and the regulatory maximum is stated in prose instead.
  */
 const chooseElectricitySupplierStep: Step = {
   kind: 'task',
@@ -26,12 +33,12 @@ const electricitySwitchWaitStep: Step = {
   completion: 'externalOutcome',
   id: 'step.j02-electricity-switch-wait',
   title: 'Wait for the electricity switch to complete',
-  description: 'The new supplier completes the switch, typically within five business days, without interrupting supply.',
+  description:
+    'The new supplier completes the switch without interrupting supply. ERSE sets a maximum of three weeks from the new contract for the switch to complete; this is a regulatory maximum, not a typical or expected duration.',
   requirementIds: [],
   requirementGroupIds: [],
   dependsOnStepIds: ['step.j02-choose-electricity-supplier'],
   priority: 0,
-  estimatedDurationDays: 5,
 };
 
 const chooseGasSupplierStep: Step = {
@@ -53,13 +60,13 @@ const gasSwitchWaitStep: Step = {
   completion: 'externalOutcome',
   id: 'step.j02-gas-switch-wait',
   title: 'Wait for the gas switch to complete',
-  description: 'The new supplier completes the switch, typically within five business days, without interrupting supply.',
+  description:
+    'The new supplier completes the switch without interrupting supply. ERSE sets a maximum of three weeks from the new contract for the switch to complete; this is a regulatory maximum, not a typical or expected duration.',
   requirementIds: [],
   requirementGroupIds: [],
   appliesWhen: { kind: 'factTruthy', fact: 'household.hasGasConnection' },
   dependsOnStepIds: ['step.j02-choose-gas-supplier'],
   priority: 0,
-  estimatedDurationDays: 5,
 };
 
 export const energySteps: Step[] = [
@@ -85,13 +92,15 @@ export const energyRoute: Route = {
 export const energyDestination: Destination = {
   id: 'destination.j02-energy-connected',
   title: 'Get electricity and gas connected',
-  description: 'Set up electricity and, if applicable, natural gas supply at your new address.',
+  description:
+    'Set up electricity and, if applicable, natural gas supply at your new address.',
   routeIds: [energyRoute.id],
 };
 
 export const energyLifeEvent: LifeEvent = {
   id: 'lifeEvent.energy-setup',
   title: 'Electricity and gas',
-  description: 'Setting up electricity and gas supply at a new home in Portugal.',
+  description:
+    'Setting up electricity and gas supply at a new home in Portugal.',
   destinationIds: [energyDestination.id],
 };

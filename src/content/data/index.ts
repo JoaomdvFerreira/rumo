@@ -1,7 +1,22 @@
 import { decisionReferences } from './decisions';
-import { evoraWaterDestination, evoraWaterRoute, evoraWaterSteps } from './evoraWater';
-import { moveHomeDestination, moveHomeLifeEvent, moveHomeRoute, moveHomeSteps } from './moveHome';
-import { energyDestination, energyLifeEvent, energyRoute, energySteps } from './energy';
+import {
+  evoraWaterDestination,
+  evoraWaterRoute,
+  evoraWaterSteps,
+} from './evoraWater';
+import {
+  citizenCardAddressRoute,
+  fiscalAddressRoute,
+  moveHomeDestination,
+  moveHomeLifeEvent,
+  moveHomeSteps,
+} from './moveHome';
+import {
+  energyDestination,
+  energyLifeEvent,
+  energyRoute,
+  energySteps,
+} from './energy';
 import {
   internetDestination,
   internetLifeEvent,
@@ -23,10 +38,26 @@ import type { ContentGraph } from '../graph';
  */
 export const contentGraph: ContentGraph = {
   lifeEvents: [moveHomeLifeEvent, energyLifeEvent, internetLifeEvent],
-  destinations: [moveHomeDestination, evoraWaterDestination, energyDestination, internetDestination],
-  routes: [moveHomeRoute, evoraWaterRoute, energyRoute, internetRoute],
+  destinations: [
+    moveHomeDestination,
+    evoraWaterDestination,
+    energyDestination,
+    internetDestination,
+  ],
+  routes: [
+    citizenCardAddressRoute,
+    fiscalAddressRoute,
+    evoraWaterRoute,
+    energyRoute,
+    internetRoute,
+  ],
   routeVariants: [internetPortabilityVariant],
-  steps: [...moveHomeSteps, ...evoraWaterSteps, ...energySteps, ...internetSteps],
+  steps: [
+    ...moveHomeSteps,
+    ...evoraWaterSteps,
+    ...energySteps,
+    ...internetSteps,
+  ],
   requirements,
   requirementGroups,
   providers,
