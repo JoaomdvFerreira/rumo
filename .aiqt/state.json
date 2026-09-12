@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "review",
+  "projectStatus": "in_progress",
   "currentMilestoneId": "M001",
   "currentWorkUnitId": null,
   "workGraph": {
@@ -9,7 +9,7 @@
         "id": "M001",
         "title": "Production Foundation",
         "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
-        "status": "in_progress",
+        "status": "ready",
         "workUnitIds": [
           "WU001",
           "WU002",
@@ -136,12 +136,12 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "needs_review",
+        "status": "done",
         "dependencies": [
           "DEP-002"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T21:23:19.921Z"
+        "updatedAt": "2026-09-12T07:28:38.347Z"
       },
       {
         "id": "WU004",
@@ -175,13 +175,13 @@
           "pnpm test",
           "pnpm content:check"
         ],
-        "status": "planned",
+        "status": "ready",
         "dependencies": [
           "DEP-003",
           "DEP-004"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:56:25.144Z"
+        "updatedAt": "2026-09-12T07:28:38.347Z"
       },
       {
         "id": "WU005",
@@ -626,12 +626,12 @@
       ],
       "acceptanceCriteria": [
         {
-          "criterion": "Routing follows approved priority semantics (highest priority, then declaration/reference order, then stable id) for Route, RouteVariant, and next-action Step selection.",
+          "criterion": "Routing follows approved priority semantics.",
           "result": "passed",
           "evidence": "src/domain/engine/priority.ts + route.test.ts/destination.test.ts tie-break cases."
         },
         {
-          "criterion": "Determinism is covered by tests, including fast-check property/invariant tests.",
+          "criterion": "Determinism is covered by tests.",
           "result": "passed",
           "evidence": "condition.test.ts and priority.test.ts fast-check suites assert determinism, non-mutation, and structural invariants; destination.test.ts asserts repeated-call determinism and no mutation of graph/context inputs."
         }
@@ -666,8 +666,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C003",
-  "lastUpdatedAt": "2026-09-12T06:55:39.208Z",
+  "nextRecommendedCommand": "aiqt next",
+  "lastUpdatedAt": "2026-09-12T07:28:38.347Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -727,6 +727,36 @@
       "validationResult": "passed",
       "reason": "WU003 final ordering remediation validation passed; Project Overseer final review pending.",
       "amendedAt": "2026-09-12T06:55:39.208Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-007",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance after remediation and final code review at 2dfccf5.",
+      "amendedAt": "2026-09-12T07:01:58.413Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-008",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "Technical recovery reset only: force a subsequent completion-gate re-evaluation after owner-authorized correction of C003 canonical acceptance-criterion identity for the recorded AIQT checkpoint-detail/idempotency issue. This does not represent a substantive regression of Project Overseer acceptance.",
+      "amendedAt": "2026-09-12T07:27:40.735Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-009",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance restored after technical recovery reset; C003 canonical acceptance-criterion identities are corrected and match WU003 exactly. Final reviewed implementation: 2dfccf5.",
+      "amendedAt": "2026-09-12T07:28:38.347Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -819,16 +849,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C003",
       "current": {
-        "observationId": "sha256:38e4d5a99f545a800634d815c5a5d77cc77ad6edc19d500d8fc609b393508aaf",
+        "observationId": "sha256:14b61f2f9e904a99759e45d187bf4e336dc9df053c0d9dc30e7ec02ef54b0996",
         "checkpointId": "C003",
         "workUnitId": "WU003",
         "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-12T06:55:39.208Z",
+        "asOf": "2026-09-12T07:28:38.347Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-12T06:55:39.208Z"
+        "recordedAt": "2026-09-12T07:28:38.347Z"
       },
       "history": [
         {
@@ -890,6 +920,42 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T06:55:39.208Z"
+        },
+        {
+          "observationId": "sha256:193ca0968b5f1f86ffd7fb505c6ba5f851ef078a71abcd1c18234666f5e9a47e",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T07:01:58.413Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T07:01:58.413Z"
+        },
+        {
+          "observationId": "sha256:83ef49e64d13beae92548a174864067ef6f4ce23bb8d8c5793d26dbd4428d650",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T07:27:40.735Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T07:27:40.735Z"
+        },
+        {
+          "observationId": "sha256:14b61f2f9e904a99759e45d187bf4e336dc9df053c0d9dc30e7ec02ef54b0996",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T07:28:38.347Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T07:28:38.347Z"
         }
       ]
     }
