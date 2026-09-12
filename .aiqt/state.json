@@ -1,7 +1,7 @@
 {
   "version": "0.9.0",
   "projectStatus": "review",
-  "currentMilestoneId": "M001",
+  "currentMilestoneId": null,
   "currentWorkUnitId": null,
   "workGraph": {
     "milestones": [
@@ -9,7 +9,7 @@
         "id": "M001",
         "title": "Production Foundation",
         "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
-        "status": "in_progress",
+        "status": "done",
         "workUnitIds": [
           "WU001",
           "WU002",
@@ -333,12 +333,12 @@
           "pnpm build",
           "git diff --check"
         ],
-        "status": "needs_review",
+        "status": "done",
         "dependencies": [
           "DEP-011"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-12T18:42:35.050Z"
+        "updatedAt": "2026-09-12T22:45:11.145Z"
       }
     ],
     "dependencies": [
@@ -1052,8 +1052,8 @@
         }
       ],
       "finalWorkUnitStatus": "needs_review",
-      "createdAt": "2026-09-12T18:42:35.050Z",
-      "nextRecommendation": "aiqt checkpoint amend --checkpoint C008"
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C008",
+      "createdAt": "2026-09-12T18:42:35.050Z"
     }
   ],
   "lastAgentPacket": {
@@ -1081,8 +1081,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C008",
-  "lastUpdatedAt": "2026-09-12T18:42:35.050Z",
+  "nextRecommendedCommand": "aiqt review --mode release",
+  "lastUpdatedAt": "2026-09-12T22:45:11.145Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -1252,6 +1252,26 @@
       "validationResult": "passed",
       "reason": "Project Overseer final acceptance after WU007 remediation F1-F6. Final reviewed implementation: b0795bd.",
       "amendedAt": "2026-09-12T18:31:12.356Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-018",
+      "checkpointId": "C008",
+      "workUnitId": "WU008",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "Technical completion-gate re-evaluation pulse only. Project Overseer acceptance of WU008 and M03.1 remains PASS; this temporary partial result exists solely because AIQT 0.46.8 treats an identical passed/passed amendment as a no-op and does not re-run the completion gate.",
+      "amendedAt": "2026-09-12T22:44:42.065Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-019",
+      "checkpointId": "C008",
+      "workUnitId": "WU008",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance of WU008 and M03.1 Production Foundation release evidence after explicit AIQT completion-gate re-evaluation. Reviewed evidence head: e10aac1. Existing low-severity node:crypto observation remains accepted and non-blocking.",
+      "amendedAt": "2026-09-12T22:45:11.145Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -1674,16 +1694,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C008",
       "current": {
-        "observationId": "sha256:0ef90c9a55b7e83a2dcf8c1074f9ceba5cfd93d3934247f96952d357fcc0beb0",
+        "observationId": "sha256:681f18ab8e764058ccc0c01c408dc3f6849e5a5257c94f0985b3ffadad3facbc",
         "checkpointId": "C008",
         "workUnitId": "WU008",
-        "trigger": "checkpoint",
+        "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-12T18:42:35.050Z",
+        "asOf": "2026-09-12T22:45:11.145Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-12T18:42:35.050Z"
+        "recordedAt": "2026-09-12T22:45:11.145Z"
       },
       "history": [
         {
@@ -1697,6 +1717,30 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T18:42:35.050Z"
+        },
+        {
+          "observationId": "sha256:58aff61bd1fed336edf97b55e5efaaba3a6088cf09ad199ec623832f51f882f9",
+          "checkpointId": "C008",
+          "workUnitId": "WU008",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T22:44:42.065Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T22:44:42.065Z"
+        },
+        {
+          "observationId": "sha256:681f18ab8e764058ccc0c01c408dc3f6849e5a5257c94f0985b3ffadad3facbc",
+          "checkpointId": "C008",
+          "workUnitId": "WU008",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T22:45:11.145Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T22:45:11.145Z"
         }
       ]
     }
