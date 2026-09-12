@@ -425,6 +425,113 @@ describe('resolveDestination: F6 parallel actionable sibling subjourneys', () =>
   });
 });
 
+describe('resolveDestination: F7 canonical active-route order across candidate kinds', () => {
+  it('equal priority, subjourney first in route: subjourney child wins primary, direct task is parallel', () => {
+    const childTask = task('step.child-task');
+    const childDest = destination('destination.child', ['route.child']);
+    const childRoute = route('route.child', [childTask.id]);
+
+    const sub = subjourney('step.subjourney', childDest.id, { priority: 0 });
+    const direct = task('step.direct', { priority: 0 });
+    const parentDest = destination('destination.parent', ['route.parent']);
+    const parentRoute = route('route.parent', [sub.id, direct.id]);
+
+    const g = graph({
+      destinations: index([parentDest, childDest]),
+      routes: index([parentRoute, childRoute]),
+      steps: index([sub, direct, childTask]),
+    });
+
+    const result = resolveDestination(parentDest.id, g, context());
+    expect(result.primaryAction?.step.id).toBe('step.child-task');
+    expect(result.parallelActions.map((p) => p.step.id)).toContain('step.direct');
+  });
+
+  it('equal priority, direct task first in route: direct task wins primary, subjourney child is parallel', () => {
+    const childTask = task('step.child-task');
+    const childDest = destination('destination.child', ['route.child']);
+    const childRoute = route('route.child', [childTask.id]);
+
+    const direct = task('step.direct', { priority: 0 });
+    const sub = subjourney('step.subjourney', childDest.id, { priority: 0 });
+    const parentDest = destination('destination.parent', ['route.parent']);
+    const parentRoute = route('route.parent', [direct.id, sub.id]);
+
+    const g = graph({
+      destinations: index([parentDest, childDest]),
+      routes: index([parentRoute, childRoute]),
+      steps: index([direct, sub, childTask]),
+    });
+
+    const result = resolveDestination(parentDest.id, g, context());
+    expect(result.primaryAction?.step.id).toBe('step.direct');
+    expect(result.parallelActions.map((p) => p.step.id)).toContain('step.child-task');
+  });
+
+  it('priority overrides route order: lower-priority subjourney first in route still loses to a higher-priority direct task', () => {
+    const childTask = task('step.child-task');
+    const childDest = destination('destination.child', ['route.child']);
+    const childRoute = route('route.child', [childTask.id]);
+
+    const sub = subjourney('step.subjourney', childDest.id, { priority: 0 });
+    const direct = task('step.direct', { priority: 5 });
+    const parentDest = destination('destination.parent', ['route.parent']);
+    const parentRoute = route('route.parent', [sub.id, direct.id]);
+
+    const g = graph({
+      destinations: index([parentDest, childDest]),
+      routes: index([parentRoute, childRoute]),
+      steps: index([sub, direct, childTask]),
+    });
+
+    const result = resolveDestination(parentDest.id, g, context());
+    expect(result.primaryAction?.step.id).toBe('step.direct');
+  });
+
+  it('priority overrides route order (inverse): a higher-priority subjourney first in route beats a lower-priority direct task later in route', () => {
+    const childTask = task('step.child-task');
+    const childDest = destination('destination.child', ['route.child']);
+    const childRoute = route('route.child', [childTask.id]);
+
+    const sub = subjourney('step.subjourney', childDest.id, { priority: 5 });
+    const direct = task('step.direct', { priority: 0 });
+    const parentDest = destination('destination.parent', ['route.parent']);
+    const parentRoute = route('route.parent', [sub.id, direct.id]);
+
+    const g = graph({
+      destinations: index([parentDest, childDest]),
+      routes: index([parentRoute, childRoute]),
+      steps: index([sub, direct, childTask]),
+    });
+
+    const result = resolveDestination(parentDest.id, g, context());
+    expect(result.primaryAction?.step.id).toBe('step.child-task');
+  });
+
+  it('parallelActions remain deterministic across repeated calls after the F7 ordering fix', () => {
+    const childTask = task('step.child-task');
+    const childDest = destination('destination.child', ['route.child']);
+    const childRoute = route('route.child', [childTask.id]);
+
+    const sub = subjourney('step.subjourney', childDest.id, { priority: 0 });
+    const direct = task('step.direct', { priority: 0 });
+    const parentDest = destination('destination.parent', ['route.parent']);
+    const parentRoute = route('route.parent', [sub.id, direct.id]);
+
+    const g = graph({
+      destinations: index([parentDest, childDest]),
+      routes: index([parentRoute, childRoute]),
+      steps: index([sub, direct, childTask]),
+    });
+    const ctx = context();
+
+    const first = resolveDestination(parentDest.id, g, ctx);
+    const second = resolveDestination(parentDest.id, g, ctx);
+    expect(second.primaryAction?.step.id).toBe(first.primaryAction?.step.id);
+    expect(second.parallelActions.map((p) => p.step.id)).toEqual(first.parallelActions.map((p) => p.step.id));
+  });
+});
+
 describe('resolveDestination: missing references and determinism', () => {
   it('reports a missing destination id deterministically', () => {
     const result = resolveDestination('destination.missing', graph(), context());

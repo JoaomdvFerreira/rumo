@@ -667,7 +667,7 @@
     }
   },
   "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C003",
-  "lastUpdatedAt": "2026-09-11T21:36:32.171Z",
+  "lastUpdatedAt": "2026-09-12T06:55:39.208Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -707,6 +707,26 @@
       "validationResult": "passed",
       "reason": "WU003 remediation validation passed; Project Overseer re-review pending.",
       "amendedAt": "2026-09-11T21:36:32.171Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-005",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "partial",
+      "reason": "Project Overseer re-review found remaining next-action ordering defect (F7): equal-priority direct tasks and subjourney candidates do not preserve active Route.stepIds order because buildResolution groups direct candidates before subjourney candidates.",
+      "amendedAt": "2026-09-12T06:53:09.510Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-006",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "WU003 final ordering remediation validation passed; Project Overseer final review pending.",
+      "amendedAt": "2026-09-12T06:55:39.208Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -799,16 +819,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C003",
       "current": {
-        "observationId": "sha256:0985582832159895c16536e3fc9829f614b49539e2fcbfe4fe315fed84e4ea21",
+        "observationId": "sha256:38e4d5a99f545a800634d815c5a5d77cc77ad6edc19d500d8fc609b393508aaf",
         "checkpointId": "C003",
         "workUnitId": "WU003",
         "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-11T21:36:32.171Z",
+        "asOf": "2026-09-12T06:55:39.208Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-11T21:36:32.171Z"
+        "recordedAt": "2026-09-12T06:55:39.208Z"
       },
       "history": [
         {
@@ -846,6 +866,30 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-11T21:36:32.171Z"
+        },
+        {
+          "observationId": "sha256:db74ce60e2512af07fbab2cdce326ccaf77ba02e46ee13e839e3e4280bb149f9",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T06:53:09.510Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T06:53:09.510Z"
+        },
+        {
+          "observationId": "sha256:38e4d5a99f545a800634d815c5a5d77cc77ad6edc19d500d8fc609b393508aaf",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T06:55:39.208Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T06:55:39.208Z"
         }
       ]
     }

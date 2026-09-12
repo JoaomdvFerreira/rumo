@@ -1,4 +1,3 @@
-import { sortByPriority } from './priority';
 import type { EntityIndex, ResolverIssue } from './resolver';
 import { cycleDetected, missingReference } from './resolver';
 import { selectRoute } from './route';
@@ -201,19 +200,30 @@ function resolveDestinationInternal(
     }
   }
 
-  return buildResolution(destinationId, issues, actionable, waiting, blocked, readySubjourneys, allCompleteOrSkipped, hasUnresolvedSelectedStep);
+  return buildResolution(
+    destinationId,
+    issues,
+    actionable,
+    waiting,
+    blocked,
+    readySubjourneys,
+    allCompleteOrSkipped,
+    hasUnresolvedSelectedStep,
+    selection.stepIds,
+  );
 }
 
 /**
- * F6: deterministic ordering of ready sibling subjourneys, by parent
- * SubjourneyStep priority desc, then active-route step order (the order
- * `readySubjourneys` was collected in, which follows `selection.stepIds`),
- * then stable id -- the same tie-break rule used everywhere else.
+ * F7: a candidate's position is its index within the active Route/Variant's
+ * `stepIds` -- the single canonical declaration order shared by direct Steps
+ * and SubjourneySteps alike. Looking this up (rather than trusting the order
+ * two separately-collected arrays happen to be concatenated in) is what lets
+ * direct tasks and ready sibling subjourneys compete on one interleaved
+ * timeline instead of "all direct, then all subjourney" or vice versa.
  */
-function orderReadySubjourneys(readySubjourneys: readonly ReadySubjourney[]): ReadySubjourney[] {
-  return sortByPriority(
-    readySubjourneys.map((entry) => ({ id: entry.step.id, priority: entry.step.priority, entry })),
-  ).map((wrapped) => wrapped.entry);
+function routePosition(stepId: string, activeStepIds: readonly string[]): number {
+  const index = activeStepIds.indexOf(stepId);
+  return index === -1 ? activeStepIds.length : index;
 }
 
 function buildResolution(
@@ -225,9 +235,9 @@ function buildResolution(
   readySubjourneys: ReadySubjourney[],
   allCompleteOrSkipped: boolean,
   hasUnresolvedSelectedStep: boolean,
+  activeStepIds: readonly string[],
 ): DestinationResolution {
-  const orderedSubjourneys = orderReadySubjourneys(readySubjourneys);
-  const actionableSubjourneys = orderedSubjourneys.filter(
+  const actionableSubjourneys = readySubjourneys.filter(
     (entry) => entry.resolution.state === 'actionable' && entry.resolution.primaryAction !== undefined,
   );
 
@@ -238,16 +248,13 @@ function buildResolution(
     // Direct actionable steps and actionable sibling subjourneys compete for
     // the primary/parallel slots under one deterministic order: priority
     // desc (a subjourney candidate carries its parent SubjourneyStep's
-    // priority), then declaration/collection order, then stable id.
-    const orderedDirect = sortByPriority(
-      actionable.map((entry) => ({ id: entry.step.id, priority: entry.step.priority, entry })),
-    ).map((wrapped) => wrapped.entry);
-
+    // priority), then canonical active Route.stepIds position (interleaved
+    // across both kinds -- F7), then stable id.
     type Candidate =
       | { readonly id: string; readonly priority: number; readonly kind: 'direct'; readonly pathStep: PathStep }
       | { readonly id: string; readonly priority: number; readonly kind: 'subjourney'; readonly child: DestinationResolution };
 
-    const directCandidates: Candidate[] = orderedDirect.map((entry) => ({
+    const directCandidates: Candidate[] = actionable.map((entry) => ({
       id: entry.step.id,
       priority: entry.step.priority,
       kind: 'direct',
@@ -260,7 +267,14 @@ function buildResolution(
       child: entry.resolution,
     }));
 
-    const [winner, ...rest] = sortByPriority([...directCandidates, ...subjourneyCandidates]);
+    const allCandidates = [...directCandidates, ...subjourneyCandidates].sort((a, b) => {
+      if (a.priority !== b.priority) return b.priority - a.priority;
+      const positionDelta = routePosition(a.id, activeStepIds) - routePosition(b.id, activeStepIds);
+      if (positionDelta !== 0) return positionDelta;
+      return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+    });
+
+    const [winner, ...rest] = allCandidates;
 
     const primaryAction = winner.kind === 'direct' ? winner.pathStep : (winner.child.primaryAction as PathStep);
 
