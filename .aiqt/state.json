@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "in_progress",
+  "projectStatus": "review",
   "currentMilestoneId": "M001",
   "currentWorkUnitId": null,
   "workGraph": {
@@ -9,7 +9,7 @@
         "id": "M001",
         "title": "Production Foundation",
         "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
-        "status": "ready",
+        "status": "in_progress",
         "workUnitIds": [
           "WU001",
           "WU002",
@@ -175,13 +175,13 @@
           "pnpm test",
           "pnpm content:check"
         ],
-        "status": "ready",
+        "status": "needs_review",
         "dependencies": [
           "DEP-003",
           "DEP-004"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-12T07:28:38.347Z"
+        "updatedAt": "2026-09-12T07:53:15.227Z"
       },
       {
         "id": "WU005",
@@ -639,15 +639,112 @@
       "finalWorkUnitStatus": "needs_review",
       "nextRecommendation": "aiqt checkpoint amend --checkpoint C003",
       "createdAt": "2026-09-11T21:23:19.921Z"
+    },
+    {
+      "id": "C004",
+      "workUnitId": "WU004",
+      "packetId": "PKT-005",
+      "summary": "Implemented WU004 Canonical Content & Validation: a src/content package with a ContentGraph aggregate schema over the WU002 entity contracts, cross-reference/condition/source/freshness validation (content:check), deterministic SHA-256 content hashing over a recursively key-sorted canonical form, and representative MVP content for J01 Moving home, J02 Electricity/gas, J03 Internet, and the Évora water resolver/module (modeled as its own subjourney-linked Destination). Content was authored from real, verified public sources (gov.pt/ePortugal, ERSE, ANACOM, Câmara Municipal de Évora) with SourceDefinition/SourceVerification kept separate per guardrails. Proved the content graph resolves correctly through the existing WU003 routing engine (subjourney gating, requirement-group blocking, condition-gated gas steps, RouteVariant portability path) via a dedicated integration test.",
+      "completed": [
+        "Added src/content/graph.ts: strict ContentGraph aggregate schema composed from the WU002 entity schemas (no new entity shapes).",
+        "Added src/content/parse.ts: parseContentGraph shape-level validation wrapper.",
+        "Added src/content/hash.ts: deterministic SHA-256 content hash over a recursively key-sorted canonical JSON form; array order preserved as semantically meaningful.",
+        "Added src/content/validate.ts (content:check): duplicate-id, dangling-reference (across every entity relation including step->provider->channel), invalid-condition (blank fact key, walked through allOf/anyOf/not), missing-SourceVerification, and stale-high-freshness-risk-source checks. Link health is never treated as freshness proof.",
+        "Added src/content/index.ts: parses and exports the canonical content graph, its schema validation guard, and the deterministic contentHash.",
+        "Authored representative content under src/content/data/: sources.ts (SourceDefinition + SourceVerification, kept separate), decisions.ts (DecisionReference provenance for decision-bearing rules), providers.ts, requirements.ts, evoraWater.ts (Évora water resolver/module: requirement-gated task + wait, its own Route/Destination), moveHome.ts (J01, with a fact-gated subjourney into the Évora water module), energy.ts (J02, gas steps conditioned on household.hasGasConnection), internet.ts (J03, RouteVariant for ANACOM number portability), and index.ts assembling the full ContentGraph.",
+        "Wired pnpm content:check to a Vitest-based check (src/content/check.test.ts) since the project has no ts-node/tsx runner; reuses already-approved tooling instead of adding a dependency outside WU004 scope.",
+        "Added unit tests: parse.test.ts, hash.test.ts (determinism, key-order independence, array-order sensitivity, change sensitivity), validate.test.ts (one test per issue kind plus edge cases: latest-verification-wins for staleness, link-health-does-not-imply-freshness).",
+        "Added src/content/integration.test.ts: resolves every representative Destination through the real WU003 engine (resolveDestination) across multiple fact/progress scenarios, asserting zero resolver issues and correct actionable/blocked state, including the Évora subjourney gating and the internet portability RouteVariant.",
+        "Removed src/content/.gitkeep (superseded by real content)."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "package.json",
+        "src/content/.gitkeep",
+        "src/content/graph.ts",
+        "src/content/parse.ts",
+        "src/content/parse.test.ts",
+        "src/content/hash.ts",
+        "src/content/hash.test.ts",
+        "src/content/validate.ts",
+        "src/content/validate.test.ts",
+        "src/content/index.ts",
+        "src/content/check.test.ts",
+        "src/content/integration.test.ts",
+        "src/content/data/index.ts",
+        "src/content/data/sources.ts",
+        "src/content/data/decisions.ts",
+        "src/content/data/providers.ts",
+        "src/content/data/requirements.ts",
+        "src/content/data/evoraWater.ts",
+        "src/content/data/moveHome.ts",
+        "src/content/data/energy.ts",
+        "src/content/data/internet.ts"
+      ],
+      "issues": [
+        {
+          "title": "Single Route per Destination in this representative slice",
+          "description": "Only one Route is declared per Destination in this representative slice (no RouteVariant besides the J03 portability path); alternate-channel variants (e.g. in-person vs online paths with different requirements) were not modeled because the researched sources did not describe channel-specific requirement differences. Not a defect against WU004 scope, but a known content-depth limitation for a future content WU.",
+          "severity": "low",
+          "status": "open",
+          "agentCanFix": false
+        },
+        {
+          "title": "Évora water source has a single recorded verification",
+          "description": "The Évora water source (source.cm-evora-aguas-contratos) is declared high freshnessRisk with only a single recorded SourceVerification; content:check correctly requires this source's verification history to be refreshed on a real content-review cadence going forward, which is an operational/process concern outside this WU's scope, not a code gap.",
+          "severity": "low",
+          "status": "open",
+          "agentCanFix": false
+        }
+      ],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "eslint . reported no issues, including the domain/content framework-independence restricted-import rules."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit reported no errors across the new content package and data files."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "vitest run: 238/238 tests passed across 20 test files, including the new content parse/hash/validate/integration suites and all pre-existing WU002/WU003 suites (no regressions)."
+        },
+        {
+          "command": "pnpm content:check",
+          "result": "passed",
+          "summary": "vitest run src/content/check.test.ts: 3/3 passed -- representative content has zero cross-reference/condition/source/freshness issues, and the content hash is deterministic (repeat computation and key-order independence)."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Representative content validates.",
+          "result": "passed",
+          "evidence": "pnpm content:check passes with zero issues from checkContentGraph over the assembled J01/J02/J03/Évora-water content; the integration test further shows the same content resolves correctly through the real WU003 engine with zero resolver issues across multiple fact/progress scenarios."
+        },
+        {
+          "criterion": "Content hash is deterministic.",
+          "result": "passed",
+          "evidence": "hash.test.ts and check.test.ts assert computeContentHash is stable across repeated calls and independent of object key insertion order, while remaining sensitive to semantically meaningful value and array-order changes."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "createdAt": "2026-09-12T07:53:15.227Z",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C004"
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-004",
-    "workUnitId": "WU003",
+    "id": "PKT-005",
+    "workUnitId": "WU004",
     "milestoneId": "M001",
-    "createdAt": "2026-09-11T21:14:55.312Z",
+    "createdAt": "2026-09-12T07:38:26.550Z",
     "format": "markdown",
-    "contentHash": "sha256:35f048a529c3c8b78b7d512278d9fcc46e5c87c06b6897ce5306d4b5b2fec47c",
+    "contentHash": "sha256:4a56f9fc7fe539ee951d0b6074e25d132b46b2f8a523b1ae57ff6f4e017a3444",
     "sourceCommand": "aiqt next",
     "renderedSections": [
       "scope",
@@ -655,19 +752,18 @@
       "constraints",
       "acceptance",
       "validation",
-      "designGuidance",
       "sourceControlExpectations"
     ],
     "guidanceFlags": {
-      "includesDesignGuidance": true,
+      "includesDesignGuidance": false,
       "includesWorkingDirectoryDiscipline": false,
       "includesComponentSystemGuidance": false,
       "includesRecoveryGuidance": false,
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-12T07:28:38.347Z",
+  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C004",
+  "lastUpdatedAt": "2026-09-12T07:53:15.227Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -956,6 +1052,36 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T07:28:38.347Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C004",
+      "current": {
+        "observationId": "sha256:31974f1e666f6a49296a5abf649c855d633949deb638d4acc1496590b451b6b1",
+        "checkpointId": "C004",
+        "workUnitId": "WU004",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-12T07:53:15.227Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-12T07:53:15.227Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:31974f1e666f6a49296a5abf649c855d633949deb638d4acc1496590b451b6b1",
+          "checkpointId": "C004",
+          "workUnitId": "WU004",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T07:53:15.227Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T07:53:15.227Z"
         }
       ]
     }
