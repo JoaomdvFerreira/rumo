@@ -1,0 +1,71 @@
+.wrapper {
+  display: grid;
+  gap: var(--rumo-space-6);
+}
+
+.situation {
+  display: grid;
+  gap: var(--rumo-space-1);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--rumo-muted);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.description {
+  margin: 0;
+  color: var(--rumo-muted);
+  line-height: 1.5;
+}
+
+.liveRegion {
+  display: grid;
+  gap: var(--rumo-space-4);
+}
+
+.section {
+  display: grid;
+  gap: var(--rumo-space-2);
+}
+
+.sectionHeading {
+  margin: 0;
+  font-size: 0.9375rem;
+  color: var(--rumo-muted);
+}
+
+.cardStack {
+  display: grid;
+  gap: var(--rumo-space-3);
+}
+
+.unresolvedNotice,
+.completeNotice {
+  border-radius: var(--rumo-radius);
+  padding: var(--rumo-space-4);
+  margin: 0;
+  font-size: 1rem;
+}
+
+.unresolvedNotice {
+  border: 1px solid var(--rumo-border);
+  background: var(--rumo-surface);
+  color: var(--rumo-muted);
+}
+
+.completeNotice {
+  border: 2px solid var(--rumo-accent);
+  background: var(--rumo-accent-soft);
+  color: var(--rumo-accent);
+  font-weight: 600;
+}

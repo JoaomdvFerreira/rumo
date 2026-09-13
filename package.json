@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "content:check": "vitest run src/content/check.test.ts",
     "build": "next build"
   },
   "dependencies": {

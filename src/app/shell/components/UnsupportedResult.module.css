@@ -1,0 +1,55 @@
+.wrapper {
+  display: grid;
+  gap: var(--rumo-space-4);
+  border: 1px solid var(--rumo-border);
+  border-radius: var(--rumo-radius);
+  background: var(--rumo-surface);
+  padding: var(--rumo-space-6);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.body {
+  margin: 0;
+  color: var(--rumo-muted);
+  line-height: 1.55;
+}
+
+.scenarioList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--rumo-space-2);
+}
+
+.scenarioButton {
+  width: 100%;
+  min-height: var(--rumo-touch-target);
+  text-align: left;
+  border: 1px solid var(--rumo-border);
+  background: var(--rumo-background);
+  color: var(--rumo-foreground);
+  border-radius: var(--rumo-radius);
+  padding: var(--rumo-space-3) var(--rumo-space-4);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.scenarioButton:hover {
+  border-color: var(--rumo-accent);
+}
+
+.backButton {
+  justify-self: start;
+  min-height: var(--rumo-touch-target);
+  border: none;
+  background: transparent;
+  color: var(--rumo-accent);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0 var(--rumo-space-2);
+}

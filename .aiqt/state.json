@@ -1,7 +1,7 @@
 {
   "version": "0.9.0",
-  "projectStatus": "in_progress",
-  "currentMilestoneId": "M001",
+  "projectStatus": "review",
+  "currentMilestoneId": null,
   "currentWorkUnitId": null,
   "workGraph": {
     "milestones": [
@@ -9,7 +9,7 @@
         "id": "M001",
         "title": "Production Foundation",
         "objective": "Convert the validated prototype architecture into a production-grade, deterministic, testable application foundation without expanding MVP scope.",
-        "status": "ready",
+        "status": "done",
         "workUnitIds": [
           "WU001",
           "WU002",
@@ -99,12 +99,12 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "ready",
+        "status": "done",
         "dependencies": [
           "DEP-001"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:59:40.945Z"
+        "updatedAt": "2026-09-11T19:36:09.910Z"
       },
       {
         "id": "WU003",
@@ -136,12 +136,12 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "planned",
+        "status": "done",
         "dependencies": [
           "DEP-002"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:56:25.144Z"
+        "updatedAt": "2026-09-12T07:28:38.347Z"
       },
       {
         "id": "WU004",
@@ -175,13 +175,13 @@
           "pnpm test",
           "pnpm content:check"
         ],
-        "status": "planned",
+        "status": "done",
         "dependencies": [
           "DEP-003",
           "DEP-004"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:56:25.144Z"
+        "updatedAt": "2026-09-12T08:39:11.212Z"
       },
       {
         "id": "WU005",
@@ -215,13 +215,13 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "planned",
+        "status": "done",
         "dependencies": [
           "DEP-005",
           "DEP-006"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:56:25.144Z"
+        "updatedAt": "2026-09-12T09:24:52.344Z"
       },
       {
         "id": "WU006",
@@ -253,13 +253,13 @@
           "pnpm typecheck",
           "pnpm test"
         ],
-        "status": "planned",
+        "status": "done",
         "dependencies": [
           "DEP-007",
           "DEP-008"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:56:25.144Z"
+        "updatedAt": "2026-09-12T13:34:09.990Z"
       },
       {
         "id": "WU007",
@@ -293,13 +293,13 @@
           "pnpm test:e2e",
           "pnpm build"
         ],
-        "status": "planned",
+        "status": "done",
         "dependencies": [
           "DEP-009",
           "DEP-010"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:56:25.144Z"
+        "updatedAt": "2026-09-12T18:31:12.356Z"
       },
       {
         "id": "WU008",
@@ -333,12 +333,12 @@
           "pnpm build",
           "git diff --check"
         ],
-        "status": "planned",
+        "status": "done",
         "dependencies": [
           "DEP-011"
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
-        "updatedAt": "2026-09-11T18:56:25.144Z"
+        "updatedAt": "2026-09-12T22:45:11.145Z"
       }
     ],
     "dependencies": [
@@ -486,19 +486,795 @@
       "finalWorkUnitStatus": "done",
       "nextRecommendation": "aiqt next",
       "createdAt": "2026-09-11T18:58:37.346Z"
+    },
+    {
+      "id": "C002",
+      "workUnitId": "WU002",
+      "packetId": "PKT-003",
+      "summary": "Defined the framework-independent canonical domain model for WU002: a closed-operator declarative Condition AST, and Zod-validated contracts for SourceDefinition/SourceVerification (kept separate per guardrails), DecisionReference, Provider/Channel, Requirement, and Step (task/wait/subjourney discriminated union).",
+      "completed": [
+        "Added declarative Condition AST with a closed operator set (factEquals, factIn, factTruthy, factPresent, allOf, anyOf, not) and its Zod schema.",
+        "Added SourceDefinition and SourceVerification as separate Zod contracts.",
+        "Added DecisionReference contract linking to a SourceDefinition.",
+        "Added Provider and Channel contracts with a closed channel-type enum.",
+        "Added Requirement contract referencing Condition and DecisionReference ids.",
+        "Added Step contract as a discriminated union over task/wait/subjourney kinds; no 'blocked' state is stored on the step (routing derives actionability).",
+        "Added a domain model barrel export at src/domain/model/index.ts.",
+        "Added unit tests for every schema covering valid parses, closed-operator/enum rejection, and structural rejections."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "src/domain/model/condition.ts",
+        "src/domain/model/condition.test.ts",
+        "src/domain/model/identifiers.ts",
+        "src/domain/model/source.ts",
+        "src/domain/model/source.test.ts",
+        "src/domain/model/decision.ts",
+        "src/domain/model/decision.test.ts",
+        "src/domain/model/provider.ts",
+        "src/domain/model/provider.test.ts",
+        "src/domain/model/requirement.ts",
+        "src/domain/model/requirement.test.ts",
+        "src/domain/model/step.ts",
+        "src/domain/model/step.test.ts",
+        "src/domain/model/index.ts"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit clean."
+        },
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "eslint . clean, including domain framework-independence rule."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "vitest run: 7 files, 30 tests passed."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "next build succeeded (static export of existing pages, unaffected by domain-only change)."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Domain model is framework-independent.",
+          "result": "passed",
+          "evidence": "src/domain/model/** imports only zod; ESLint no-restricted-imports rule for src/domain/** passes."
+        },
+        {
+          "criterion": "Schemas validate canonical contracts.",
+          "result": "passed",
+          "evidence": "30 passing Vitest cases across condition/source/decision/provider/requirement/step covering valid and invalid inputs."
+        }
+      ],
+      "finalWorkUnitStatus": "done",
+      "nextRecommendation": "aiqt next",
+      "createdAt": "2026-09-11T19:36:09.910Z"
+    },
+    {
+      "id": "C003",
+      "workUnitId": "WU003",
+      "packetId": "PKT-004",
+      "summary": "Implemented a pure, deterministic, framework-independent routing engine in src/domain/engine/ covering Condition evaluation, Route/RouteVariant selection, Step state derivation, Requirement/RequirementGroup resolution, and Destination resolution (next action, parallel work, waits, blocked, complete, subjourney recursion) per the accepted WU002 contracts.",
+      "completed": [
+        "Condition evaluator (evaluateCondition, isApplicable, isFactTruthy) covering factEquals, factIn, factContains, factTruthy, factPresent, allOf, anyOf, not with missing-fact-as-absent semantics and explicit business truthiness (absent/false/0/\"\"/[] => false).",
+        "Deterministic priority tie-break utility (sortByPriority/selectByPriority): priority desc, then declaration/reference order, then stable id.",
+        "Requirement/RequirementGroup resolver: applicable direct Requirement satisfied; non-applicable Requirement never blocks; allOf/anyOf composition over applicable members only; zero-applicable-members group never blocks; missing requirement/group references produce structured resolver evidence.",
+        "Route/RouteVariant selection (selectRoute): filters applicable Routes referenced by a Destination, selects by priority/order/id, resolves applicable RouteVariants for the winning Route with the same tie-break, falls back to the Route's own stepIds when no variant applies; missing route/variant references reported as evidence, not thrown.",
+        "Step state derivation (resolveStep): explicit states skipped/complete/blocked/actionable/waiting; task/manual and task/externalOutcome and wait/externalOutcome each gated by their own completion signal; dependsOnStepIds gating where a non-applicable dependency never blocks and a missing dependency reference does not block but is reported; requirement/group gating reuses the requirement resolver; wait steps can only reach skipped/complete/blocked/waiting, never actionable.",
+        "Destination resolution (resolveDestination): selects the route/variant, resolves every step, picks the highest-priority actionable task as the primary action (never a wait) with remaining actionable tasks as parallel actions, reports ready waits separately, falls through to blocked/complete/unresolved by the specified precedence, and recurses through subjourney steps preserving a parent/child destinationPath; subjourney and destination recursion is cycle-safe (visited-set guard) and reports a structured cycle issue instead of recursing infinitely.",
+        "Resolver evidence module (missingReference/cycleDetected) shared by every resolution stage so missing ids and cycles are deterministic structured output rather than crashes or silent pass-through.",
+        "Runtime progress/context types (RuntimeProgress, RoutingContext) as the minimum pure input WU003 needs; no persistence implemented (left to WU005).",
+        "Unit and fast-check property tests for every module (96 new tests): all 8 condition operators, absent facts, array membership, business truthiness, determinism and non-mutation invariants; route priority/tie-break/variant fallback; dependency satisfaction incl. non-applicable dependencies and missing references; direct requirements and allOf/anyOf groups; all three completion modes; blocked-never-actionable and wait-never-primary invariants; parallel actions; waiting-only and complete-only destination states; subjourney resolution and parent/child path; subjourney cycle safety; missing destination/step references; determinism and non-mutation of canonical content across repeated calls."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "src/domain/engine/runtime.ts",
+        "src/domain/engine/condition.ts",
+        "src/domain/engine/condition.test.ts",
+        "src/domain/engine/resolver.ts",
+        "src/domain/engine/priority.ts",
+        "src/domain/engine/priority.test.ts",
+        "src/domain/engine/requirement.ts",
+        "src/domain/engine/requirement.test.ts",
+        "src/domain/engine/route.ts",
+        "src/domain/engine/route.test.ts",
+        "src/domain/engine/step.ts",
+        "src/domain/engine/step.test.ts",
+        "src/domain/engine/destination.ts",
+        "src/domain/engine/destination.test.ts",
+        "src/domain/engine/index.ts"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "ESLint clean across the repository."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit clean."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "181 tests passed (96 new in src/domain/engine, 85 pre-existing unaffected)."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "next build succeeded."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed",
+          "summary": "No whitespace errors (line-ending notices only on pre-existing .aiqt state files)."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Routing follows approved priority semantics.",
+          "result": "passed",
+          "evidence": "src/domain/engine/priority.ts + route.test.ts/destination.test.ts tie-break cases."
+        },
+        {
+          "criterion": "Determinism is covered by tests.",
+          "result": "passed",
+          "evidence": "condition.test.ts and priority.test.ts fast-check suites assert determinism, non-mutation, and structural invariants; destination.test.ts asserts repeated-call determinism and no mutation of graph/context inputs."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C003",
+      "createdAt": "2026-09-11T21:23:19.921Z"
+    },
+    {
+      "id": "C004",
+      "workUnitId": "WU004",
+      "packetId": "PKT-005",
+      "summary": "Implemented WU004 Canonical Content & Validation: a src/content package with a ContentGraph aggregate schema over the WU002 entity contracts, cross-reference/condition/source/freshness validation (content:check), deterministic SHA-256 content hashing over a recursively key-sorted canonical form, and representative MVP content for J01 Moving home, J02 Electricity/gas, J03 Internet, and the Évora water resolver/module (modeled as its own subjourney-linked Destination). Content was authored from real, verified public sources (gov.pt/ePortugal, ERSE, ANACOM, Câmara Municipal de Évora) with SourceDefinition/SourceVerification kept separate per guardrails. Proved the content graph resolves correctly through the existing WU003 routing engine (subjourney gating, requirement-group blocking, condition-gated gas steps, RouteVariant portability path) via a dedicated integration test.",
+      "completed": [
+        "Added src/content/graph.ts: strict ContentGraph aggregate schema composed from the WU002 entity schemas (no new entity shapes).",
+        "Added src/content/parse.ts: parseContentGraph shape-level validation wrapper.",
+        "Added src/content/hash.ts: deterministic SHA-256 content hash over a recursively key-sorted canonical JSON form; array order preserved as semantically meaningful.",
+        "Added src/content/validate.ts (content:check): duplicate-id, dangling-reference (across every entity relation including step->provider->channel), invalid-condition (blank fact key, walked through allOf/anyOf/not), missing-SourceVerification, and stale-high-freshness-risk-source checks. Link health is never treated as freshness proof.",
+        "Added src/content/index.ts: parses and exports the canonical content graph, its schema validation guard, and the deterministic contentHash.",
+        "Authored representative content under src/content/data/: sources.ts (SourceDefinition + SourceVerification, kept separate), decisions.ts (DecisionReference provenance for decision-bearing rules), providers.ts, requirements.ts, evoraWater.ts (Évora water resolver/module: requirement-gated task + wait, its own Route/Destination), moveHome.ts (J01, with a fact-gated subjourney into the Évora water module), energy.ts (J02, gas steps conditioned on household.hasGasConnection), internet.ts (J03, RouteVariant for ANACOM number portability), and index.ts assembling the full ContentGraph.",
+        "Wired pnpm content:check to a Vitest-based check (src/content/check.test.ts) since the project has no ts-node/tsx runner; reuses already-approved tooling instead of adding a dependency outside WU004 scope.",
+        "Added unit tests: parse.test.ts, hash.test.ts (determinism, key-order independence, array-order sensitivity, change sensitivity), validate.test.ts (one test per issue kind plus edge cases: latest-verification-wins for staleness, link-health-does-not-imply-freshness).",
+        "Added src/content/integration.test.ts: resolves every representative Destination through the real WU003 engine (resolveDestination) across multiple fact/progress scenarios, asserting zero resolver issues and correct actionable/blocked state, including the Évora subjourney gating and the internet portability RouteVariant.",
+        "Removed src/content/.gitkeep (superseded by real content)."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "package.json",
+        "src/content/.gitkeep",
+        "src/content/graph.ts",
+        "src/content/parse.ts",
+        "src/content/parse.test.ts",
+        "src/content/hash.ts",
+        "src/content/hash.test.ts",
+        "src/content/validate.ts",
+        "src/content/validate.test.ts",
+        "src/content/index.ts",
+        "src/content/check.test.ts",
+        "src/content/integration.test.ts",
+        "src/content/data/index.ts",
+        "src/content/data/sources.ts",
+        "src/content/data/decisions.ts",
+        "src/content/data/providers.ts",
+        "src/content/data/requirements.ts",
+        "src/content/data/evoraWater.ts",
+        "src/content/data/moveHome.ts",
+        "src/content/data/energy.ts",
+        "src/content/data/internet.ts"
+      ],
+      "issues": [
+        {
+          "title": "Single Route per Destination in this representative slice",
+          "description": "Only one Route is declared per Destination in this representative slice (no RouteVariant besides the J03 portability path); alternate-channel variants (e.g. in-person vs online paths with different requirements) were not modeled because the researched sources did not describe channel-specific requirement differences. Not a defect against WU004 scope, but a known content-depth limitation for a future content WU.",
+          "severity": "low",
+          "status": "open",
+          "agentCanFix": false
+        },
+        {
+          "title": "Évora water source has a single recorded verification",
+          "description": "The Évora water source (source.cm-evora-aguas-contratos) is declared high freshnessRisk with only a single recorded SourceVerification; content:check correctly requires this source's verification history to be refreshed on a real content-review cadence going forward, which is an operational/process concern outside this WU's scope, not a code gap.",
+          "severity": "low",
+          "status": "open",
+          "agentCanFix": false
+        }
+      ],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "eslint . reported no issues, including the domain/content framework-independence restricted-import rules."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit reported no errors across the new content package and data files."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "vitest run: 238/238 tests passed across 20 test files, including the new content parse/hash/validate/integration suites and all pre-existing WU002/WU003 suites (no regressions)."
+        },
+        {
+          "command": "pnpm content:check",
+          "result": "passed",
+          "summary": "vitest run src/content/check.test.ts: 3/3 passed -- representative content has zero cross-reference/condition/source/freshness issues, and the content hash is deterministic (repeat computation and key-order independence)."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Representative content validates.",
+          "result": "passed",
+          "evidence": "pnpm content:check passes with zero issues from checkContentGraph over the assembled J01/J02/J03/Évora-water content; the integration test further shows the same content resolves correctly through the real WU003 engine with zero resolver issues across multiple fact/progress scenarios."
+        },
+        {
+          "criterion": "Content hash is deterministic.",
+          "result": "passed",
+          "evidence": "hash.test.ts and check.test.ts assert computeContentHash is stable across repeated calls and independent of object key insertion order, while remaining sensitive to semantically meaningful value and array-order changes."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C004",
+      "createdAt": "2026-09-12T07:53:15.227Z"
+    },
+    {
+      "id": "C005",
+      "workUnitId": "WU005",
+      "packetId": "PKT-006",
+      "summary": "Implemented a versioned browser-local persisted-state envelope, a testable storage-adapter boundary, migration/reset handling, and content-version-mismatch revalidation, plus a Next.js hydration boundary that never reads localStorage during server rendering.",
+      "completed": [
+        "Defined the persisted-state envelope schema (schemaVersion, contentVersion, updatedAt, sessions) and the PersistedSession/PersistedRuntimeProgress shapes in src/persistence/schema.ts, mirroring WU003's RuntimeProgress as the single routing-state model.",
+        "Implemented a StorageAdapter interface plus an InMemoryStorageAdapter for tests (src/persistence/storageAdapter.ts) and a browser LocalStorageAdapter (src/persistence/localStorageAdapter.ts), isolating the only module allowed to touch window.localStorage.",
+        "Implemented pure load/save/reset logic (src/persistence/state.ts) with explicit outcomes for empty, malformed JSON, schema-invalid data, unsupported schema versions, and storage-unavailable failures -- never throwing.",
+        "Implemented deterministic content-version revalidation (src/persistence/revalidate.ts, src/persistence/contentIndex.ts): a session whose root Destination no longer exists is discarded; step/requirement ids that no longer exist in current content are dropped from progress rather than trusted; the envelope is re-stamped with the current contentVersion after successful revalidation.",
+        "Implemented the orchestration entry point (src/persistence/resume.ts) composing load -> migrate -> revalidate -> (re)save into one deterministic outcome with an explicit ResumeReason.",
+        "Implemented progress (de)serialization between the persisted array shape and WU003's RuntimeProgress set shape (src/persistence/progress.ts), with deterministic (sorted) serialization.",
+        "Implemented the Next.js/browser hydration boundary as a useHydratedSession hook (src/persistence/react/useHydratedSession.ts) built on useSyncExternalStore, so the server snapshot and the client's initial render both resolve to an identical 'loading' state and the real localStorage read only happens after hydration completes.",
+        "Updated docs/governance/versioning.md with the persisted schema version vs content version distinction, migration/reset policy, content-mismatch revalidation, the browser-local/no-login boundary, and the no-raw-free-text-persistence rule.",
+        "Added tests covering all 14 required scenarios: valid round trip, malformed JSON, schema-invalid data, unsupported schema version, explicit reset, contentVersion match/mismatch, stale step/requirement ids not surviving as trusted progress, valid progress preserved, parent/subjourney progress round trip, storage unavailable/read/write failure, server-side no-localStorage-access, and deterministic serialization."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "src/persistence/schema.ts",
+        "src/persistence/storageAdapter.ts",
+        "src/persistence/state.ts",
+        "src/persistence/state.test.ts",
+        "src/persistence/revalidate.ts",
+        "src/persistence/revalidate.test.ts",
+        "src/persistence/contentIndex.ts",
+        "src/persistence/contentIndex.test.ts",
+        "src/persistence/progress.ts",
+        "src/persistence/progress.test.ts",
+        "src/persistence/resume.ts",
+        "src/persistence/resume.test.ts",
+        "src/persistence/localStorageAdapter.ts",
+        "src/persistence/localStorageAdapter.test.ts",
+        "src/persistence/react/useHydratedSession.ts",
+        "src/persistence/index.ts",
+        "docs/governance/versioning.md"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "No ESLint errors or warnings."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit completed with no errors."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "289 tests passed across 26 test files (vitest run), including all 14 required WU005 scenarios."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Runtime state is versioned and safe to resume.",
+          "result": "passed",
+          "evidence": "PersistedStateEnvelope carries schemaVersion/contentVersion; loadPersistedState/resumePersistedState never throw on malformed JSON, schema-invalid data, unsupported schema versions, or storage failures, and fall back to a safe fresh envelope in every case (state.test.ts, resume.test.ts)."
+        },
+        {
+          "criterion": "Content changes trigger revalidation.",
+          "result": "passed",
+          "evidence": "revalidateEnvelope/resumePersistedState detect a contentVersion mismatch, discard sessions whose root Destination no longer exists, drop stale step/requirement ids from progress, and re-stamp the envelope with the current contentVersion (revalidate.test.ts, resume.test.ts)."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C005",
+      "createdAt": "2026-09-12T08:52:38.261Z"
+    },
+    {
+      "id": "C006",
+      "workUnitId": "WU006",
+      "packetId": "PKT-007",
+      "summary": "Implemented a deterministic, framework-independent intent matcher and a separately validated declarative alias catalog for the three frozen MVP destinations, with explicit fact extraction and stable candidate ordering.",
+      "completed": [
+        "Defined Zod-validated IntentDefinition and AliasDefinition contracts plus the typed IntentCandidate result containing canonical destinationId, score, confidence, match evidence, and canonical FactSet values.",
+        "Implemented deterministic case/diacritic/punctuation/whitespace normalization, stable tokenization, token-boundary phrase matching, an explicit acceptance threshold, and canonical-id tie-breaking.",
+        "Added repository-controlled J01/J02/J03 intent and alias data, including the Évora rented-home alias, explicit existing-gas extraction, and explicit internet number-portability extraction.",
+        "Kept aliases outside ContentGraph/contentHash while validating every intent target against canonical Destination ids at canonical content initialization.",
+        "Added tests for canonical titles, aliases, normalization, unsupported and generic input, deterministic ambiguity/order, canonical destination resolution, explicit-only facts, dangling targets, and content-hash separation."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "src/domain/model/intent.ts",
+        "src/domain/model/index.ts",
+        "src/domain/engine/intent.ts",
+        "src/domain/engine/intent.test.ts",
+        "src/domain/engine/index.ts",
+        "src/content/intents.ts",
+        "src/content/intents.test.ts",
+        "src/content/index.ts"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "ESLint completed with no errors or warnings."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit completed with no errors."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "317 tests passed across 29 test files, including 16 WU006 cases."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Unsupported input returns zero candidates.",
+          "result": "passed",
+          "evidence": "INTENT_ACCEPTANCE_THRESHOLD and token-boundary rules reject unsupported, misspelled, partial-substring, and generic embedded-word inputs; covered in src/domain/engine/intent.test.ts."
+        },
+        {
+          "criterion": "Aliases resolve to canonical destinations deterministically.",
+          "result": "passed",
+          "evidence": "Alias targets are validated against canonical Destination ids, results are deduplicated by destination and ordered by score, confidence, canonical destinationId, then aliasId; repeated and reversed-catalog tests prove stable results."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C006",
+      "createdAt": "2026-09-12T10:08:31.905Z"
+    },
+    {
+      "id": "C007",
+      "workUnitId": "WU007",
+      "packetId": "PKT-008",
+      "summary": "Integrated WU003 (domain routing engine), WU005 (persistence/revalidation), and WU006 (intent matching) into the validated Rumo interaction hierarchy: a Next.js App Router application shell with a server-only bootstrap boundary, homepage/intent entry, ambiguous-candidate selection, unsupported-search UX, bounded fact questions, requirements/blockers panel, primary/parallel/wait/complete routing states, subjourney progression, manual/external-outcome task completion, provider/source disclosure, browser-local session persistence with reload/reset, and WCAG 2.2 AA accessibility baseline.",
+      "completed": [
+        "Server Component bootstrap (src/app/shell/bootstrap.ts) computes contentHash/semantic fingerprints server-side and serializes a plain AppBootstrap payload; Client Component reconstruction (src/app/shell/reconstruct.ts) rebuilds Map/Set structures without importing node:crypto -- verified no createHash/node:crypto reference reaches any client chunk after pnpm build.",
+        "Homepage/intent entry: product proposition, search input, and the three frozen common scenarios (Mudar de casa; Eletricidade e gás na nova casa; Internet numa mudança), all routed through the shared WU006 matchIntents path.",
+        "Zero-candidate search renders an explicit unsupported-case message and the common scenarios, never a fabricated route; multiple-candidate search requires explicit user selection (no candidate[0] auto-selection).",
+        "Bounded fact-question catalog (src/app/shell/questions.ts) covering exactly J01 household.hasCitizenCard, J02 household.hasGasConnection, J03 household.wantsToKeepPhoneNumber; WU006 alias-extracted facts (Évora rental, existing-gas, keep-number) pre-populate/skip the corresponding question without inventing new canonical facts.",
+        "RouteView renders the frozen hierarchy directly from WU003's DestinationResolution: primary action (Faça isto agora), parallel work, waits (A aguardar), blocked work surfaced only via the requirements panel, and an explicit completion state -- no routing/grouping logic reimplemented in React.",
+        "RequirementsPanel resolves allOf/anyOf gating only through the domain engine's own resolution output; user confirmations write to satisfiedRequirementIds and the destination is re-resolved after every change.",
+        "Manual task completion (manualCompletedStepIds) and external-outcome confirmation (externalOutcomeCompletedStepIds) wired per Step.completion mode; subjourney completion is never manually set, only derived by WU003.",
+        "Source/provider disclosure (src/app/shell/sourceDisclosure.ts) resolves only real canonical relationships (Step->Provider/Channel->Source; Requirement->DecisionReference->Source), rendered as a secondary disclosure block.",
+        "One active MVP session integrates WU005 end-to-end: creation from an IntentCandidate, save on every meaningful progression, SSR-safe hydration boundary (useHydratedSession), fingerprint-aware revalidation, non-blocking persistence-unavailable disclosure, restoration notice on discarded progress, and an explicit reset that clears the session and returns to intent entry.",
+        "WCAG 2.2 AA baseline: semantic headings, label/fieldset-legend association, visible focus, aria-live on the routing region, ~44px touch targets, no color-only state, no horizontal overflow at 360px.",
+        "Playwright/axe e2e suite (src/test/e2e/home.spec.ts) covering all 15 required scenarios plus the pre-existing homepage smoke assertions.",
+        "Fixed a hydration-race defect in the shell reducer: a late-resolving WU005 hydration result could otherwise clobber an interaction the user had already started before storage finished loading (sessionRestored now only applies while still in the intentEntry phase).",
+        "Fixed a dev-only Next.js cross-origin guard (allowedDevOrigins) that silently prevented client hydration when Playwright's fixed 127.0.0.1 baseURL differed from pnpm dev's localhost bind -- no effect on pnpm build/next start."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "src/app/page.tsx",
+        "src/app/globals.css",
+        "next.config.ts",
+        "src/test/e2e/home.spec.ts",
+        "src/app/shell/bootstrap.ts",
+        "src/app/shell/reconstruct.ts",
+        "src/app/shell/sourceDisclosure.ts",
+        "src/app/shell/questions.ts",
+        "src/app/shell/scenarios.ts",
+        "src/app/shell/sessionState.ts",
+        "src/app/shell/shellReducer.ts",
+        "src/app/shell/restorationNotice.ts",
+        "src/app/shell/useAppShell.ts",
+        "src/app/shell/AppShell.tsx",
+        "src/app/shell/AppShell.module.css",
+        "src/app/shell/styles/tokens.css",
+        "src/app/shell/components/IntentEntry.tsx",
+        "src/app/shell/components/IntentEntry.module.css",
+        "src/app/shell/components/UnsupportedResult.tsx",
+        "src/app/shell/components/UnsupportedResult.module.css",
+        "src/app/shell/components/CandidatePicker.tsx",
+        "src/app/shell/components/CandidatePicker.module.css",
+        "src/app/shell/components/QuestionPanel.tsx",
+        "src/app/shell/components/QuestionPanel.module.css",
+        "src/app/shell/components/SourceDisclosure.tsx",
+        "src/app/shell/components/SourceDisclosure.module.css",
+        "src/app/shell/components/RequirementsPanel.tsx",
+        "src/app/shell/components/RequirementsPanel.module.css",
+        "src/app/shell/components/StepCard.tsx",
+        "src/app/shell/components/StepCard.module.css",
+        "src/app/shell/components/RouteView.tsx",
+        "src/app/shell/components/RouteView.module.css"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "ESLint reported no issues."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit reported no errors."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "Vitest: 29 test files, 331 tests passed; no regressions in WU002-WU006 suites."
+        },
+        {
+          "command": "pnpm test:e2e",
+          "result": "passed",
+          "summary": "Playwright: 16/16 tests passed, including axe scans on homepage/question/active-journey states, mobile 360px overflow check, and keyboard smoke flow."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "next build succeeded; homepage statically prerendered; confirmed no createHash/node:crypto reference in any client chunk."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Core interaction hierarchy works on mobile and desktop.",
+          "result": "passed",
+          "evidence": "e2e coverage for J01/J02/J03 primary/parallel/wait/blocked/complete states, subjourney progression, ambiguous/unsupported search, reload/reset, and a dedicated 360px no-horizontal-overflow check."
+        },
+        {
+          "criterion": "Accessibility and smoke checks pass.",
+          "result": "passed",
+          "evidence": "axe scans (homepage, question state, active journey state) report zero serious/critical violations; keyboard-only smoke flow test passes; fieldset/legend, label association, aria-live, and touch-target sizing implemented per the WCAG 2.2 AA baseline."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C007",
+      "createdAt": "2026-09-12T14:44:47.754Z"
+    },
+    {
+      "id": "C008",
+      "workUnitId": "WU008",
+      "packetId": "PKT-009",
+      "summary": "M03.1 Integration & Release Gate: reconciled WU001-WU007 as one integrated production foundation, gathered architecture/product-contract/persistence/content/accessibility evidence against the frozen contract, ran all canonical and supplemental validation commands, checked build client-boundary isolation, inspected branch/PR readiness against origin/main and origin/milestone, and produced a consolidated M03.1 release-evidence document. No product functionality was added or changed.",
+      "completed": [
+        "Verified WU001-WU007 are all done, WU008 is ready, and currentWorkUnitId was null before starting; selected WU008 via aiqt next.",
+        "Reconciled the full foundation against the frozen architecture boundaries: domain/content/persistence/shell/server-bootstrap/client-shell separation, and confirmed no Redux/Zustand/XState, DB/ORM, auth, AI SDK, or external search dependency exists anywhere in src/.",
+        "Verified package.json/lockfile dependencies remain exactly the frozen stack (next, react, react-dom, zod; @axe-core/playwright, @playwright/test, eslint/eslint-config-next, fast-check, prettier, typescript, vitest).",
+        "Proved the frozen product-contract hierarchy (current situation -> facts -> requirements/dependencies -> primary action -> parallel work -> waits -> completion) end to end in src/domain/engine/destination.ts and its pure presentation in RouteView.tsx, including zero-result search, ambiguous-selection, single-typed-result confirmation, alias fact extraction/aggregation, and J01/J02/J03 wiring.",
+        "Verified all 11 WU005/WU007 persistence and hydration invariants (server-HTML purity, render-pure hydration, deterministic most-recent-session selection, fingerprint-aware revalidation, conservative staleness discard, honest post-hydration failure disclosure, in-memory continuity, reset-after-degradation cleanup (F5), hydration/reset race guard (F6), no raw free-text persistence, no facts in URLs).",
+        "Ran pnpm content:check (11/11 passed) and verified reference/alias resolution, requirement provenance, SourceDefinition/SourceVerification separation, high-freshness-risk staleness handling (link health does not imply freshness), real provider/channel/source id relationships, official source URL exposure, deterministic contentHash, and alias/content-hash separation.",
+        "Ran pnpm test:e2e (19/19 Playwright tests including axe) as supplemental release evidence and confirmed coverage of 360px overflow, keyboard smoke, axe zero-serious/critical assertions on three states, J01/J02/J03 flows, reload/resume, reset, requirements gating, waiting state, and source disclosure; confirmed no dev/Playwright server was left running afterward.",
+        "Ran pnpm build and confirmed zero createHash/node:crypto references in any .next/static client chunk, and that server/client bootstrap payloads remain plain JSON-serializable data with no Node-only module leaking into the Client Component graph.",
+        "Fetched origin and inspected origin/main vs origin/milestone/m03-production-foundation: merge-base equals origin/main's tip (0 ahead / 27 behind), so no main drift exists and a clean milestone PR appears viable; no merge, rebase, or PR was performed.",
+        "Identified and recorded one pre-existing, already-accepted architectural detail as a documentation-clarity finding rather than silently fixing it: src/content/hash.ts's node:crypto usage (part of WU004's original accepted implementation, a9df75b) is the same Node-dependent hash preparation the frozen contract assigns to server bootstrap, proven never to reach a client chunk, but its location under src/content/ could be misread as a content-layer violation.",
+        "Authored docs/release/m03.1-evidence.md: a consolidated M03.1 release-evidence document covering milestone objective, WU001-WU007 closure summary with accepted SHAs and tags, architecture/product-contract/persistence/content/accessibility/build evidence, the full validation matrix (canonical vs supplemental), known deferred items (explicitly including that G2.3 external-user comprehension/trust and independent AI benchmark remain deferred and are not claimed as passed), and the deviation finding above."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "docs/release/m03.1-evidence.md"
+      ],
+      "issues": [
+        {
+          "title": "src/content/hash.ts imports node:crypto",
+          "description": "src/content/hash.ts uses node:crypto's createHash to compute the deterministic contentHash. This is pre-existing WU004 architecture (introduced in 7899d48, accepted at a9df75b after full Project Overseer review including two remediation rounds that never flagged it) and functionally matches the frozen contract's own 'server bootstrap -> Node-dependent fingerprint/hash preparation' boundary: the production build confirms zero createHash/node:crypto references reach any client chunk. It is recorded as a low-severity documentation-clarity finding, not a defect, because its physical location under src/content/ (nominally declarative content) could be misread as a content-layer boundary violation on a future review. No product-code change was made under WU008's non-behavioural-only rule; returned to the Project Overseer for triage (e.g., optional future relocation of hash.ts, or an explicit written carve-out in docs/architecture/guardrails.md).",
+          "severity": "low",
+          "status": "open",
+          "agentCanFix": false
+        }
+      ],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "eslint . completed with zero issues."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit completed with zero errors."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "vitest run: 33 test files, 362 tests passed, no regressions."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "next build succeeded; static prerender of / and /_not-found; zero createHash/node:crypto references found in any .next/static client chunk."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed",
+          "summary": "No whitespace errors; only line-ending notices on pre-existing .aiqt state files."
+        },
+        {
+          "command": "pnpm content:check",
+          "result": "passed",
+          "summary": "vitest run src/content/check.test.ts: 1 test file, 11 tests passed; zero cross-reference/condition/source/freshness issues."
+        },
+        {
+          "command": "pnpm test:e2e",
+          "result": "passed",
+          "summary": "Playwright: 19/19 tests passed, including axe scans on homepage/question/active-journey states with zero serious/critical violations, mobile 360px overflow check, and keyboard smoke flow."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "M03.1 evidence package supports Overseer review.",
+          "result": "passed",
+          "evidence": "docs/release/m03.1-evidence.md consolidates milestone objective, WU001-WU007 closure/evidence summary with accepted SHAs and tags, architecture boundary evidence, product-contract evidence, persistence/hydration evidence, content/provenance evidence, accessibility/smoke evidence, production-build evidence, the full validation matrix, known deferred items (G2.3 explicitly deferred, not claimed passed), and one recorded deviation finding, with exact reviewed HEAD 6dd15113561fea1f39bd49837f80ce8995ca6988 plus this evidence commit."
+        },
+        {
+          "criterion": "Production validation gates pass.",
+          "result": "passed",
+          "evidence": "All 5 canonical checkpoint commands (pnpm lint, pnpm typecheck, pnpm test, pnpm build, git diff --check) passed verbatim, and both supplemental commands (pnpm content:check, pnpm test:e2e) also passed, recorded in the validation matrix above and in docs/release/m03.1-evidence.md."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C008",
+      "createdAt": "2026-09-12T18:42:35.050Z"
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-001",
-    "workUnitId": "WU001",
+    "id": "PKT-009",
+    "workUnitId": "WU008",
     "milestoneId": "M001",
-    "createdAt": "2026-09-11T18:56:28.799Z",
+    "createdAt": "2026-09-12T18:37:17.330Z",
     "format": "markdown",
-    "contentHash": "sha256:735bbe502dc355ec2f13e76656d7650b92cd2dd0dbc0333388f0c28aac36b926",
-    "sourceCommand": "aiqt next"
+    "contentHash": "sha256:70f9d07628aacdc563a9a45e83e89a4259eab5d5f02f7cb75017bb96d25f0c13",
+    "sourceCommand": "aiqt next",
+    "renderedSections": [
+      "scope",
+      "context",
+      "constraints",
+      "acceptance",
+      "validation",
+      "designGuidance",
+      "sourceControlExpectations"
+    ],
+    "guidanceFlags": {
+      "includesDesignGuidance": true,
+      "includesWorkingDirectoryDiscipline": false,
+      "includesComponentSystemGuidance": false,
+      "includesRecoveryGuidance": false,
+      "includesSourceControlGuidance": true
+    }
   },
-  "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-11T18:59:40.945Z",
+  "nextRecommendedCommand": "aiqt review --mode release",
+  "lastUpdatedAt": "2026-09-12T22:45:11.145Z",
+  "checkpointAmendments": [
+    {
+      "amendmentId": "AMEND-001",
+      "checkpointId": "C002",
+      "workUnitId": "WU002",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "partial",
+      "reason": "Project Overseer code review found bounded contract gaps in WU002 (strict schemas, condition factContains operator, Step dependency fields, RequirementGroup, SourceDefinition/SourceVerification freshness split, DecisionReference sourceIds) requiring remediation before acceptance.",
+      "amendedAt": "2026-09-11T19:48:54.860Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-002",
+      "checkpointId": "C002",
+      "workUnitId": "WU002",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance after remediation and final code review at 77b4943.",
+      "amendedAt": "2026-09-11T20:34:23.325Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-003",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "partial",
+      "reason": "Project Overseer code review found routing-semantic gaps requiring remediation: parent subjourney gating can be bypassed, dependency cycles are not cycle-safe, Requirement satisfaction has no runtime signal, dependencies on subjourneys do not derive completion from the child Destination, missing selected Steps can falsely produce complete, and actionable sibling subjourneys lose parallel work.",
+      "amendedAt": "2026-09-11T21:29:07.922Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-004",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "WU003 remediation validation passed; Project Overseer re-review pending.",
+      "amendedAt": "2026-09-11T21:36:32.171Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-005",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "partial",
+      "reason": "Project Overseer re-review found remaining next-action ordering defect (F7): equal-priority direct tasks and subjourney candidates do not preserve active Route.stepIds order because buildResolution groups direct candidates before subjourney candidates.",
+      "amendedAt": "2026-09-12T06:53:09.510Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-006",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "WU003 final ordering remediation validation passed; Project Overseer final review pending.",
+      "amendedAt": "2026-09-12T06:55:39.208Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-007",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance after remediation and final code review at 2dfccf5.",
+      "amendedAt": "2026-09-12T07:01:58.413Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-008",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "Technical recovery reset only: force a subsequent completion-gate re-evaluation after owner-authorized correction of C003 canonical acceptance-criterion identity for the recorded AIQT checkpoint-detail/idempotency issue. This does not represent a substantive regression of Project Overseer acceptance.",
+      "amendedAt": "2026-09-12T07:27:40.735Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-009",
+      "checkpointId": "C003",
+      "workUnitId": "WU003",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance restored after technical recovery reset; C003 canonical acceptance-criterion identities are corrected and match WU003 exactly. Final reviewed implementation: 2dfccf5.",
+      "amendedAt": "2026-09-12T07:28:38.347Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-010",
+      "checkpointId": "C004",
+      "workUnitId": "WU004",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "Project Overseer review: WU004 requires bounded factual-content and provenance remediation for J01 address routing, J02 switching timing, and Évora-water decision provenance. Technical architecture otherwise accepted.",
+      "amendedAt": "2026-09-12T07:59:41.469Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-011",
+      "checkpointId": "C004",
+      "workUnitId": "WU004",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance after factual-content and provenance remediation F1-F8. Final reviewed implementation: a9df75b.",
+      "amendedAt": "2026-09-12T08:39:11.212Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-012",
+      "checkpointId": "C005",
+      "workUnitId": "WU005",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "Project Overseer review: WU005 requires bounded remediation for semantic content-version revalidation, React hydration purity, and typed storage-failure handling. Core persistence architecture otherwise accepted.",
+      "amendedAt": "2026-09-12T08:58:05.424Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-013",
+      "checkpointId": "C005",
+      "workUnitId": "WU005",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance after WU005 remediation F1-F3. Final reviewed implementation: 0607d59.",
+      "amendedAt": "2026-09-12T09:24:52.344Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-014",
+      "checkpointId": "C006",
+      "workUnitId": "WU006",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "Project Overseer review: WU006 requires bounded remediation for multi-alias fact aggregation, negative-intent false positives, and frozen Portuguese launch-intent coverage. Core matcher architecture otherwise accepted.",
+      "amendedAt": "2026-09-12T12:53:31.800Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-015",
+      "checkpointId": "C006",
+      "workUnitId": "WU006",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance after WU006 remediation F1-F3. Final reviewed implementation: a28f631.",
+      "amendedAt": "2026-09-12T13:34:09.990Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-016",
+      "checkpointId": "C007",
+      "workUnitId": "WU007",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "Project Overseer review: WU007 requires bounded remediation for post-hydration persistence failures, deterministic most-recent session resume, official source URL disclosure, and explicit confirmation of single-result typed search. Core integration architecture otherwise accepted.",
+      "amendedAt": "2026-09-12T17:01:58.979Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-017",
+      "checkpointId": "C007",
+      "workUnitId": "WU007",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance after WU007 remediation F1-F6. Final reviewed implementation: b0795bd.",
+      "amendedAt": "2026-09-12T18:31:12.356Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-018",
+      "checkpointId": "C008",
+      "workUnitId": "WU008",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "Technical completion-gate re-evaluation pulse only. Project Overseer acceptance of WU008 and M03.1 remains PASS; this temporary partial result exists solely because AIQT 0.46.8 treats an identical passed/passed amendment as a no-op and does not re-run the completion gate.",
+      "amendedAt": "2026-09-12T22:44:42.065Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-019",
+      "checkpointId": "C008",
+      "workUnitId": "WU008",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer final acceptance of WU008 and M03.1 Production Foundation release evidence after explicit AIQT completion-gate re-evaluation. Reviewed evidence head: e10aac1. Existing low-severity node:crypto observation remains accepted and non-blocking.",
+      "amendedAt": "2026-09-12T22:45:11.145Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    }
+  ],
   "checkpointEvidenceAdvisories": [
     {
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
@@ -527,6 +1303,444 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-11T18:58:37.346Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C002",
+      "current": {
+        "observationId": "sha256:4dcb2aaaf901f6a010aff5ac24398a9022fea3f9a528f1e907f69ebf9398ef1e",
+        "checkpointId": "C002",
+        "workUnitId": "WU002",
+        "trigger": "amendment",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-11T20:34:23.325Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-11T20:34:23.325Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:93f70725c97c926ae78756f9f8bebcfdd9681cadd07cb1313d4aac2a88e5fc2e",
+          "checkpointId": "C002",
+          "workUnitId": "WU002",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T19:36:09.910Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T19:36:09.910Z"
+        },
+        {
+          "observationId": "sha256:b6e5513b733d370f8bec8625da94c5418a5878172344fdcd9d95e504f393ad47",
+          "checkpointId": "C002",
+          "workUnitId": "WU002",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T19:48:54.860Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T19:48:54.860Z"
+        },
+        {
+          "observationId": "sha256:4dcb2aaaf901f6a010aff5ac24398a9022fea3f9a528f1e907f69ebf9398ef1e",
+          "checkpointId": "C002",
+          "workUnitId": "WU002",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T20:34:23.325Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T20:34:23.325Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C003",
+      "current": {
+        "observationId": "sha256:14b61f2f9e904a99759e45d187bf4e336dc9df053c0d9dc30e7ec02ef54b0996",
+        "checkpointId": "C003",
+        "workUnitId": "WU003",
+        "trigger": "amendment",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-12T07:28:38.347Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-12T07:28:38.347Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:8e46050afcd8d354ca401765b1b552a199282bee63d3b57e108cb1adc2373187",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T21:23:19.921Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T21:23:19.921Z"
+        },
+        {
+          "observationId": "sha256:f446494adab779fd615b31a8640ad04d1460ef47aee3c2a0d58e33678bbdb708",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T21:29:07.922Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T21:29:07.922Z"
+        },
+        {
+          "observationId": "sha256:0985582832159895c16536e3fc9829f614b49539e2fcbfe4fe315fed84e4ea21",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-11T21:36:32.171Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-11T21:36:32.171Z"
+        },
+        {
+          "observationId": "sha256:db74ce60e2512af07fbab2cdce326ccaf77ba02e46ee13e839e3e4280bb149f9",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T06:53:09.510Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T06:53:09.510Z"
+        },
+        {
+          "observationId": "sha256:38e4d5a99f545a800634d815c5a5d77cc77ad6edc19d500d8fc609b393508aaf",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T06:55:39.208Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T06:55:39.208Z"
+        },
+        {
+          "observationId": "sha256:193ca0968b5f1f86ffd7fb505c6ba5f851ef078a71abcd1c18234666f5e9a47e",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T07:01:58.413Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T07:01:58.413Z"
+        },
+        {
+          "observationId": "sha256:83ef49e64d13beae92548a174864067ef6f4ce23bb8d8c5793d26dbd4428d650",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T07:27:40.735Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T07:27:40.735Z"
+        },
+        {
+          "observationId": "sha256:14b61f2f9e904a99759e45d187bf4e336dc9df053c0d9dc30e7ec02ef54b0996",
+          "checkpointId": "C003",
+          "workUnitId": "WU003",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T07:28:38.347Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T07:28:38.347Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C004",
+      "current": {
+        "observationId": "sha256:f0f3d7f850f5b45c083967005b057e2ae83179f4f209cf72273dc614a9ae83bd",
+        "checkpointId": "C004",
+        "workUnitId": "WU004",
+        "trigger": "amendment",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-12T08:39:11.212Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-12T08:39:11.212Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:31974f1e666f6a49296a5abf649c855d633949deb638d4acc1496590b451b6b1",
+          "checkpointId": "C004",
+          "workUnitId": "WU004",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T07:53:15.227Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T07:53:15.227Z"
+        },
+        {
+          "observationId": "sha256:fce1def55ba87e31899fa1bd42d93e1df950126a4e556e986b8d49f10f4e5633",
+          "checkpointId": "C004",
+          "workUnitId": "WU004",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T07:59:41.469Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T07:59:41.469Z"
+        },
+        {
+          "observationId": "sha256:f0f3d7f850f5b45c083967005b057e2ae83179f4f209cf72273dc614a9ae83bd",
+          "checkpointId": "C004",
+          "workUnitId": "WU004",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T08:39:11.212Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T08:39:11.212Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C005",
+      "current": {
+        "observationId": "sha256:926f82ab3038c62f542bf193305723301b6a7c8f0464309cdb69a03cc81d69a7",
+        "checkpointId": "C005",
+        "workUnitId": "WU005",
+        "trigger": "amendment",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-12T09:24:52.344Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-12T09:24:52.344Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:e2a57ff6903d481321ea819ab2c803fb4c188ad3cd2b66739c7fb31e6c6822f0",
+          "checkpointId": "C005",
+          "workUnitId": "WU005",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T08:52:38.261Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T08:52:38.261Z"
+        },
+        {
+          "observationId": "sha256:0d5b41a6d9eaa26935585a8ba82a4d30cb16708f5537c99f55e78632a54886f5",
+          "checkpointId": "C005",
+          "workUnitId": "WU005",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T08:58:05.424Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T08:58:05.424Z"
+        },
+        {
+          "observationId": "sha256:926f82ab3038c62f542bf193305723301b6a7c8f0464309cdb69a03cc81d69a7",
+          "checkpointId": "C005",
+          "workUnitId": "WU005",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T09:24:52.344Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T09:24:52.344Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C006",
+      "current": {
+        "observationId": "sha256:ca0eee47530af0497e4d9efa3a83c9957771ab454aa46eedf8be813f3f32e040",
+        "checkpointId": "C006",
+        "workUnitId": "WU006",
+        "trigger": "amendment",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-12T13:34:09.990Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-12T13:34:09.990Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:822a18f4f5629ba64c1ee3de35e8e1a365e1416569b41e77935c1ed666aba1c7",
+          "checkpointId": "C006",
+          "workUnitId": "WU006",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T10:08:31.905Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T10:08:31.905Z"
+        },
+        {
+          "observationId": "sha256:ee85831011c5a1d8c090b49b41b9c9703121691f389035a3af71e0e11af4e467",
+          "checkpointId": "C006",
+          "workUnitId": "WU006",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T12:53:31.800Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T12:53:31.800Z"
+        },
+        {
+          "observationId": "sha256:ca0eee47530af0497e4d9efa3a83c9957771ab454aa46eedf8be813f3f32e040",
+          "checkpointId": "C006",
+          "workUnitId": "WU006",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T13:34:09.990Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T13:34:09.990Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C007",
+      "current": {
+        "observationId": "sha256:d2eb1948c733f4fb414982d1ea4d2d72508362f96e248d61874b4ead8cd9dbc6",
+        "checkpointId": "C007",
+        "workUnitId": "WU007",
+        "trigger": "amendment",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-12T18:31:12.356Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-12T18:31:12.356Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:f9c64ed604becc69f8a8d8d1119739a02b144a7de2782c8f5a8818018ee490fc",
+          "checkpointId": "C007",
+          "workUnitId": "WU007",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T14:44:47.754Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T14:44:47.754Z"
+        },
+        {
+          "observationId": "sha256:8b5bcb88676e18cabc41e84cae50e74d7ea7636dee64f8e4a5d2bb4954d86c4a",
+          "checkpointId": "C007",
+          "workUnitId": "WU007",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T17:01:58.979Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T17:01:58.979Z"
+        },
+        {
+          "observationId": "sha256:d2eb1948c733f4fb414982d1ea4d2d72508362f96e248d61874b4ead8cd9dbc6",
+          "checkpointId": "C007",
+          "workUnitId": "WU007",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T18:31:12.356Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T18:31:12.356Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C008",
+      "current": {
+        "observationId": "sha256:681f18ab8e764058ccc0c01c408dc3f6849e5a5257c94f0985b3ffadad3facbc",
+        "checkpointId": "C008",
+        "workUnitId": "WU008",
+        "trigger": "amendment",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-12T22:45:11.145Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-12T22:45:11.145Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:0ef90c9a55b7e83a2dcf8c1074f9ceba5cfd93d3934247f96952d357fcc0beb0",
+          "checkpointId": "C008",
+          "workUnitId": "WU008",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T18:42:35.050Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T18:42:35.050Z"
+        },
+        {
+          "observationId": "sha256:58aff61bd1fed336edf97b55e5efaaba3a6088cf09ad199ec623832f51f882f9",
+          "checkpointId": "C008",
+          "workUnitId": "WU008",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T22:44:42.065Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T22:44:42.065Z"
+        },
+        {
+          "observationId": "sha256:681f18ab8e764058ccc0c01c408dc3f6849e5a5257c94f0985b3ffadad3facbc",
+          "checkpointId": "C008",
+          "workUnitId": "WU008",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-12T22:45:11.145Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-12T22:45:11.145Z"
         }
       ]
     }

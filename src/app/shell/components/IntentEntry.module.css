@@ -1,0 +1,84 @@
+.entry {
+  display: grid;
+  gap: var(--rumo-space-6);
+}
+
+.searchForm {
+  display: grid;
+  gap: var(--rumo-space-2);
+}
+
+.searchLabel {
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.searchRow {
+  display: flex;
+  gap: var(--rumo-space-2);
+  flex-wrap: wrap;
+}
+
+.searchInput {
+  flex: 1 1 16rem;
+  min-height: var(--rumo-touch-target);
+  border: 1px solid var(--rumo-border);
+  border-radius: var(--rumo-radius);
+  padding: 0 var(--rumo-space-4);
+  font-size: 1rem;
+  background: var(--rumo-surface);
+  color: var(--rumo-foreground);
+}
+
+.searchButton {
+  min-height: var(--rumo-touch-target);
+  min-width: var(--rumo-touch-target);
+  padding: 0 var(--rumo-space-6);
+  border: none;
+  border-radius: var(--rumo-radius);
+  background: var(--rumo-accent);
+  color: var(--rumo-accent-contrast);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.searchButton:hover {
+  filter: brightness(1.08);
+}
+
+.scenarios {
+  display: grid;
+  gap: var(--rumo-space-3);
+}
+
+.scenariosTitle {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--rumo-muted);
+}
+
+.scenarioList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--rumo-space-2);
+}
+
+.scenarioButton {
+  width: 100%;
+  min-height: var(--rumo-touch-target);
+  text-align: left;
+  border: 1px solid var(--rumo-border);
+  background: var(--rumo-surface);
+  color: var(--rumo-foreground);
+  border-radius: var(--rumo-radius);
+  padding: var(--rumo-space-3) var(--rumo-space-4);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.scenarioButton:hover {
+  border-color: var(--rumo-accent);
+  background: var(--rumo-accent-soft);
+}

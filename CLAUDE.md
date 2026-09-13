@@ -7,3 +7,4 @@ Start with [AGENTS.md](AGENTS.md), then read `.github/AGENT_WORKFLOW.md`, the ac
 - Implement when requested. Use subagents only for genuinely independent work.
 - Never bypass validation, use `--no-verify`, force-push, discard unfamiliar work, or start the next WU.
 - Stop WU-started processes before closure and return evidence to the Project Overseer.
+- Stop at review handoff (`needs_review`); do not mark your own implementation as finally accepted. Only the Project Overseer accepts a WU, and a `*-done` completion tag may only be created after that explicit acceptance.

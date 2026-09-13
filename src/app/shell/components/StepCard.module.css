@@ -1,0 +1,74 @@
+.card {
+  border-radius: var(--rumo-radius);
+  padding: var(--rumo-space-4);
+  display: grid;
+  gap: var(--rumo-space-2);
+  background: var(--rumo-surface);
+  border: 1px solid var(--rumo-border);
+}
+
+.primary {
+  border: 2px solid var(--rumo-accent);
+  background: var(--rumo-accent-soft);
+}
+
+.parallel {
+  border: 1px solid var(--rumo-border);
+}
+
+.wait {
+  border: 1px dashed var(--rumo-border);
+  background: var(--rumo-background);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.primary .eyebrow {
+  color: var(--rumo-accent);
+}
+
+.parallel .eyebrow,
+.wait .eyebrow {
+  color: var(--rumo-muted);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.description {
+  margin: 0;
+  color: var(--rumo-muted);
+  line-height: 1.5;
+  font-size: 0.9375rem;
+}
+
+.duration {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--rumo-muted);
+  font-style: italic;
+}
+
+.actionButton {
+  justify-self: start;
+  min-height: var(--rumo-touch-target);
+  padding: 0 var(--rumo-space-4);
+  border: none;
+  border-radius: var(--rumo-radius);
+  background: var(--rumo-accent);
+  color: var(--rumo-accent-contrast);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.actionButton:hover {
+  filter: brightness(1.08);
+}
