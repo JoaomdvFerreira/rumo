@@ -79,14 +79,29 @@ Because deployment is a pure function of the deployed commit:
   only establishes that the Git-to-deployment mapping itself is
   reproducible and inspectable from the platform side.
 
+## External verification record
+
+A Vercel project (`rumo`, under the `joaomdvferreiras-projects` scope) was
+created and connected to `https://github.com/JoaomdvFerreira/rumo` to
+verify this WU's Git-to-deployment contract against a real deployment,
+rather than relying on configuration inspection alone. The project's
+Framework Preset (Next.js), Build Command (`pnpm build`), and Install
+Command (`pnpm install --frozen-lockfile`) were confirmed to match
+`vercel.json` exactly, Node.js Version is `24.x`, and zero environment
+variables exist on the project, matching `docs/deployment/environment.md`.
+The project's production branch tracks the GitHub repository's default
+branch, `main`; no override was configured. This commit, pushed to the
+`milestone/m032-production-candidate` branch, is the first commit to
+trigger the Git-integrated preview deployment for external verification.
+
 ## What this WU does not do
 
-- Does not perform an actual Vercel deployment (no Vercel account/project
-  action was taken as part of this Work Unit); it establishes the
-  configuration and contract a deployment would use. Executing the first
-  real deployment against a live Vercel project is an external action
-  outside this repository and is recorded as outstanding external
-  verification (see the WU009 checkpoint).
+- Does not perform a `main`-branch production deployment; the milestone
+  branch is not merged to `main` as part of this WU or its verification
+  (`.github/AGENT_WORKFLOW.md` reserves that merge decision for the
+  repository owner / Project Overseer). Production-candidate verification
+  uses a non-`main` Vercel deployment mechanism that preserves exact Git
+  SHA provenance without altering the configured production branch.
 - Does not add CI enforcement of the release-quality gate beyond what
   already exists — that is WU010.
 - Does not add security headers — that is WU011.
