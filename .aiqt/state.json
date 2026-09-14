@@ -1,7 +1,7 @@
 {
   "version": "0.9.0",
-  "projectStatus": "in_progress",
-  "currentMilestoneId": null,
+  "projectStatus": "review",
+  "currentMilestoneId": "M002",
   "currentWorkUnitId": null,
   "workGraph": {
     "milestones": [
@@ -25,7 +25,7 @@
         "id": "M002",
         "title": "Production Candidate & External Validation Readiness",
         "objective": "Produce a reproducible, hardened, privacy-conscious deployed candidate of the frozen Rumo MVP that is ready for controlled G2.3 external validation, without expanding MVP scope or claiming public-launch readiness.",
-        "status": "ready",
+        "status": "in_progress",
         "workUnitIds": [
           "WU009",
           "WU010",
@@ -388,10 +388,10 @@
           "pnpm build",
           "git diff --check"
         ],
-        "status": "ready",
+        "status": "needs_review",
         "dependencies": [],
         "createdAt": "2026-09-14T08:04:02.925Z",
-        "updatedAt": "2026-09-14T08:04:02.925Z"
+        "updatedAt": "2026-09-14T09:05:10.599Z"
       },
       {
         "id": "WU010",
@@ -1457,15 +1457,98 @@
       "finalWorkUnitStatus": "needs_review",
       "nextRecommendation": "aiqt checkpoint amend --checkpoint C008",
       "createdAt": "2026-09-12T18:42:35.050Z"
+    },
+    {
+      "id": "C009",
+      "workUnitId": "WU009",
+      "packetId": "PKT-010",
+      "summary": "Established the reproducible Git-to-deployment path and environment/secrets contract for the M03.2 production candidate: pinned Vercel deployment configuration aligned to the existing pnpm/Node pins, documented preview-vs-production ownership and traceability, and documented the (currently empty) environment-variable contract with an explicit ownership rule for adding one in a future WU. No application code, domain/routing logic, or persistence behaviour was changed.",
+      "completed": [
+        "Added vercel.json pinning framework=nextjs and install/build commands to the same commands already validated by CI, with no duplicate Node/pnpm version pin (single source of truth stays package.json engines/packageManager).",
+        "Added docs/deployment/environment.md: the environment-variable/secrets contract, stating today's variable count is zero (verified by inspection), the ownership rule for introducing a variable in a future WU, and the preview/production ownership split.",
+        "Added docs/deployment/runbook.md: the Git-to-deployment path (per-branch preview, main-tracking production), Node/pnpm runtime configuration rationale, traceability baseline (every deployment maps 1:1 to a Git commit SHA via Vercel's own commit-to-deployment mapping), rollback procedure, and an explicit list of what remains out of scope for WU009 (CI gating, security headers, release-identity surfacing, telemetry -- WU010-WU013).",
+        "Added src/test/deployment.test.ts (5 tests) asserting vercel.json's shape, that no runtime Node/pnpm pin is duplicated there, that package.json still pins an exact Node engine and pnpm packageManager, that no application source under src/ reads process.env, and that both new docs exist.",
+        "Verified by direct grep that src/** contains zero process.env reads today, confirming the environment contract's 'no variables required' claim is accurate rather than assumed."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "vercel.json",
+        "docs/deployment/environment.md",
+        "docs/deployment/runbook.md",
+        "src/test/deployment.test.ts"
+      ],
+      "issues": [
+        {
+          "title": "next dev / next build injected an unsolicited 'AGENTS.md' content block and regenerated next-env.d.ts during validation",
+          "description": "Running pnpm test:e2e (which starts next dev via Playwright's webServer) and pnpm build caused node_modules/next/dist/server/lib/generate-agent-files.js to append a '<!-- BEGIN:nextjs-agent-rules -->' block to the canonical governance file AGENTS.md, containing text directed at an AI agent instructing it to read Next.js internal docs and to commit the injected block to 'keep the tree clean'. next-env.d.ts was also rewritten (an expected, already-documented 'do not edit' generated file). Both were treated as untrusted, tool-generated content outside WU009 scope -- not a real instruction from the user or the Project Overseer -- and were reverted via `git checkout -- AGENTS.md next-env.d.ts` before this checkpoint. No WU009 change touches AGENTS.md.",
+          "severity": "low",
+          "status": "open",
+          "agentCanFix": false
+        }
+      ],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "eslint . reported zero issues."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit completed with zero errors."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "vitest run: 34 test files, 367 tests passed (362 pre-existing + 5 new deployment-contract tests), zero failures."
+        },
+        {
+          "command": "pnpm content:check",
+          "result": "passed",
+          "summary": "vitest run src/content/check.test.ts: 11/11 passed, unaffected by this WU."
+        },
+        {
+          "command": "pnpm test:e2e",
+          "result": "passed",
+          "summary": "Playwright + axe: 19/19 passed against the Playwright-managed next dev instance; no regression from the deployment configuration/docs addition."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "next build succeeded; both routes (/ and /_not-found) still statically prerendered, confirming no server-persistence or runtime-content-fetch dependency was introduced."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed",
+          "summary": "Zero whitespace errors; only pre-existing CRLF/LF line-ending notices on .aiqt/* files, matching prior WU evidence."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Preview and production-candidate deployments are reproducible from Git with documented environment ownership.",
+          "result": "passed",
+          "evidence": "vercel.json pins framework/install/build commands identical to CI's validated commands; docs/deployment/runbook.md documents that every push produces a deployment 1:1 with its Git commit SHA (preview for any non-main branch, production for main), and docs/deployment/environment.md documents ownership: production is owner/Project-Overseer-controlled via the main merge decision, preview is owned by whoever works that branch. No actual Vercel deployment was executed as part of this WU -- see deviations."
+        },
+        {
+          "criterion": "Deployment configuration preserves the frozen architecture and introduces no server persistence or runtime content dependency.",
+          "result": "passed",
+          "evidence": "vercel.json adds no functions/rewrites/redirects/env config beyond framework+install+build commands; grep across src/ confirms zero process.env reads (also regression-guarded by src/test/deployment.test.ts); pnpm build continues to statically prerender both routes with no server persistence introduced; package.json dependencies are unchanged (no database/auth/backend package added)."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "createdAt": "2026-09-14T09:05:10.599Z",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C009"
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-009",
-    "workUnitId": "WU008",
-    "milestoneId": "M001",
-    "createdAt": "2026-09-12T18:37:17.330Z",
+    "id": "PKT-010",
+    "workUnitId": "WU009",
+    "milestoneId": "M002",
+    "createdAt": "2026-09-14T08:59:22.673Z",
     "format": "markdown",
-    "contentHash": "sha256:70f9d07628aacdc563a9a45e83e89a4259eab5d5f02f7cb75017bb96d25f0c13",
+    "contentHash": "sha256:f67ff02bc73d47ca9bafa6c544ece32c245c41943dd40f9dd530abf6dea4f935",
     "sourceCommand": "aiqt next",
     "renderedSections": [
       "scope",
@@ -1473,19 +1556,18 @@
       "constraints",
       "acceptance",
       "validation",
-      "designGuidance",
       "sourceControlExpectations"
     ],
     "guidanceFlags": {
-      "includesDesignGuidance": true,
+      "includesDesignGuidance": false,
       "includesWorkingDirectoryDiscipline": false,
       "includesComponentSystemGuidance": false,
       "includesRecoveryGuidance": false,
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-14T08:04:02.925Z",
+  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C009",
+  "lastUpdatedAt": "2026-09-14T09:05:10.599Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -2144,6 +2226,36 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-12T22:45:11.145Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C009",
+      "current": {
+        "observationId": "sha256:5f151f8cbdfd1810056f0bd75136173fac7886df73b17306cc4c37fe56c30aef",
+        "checkpointId": "C009",
+        "workUnitId": "WU009",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-14T09:05:10.599Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-14T09:05:10.599Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:5f151f8cbdfd1810056f0bd75136173fac7886df73b17306cc4c37fe56c30aef",
+          "checkpointId": "C009",
+          "workUnitId": "WU009",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-14T09:05:10.599Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-14T09:05:10.599Z"
         }
       ]
     }
