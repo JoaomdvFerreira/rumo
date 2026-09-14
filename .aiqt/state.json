@@ -1538,8 +1538,8 @@
         }
       ],
       "finalWorkUnitStatus": "needs_review",
-      "createdAt": "2026-09-14T09:05:10.599Z",
-      "nextRecommendation": "aiqt checkpoint amend --checkpoint C009"
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C009",
+      "createdAt": "2026-09-14T09:05:10.599Z"
     }
   ],
   "lastAgentPacket": {
@@ -1567,7 +1567,7 @@
     }
   },
   "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C009",
-  "lastUpdatedAt": "2026-09-14T09:05:10.599Z",
+  "lastUpdatedAt": "2026-09-14T09:49:44.088Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -1757,6 +1757,16 @@
       "validationResult": "passed",
       "reason": "Project Overseer final acceptance of WU008 and M03.1 Production Foundation release evidence after explicit AIQT completion-gate re-evaluation. Reviewed evidence head: e10aac1. Existing low-severity node:crypto observation remains accepted and non-blocking.",
       "amendedAt": "2026-09-12T22:45:11.145Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-020",
+      "checkpointId": "C009",
+      "workUnitId": "WU009",
+      "acceptanceCriteriaResult": "partial",
+      "validationResult": "passed",
+      "reason": "External Vercel verification (2 sessions): a real Vercel project (rumo, joaomdvferreiras-projects) was created and Git-connected to JoaomdvFerreira/rumo. AC2 fully evidenced (zero env vars, static prerender preserved, no persistence). AC1 preview half fully evidenced: Git-integrated Preview deployment dpl_Dc9LAxW6buocKL1CZy59Z4C33fFw built from exact commit a013263c0a14ee2bfd78fb02b07a39a94b41b93d on milestone/m032-production-candidate, READY, config matches vercel.json exactly, verified HTTP 200 via authenticated deployment-protection-bypass fetch showing the real Rumo app. AC1 production-candidate half tested via 'vercel promote dpl_Dc9LAxW6buocKL1CZy59Z4C33fFw --yes' under explicit owner authorization: this did NOT promote the existing build artifact as-is -- it triggered a fresh rebuild (new Cloning step, new pnpm install, new next build) producing a new deployment id (dpl_BTs6ssLbMvYcAAYMN49nUuwqer37) rather than reusing the original Preview's identity. The rebuild used the identical Git SHA and succeeded (HTTP 200, static prerender preserved, zero env vars, main remains the configured Git production branch, no local-file upload), so commit-level traceability holds, but the specific test the Overseer requested -- promotion of the exact existing artifact without rebuild, preserving deployment identity -- did not hold as hypothesized for this Vercel CLI/project configuration. Per explicit instruction not to reinterpret a failed provenance-identity check as PASS, AC1 remains PARTIAL and WU009 remains needs_review. No merge to main occurred; production Git branch unchanged.",
+      "amendedAt": "2026-09-14T09:49:44.088Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -2233,16 +2243,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C009",
       "current": {
-        "observationId": "sha256:5f151f8cbdfd1810056f0bd75136173fac7886df73b17306cc4c37fe56c30aef",
+        "observationId": "sha256:701334910397962dcf2d0272c2c04ae3cca2ddc4d4d0f49d7968c06ef3069db3",
         "checkpointId": "C009",
         "workUnitId": "WU009",
-        "trigger": "checkpoint",
+        "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-14T09:05:10.599Z",
+        "asOf": "2026-09-14T09:49:44.088Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-14T09:05:10.599Z"
+        "recordedAt": "2026-09-14T09:49:44.088Z"
       },
       "history": [
         {
@@ -2256,6 +2266,18 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-14T09:05:10.599Z"
+        },
+        {
+          "observationId": "sha256:701334910397962dcf2d0272c2c04ae3cca2ddc4d4d0f49d7968c06ef3069db3",
+          "checkpointId": "C009",
+          "workUnitId": "WU009",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-14T09:49:44.088Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-14T09:49:44.088Z"
         }
       ]
     }
