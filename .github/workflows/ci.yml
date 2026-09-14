@@ -21,8 +21,19 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm lint
-      - run: pnpm typecheck
-      - run: pnpm test
-      - run: pnpm build
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit and integration tests
+        run: pnpm test
+      - name: Validate canonical content
+        run: pnpm content:check
+      - name: Install Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Browser smoke tests
+        run: pnpm test:e2e
+      - name: Production build
+        run: pnpm build

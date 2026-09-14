@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "in_progress",
+  "projectStatus": "review",
   "currentMilestoneId": "M002",
   "currentWorkUnitId": null,
   "workGraph": {
@@ -25,7 +25,7 @@
         "id": "M002",
         "title": "Production Candidate & External Validation Readiness",
         "objective": "Produce a reproducible, hardened, privacy-conscious deployed candidate of the frozen Rumo MVP that is ready for controlled G2.3 external validation, without expanding MVP scope or claiming public-launch readiness.",
-        "status": "ready",
+        "status": "in_progress",
         "workUnitIds": [
           "WU009",
           "WU010",
@@ -423,12 +423,12 @@
           "pnpm build",
           "git diff --check"
         ],
-        "status": "ready",
+        "status": "needs_review",
         "dependencies": [
           "DEP-012"
         ],
         "createdAt": "2026-09-14T08:04:02.925Z",
-        "updatedAt": "2026-09-14T10:20:39.421Z"
+        "updatedAt": "2026-09-14T20:00:38.981Z"
       },
       {
         "id": "WU011",
@@ -1540,15 +1540,105 @@
       "finalWorkUnitStatus": "needs_review",
       "nextRecommendation": "aiqt checkpoint amend --checkpoint C009",
       "createdAt": "2026-09-14T09:05:10.599Z"
+    },
+    {
+      "id": "C010",
+      "workUnitId": "WU010",
+      "packetId": "PKT-011",
+      "summary": "Expanded the existing single protected validation job into the complete WU010 release-quality gate while preserving its externally visible identity. Pull-request CI now runs lint, typecheck, unit/integration tests, canonical content validation, Chromium Playwright smoke (including the existing axe assertions), and the production build through the frozen Node/pnpm/lockfile path. Added focused CI-contract regression coverage and bounded documentation. No product, security-header, deployment-architecture, or downstream-WU implementation was added.",
+      "completed": [
+        "Preserved workflow name Project validation and job/check name validation; live historical GitHub Actions evidence confirms validation is the pre-change check name.",
+        "Kept the existing pull_request and main-push triggers and the existing one-job sequential architecture, so every required release gate contributes directly to the protected validation result.",
+        "Added pnpm content:check to the protected validation job.",
+        "Added a pinned-lockfile Playwright Chromium install using pnpm exec playwright install --with-deps chromium and added pnpm test:e2e to the protected validation job.",
+        "Retained Node 24, pnpm 11.27.0, pnpm install --frozen-lockfile, pnpm cache, and pnpm build exactly as established by WU009.",
+        "Added src/test/ci/ci-contract.test.ts with four focused invariants covering pull-request trigger/check identity, release commands, frozen/browser install commands, and package.json runtime-pin alignment.",
+        "Added docs/deployment/ci.md documenting the protected result, release gates, deterministic runtime/install path, browser server lifecycle, and failure/cancellation/skipped-step semantics.",
+        "Ran every canonical local validation command successfully and confirmed no WU-started server remains on port 3000.",
+        "Inspected the public GitHub Actions API: historical pull-request run 34754629020 exposed one job named validation and succeeded; the public rulesets endpoint returned no rulesets, while branch-protection details required unavailable authentication."
+      ],
+      "notCompleted": [
+        "A real pull_request execution against the final WU010 commit remains externally unverified: the workflow has no workflow_dispatch or milestone-branch push trigger, and creating the milestone PR solely for evidence is not authorized."
+      ],
+      "filesChanged": [
+        ".github/workflows/ci.yml",
+        "docs/deployment/ci.md",
+        "src/test/ci/ci-contract.test.ts"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "partial",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "eslint . completed with zero issues. Local execution used Corepack to resolve the repository-pinned pnpm 11.27.0 because the machine's first PATH shim is a stale broken pnpm 11.12.0 executable."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "tsc --noEmit completed with zero errors under repository-pinned pnpm 11.27.0."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "vitest run: 35 test files and 371 tests passed, including the four new CI-contract tests."
+        },
+        {
+          "command": "pnpm content:check",
+          "result": "passed",
+          "summary": "vitest run src/content/check.test.ts: 1 test file and 11 tests passed."
+        },
+        {
+          "command": "pnpm test:e2e",
+          "result": "passed",
+          "summary": "Playwright Chromium: 19/19 tests passed, including the existing axe, mobile-overflow, keyboard, J01/J02/J03, persistence, reset, and source-disclosure coverage. The local stale-pnpm compatibility wrapper required terminating its exact Next dev process after all tests completed; Playwright then exited 0, and port 3000 was confirmed closed."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "Next.js 16.3.4 production build compiled, typechecked, and statically prerendered / and /_not-found successfully."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed",
+          "summary": "No whitespace errors; Git emitted only the repository's existing LF/CRLF conversion notices for tracked AIQT/workflow files."
+        },
+        {
+          "command": "pnpm exec vitest run src/test/ci/ci-contract.test.ts --reporter=verbose",
+          "result": "passed",
+          "summary": "WU010-specific focused run: 1 test file and 4 tests passed."
+        },
+        {
+          "command": "aiqt graph validate",
+          "result": "passed",
+          "summary": "Graph validation completed with only two expected non-blocking suspicious-late-stage-ready heuristic warnings for WU011 and WU012 while WU010 was active."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Pull-request CI executes the complete release-quality gate including canonical content and browser smoke validation.",
+          "result": "partial",
+          "evidence": ".github/workflows/ci.yml retains pull_request and now contains every canonical release command in the sequential validation job; the complete gate passes locally (35/371 Vitest, 11/11 content, 19/19 Playwright, successful build), and the focused CI-contract test passes 4/4. Actual PR-triggered execution on the final commit cannot legitimately be produced before the authorized milestone PR, so that external portion remains pending."
+        },
+        {
+          "criterion": "The protected validation status remains stable and deterministic.",
+          "result": "passed",
+          "evidence": "Before: public GitHub Actions pull-request run 34754629020 exposed job/check validation. After: workflow job id and explicit name remain validation, guarded by a focused test. All required commands run sequentially in that job with default success semantics and no continue-on-error or independent aggregator, so any failure/cancellation prevents a successful validation result and skipped later steps cannot yield a false success."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "createdAt": "2026-09-14T20:00:38.981Z",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C010"
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-010",
-    "workUnitId": "WU009",
+    "id": "PKT-011",
+    "workUnitId": "WU010",
     "milestoneId": "M002",
-    "createdAt": "2026-09-14T08:59:22.673Z",
+    "createdAt": "2026-09-14T19:44:54.408Z",
     "format": "markdown",
-    "contentHash": "sha256:f67ff02bc73d47ca9bafa6c544ece32c245c41943dd40f9dd530abf6dea4f935",
+    "contentHash": "sha256:db549348fc5099ef9e233f17bf299ff726a088e834cb99d3177ac1298ec9f11e",
     "sourceCommand": "aiqt next",
     "renderedSections": [
       "scope",
@@ -1566,8 +1656,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-14T10:20:39.421Z",
+  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C010",
+  "lastUpdatedAt": "2026-09-14T20:00:38.981Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -2300,6 +2390,36 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-14T10:20:39.421Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C010",
+      "current": {
+        "observationId": "sha256:dbc9dcfafe4fb57045a59a26b5a497d8c9c549f6b1945a00d13a1feae7766702",
+        "checkpointId": "C010",
+        "workUnitId": "WU010",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-14T20:00:38.981Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-14T20:00:38.981Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:dbc9dcfafe4fb57045a59a26b5a497d8c9c549f6b1945a00d13a1feae7766702",
+          "checkpointId": "C010",
+          "workUnitId": "WU010",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-14T20:00:38.981Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-14T20:00:38.981Z"
         }
       ]
     }
