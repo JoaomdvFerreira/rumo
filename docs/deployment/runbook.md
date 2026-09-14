@@ -51,8 +51,19 @@ mechanism than `@pnpm/exe` and did not surface the same failure locally.)
    production deployments, and the reverse lookup (`git log <sha>`) always
    resolves in this repository's history.
 
-No manual/out-of-band deployment path exists or is introduced by this WU;
-the only way to deploy is to push a commit.
+The Git-integrated path above is the only deployment path this WU
+introduces or relies on for evidence. A separate, platform-level manual
+path (`vercel deploy`, CLI-authenticated) also exists on Vercel outside
+this repository's control; WU009 external verification confirmed it can
+create a `target: production` deployment from a local working-directory
+upload without pushing to `main`, and that such a deployment carries no
+Git commit metadata (the build log shows no `Cloning github.com/...`
+step), unlike a Git-integrated deployment. This WU does not use that
+manual path for any accepted evidence and does not configure or document
+it as a supported deployment mechanism; it is recorded here only because
+it was discovered during external verification and can otherwise silently
+reassign the project's default `.vercel.app` alias. See "External
+verification record" below for what was and was not used as evidence.
 
 ## Preview vs production ownership
 
@@ -95,9 +106,33 @@ Command (`pnpm install --frozen-lockfile`) were confirmed to match
 `vercel.json` exactly, Node.js Version is `24.x`, and zero environment
 variables exist on the project, matching `docs/deployment/environment.md`.
 The project's production branch tracks the GitHub repository's default
-branch, `main`; no override was configured. This commit, pushed to the
-`milestone/m032-production-candidate` branch, is the first commit to
-trigger the Git-integrated preview deployment for external verification.
+branch, `main`; no override was configured. Commit `7504160` on
+`milestone/m032-production-candidate` produced a Git-integrated preview
+deployment (`target: preview`) that built successfully, matched the
+pinned framework/install/build configuration exactly, and traced back to
+that exact commit SHA in the build log.
+
+Production-candidate verification was attempted using `vercel deploy
+--prod --skip-domain`, which produces a `target: production` deployment
+without merging to `main`. That deployment built and served successfully
+using the same configuration, but its build log showed no Git clone step
+and its metadata carried no commit SHA — it deploys from a local
+working-directory upload, not from the GitHub-integrated pipeline this
+WU's contract documents. It therefore does not meet this WU's own
+traceability bar ("every deployment... addressable by its Git commit SHA
+via the Vercel platform's own commit-to-deployment mapping") and is
+**not** accepted as production-candidate evidence. It also unexpectedly
+reassigned the project's default `.vercel.app` alias despite
+`--skip-domain`; no custom domain exists on this project, so no
+externally-relied-upon URL was affected, and the next real deployment
+from `main` will reclaim that alias with correct Git provenance.
+
+A genuine production-candidate deployment with full Git SHA provenance
+requires either a push/merge to `main` (which this WU does not perform,
+per `.github/AGENT_WORKFLOW.md`) or a Vercel Git-integrated mechanism for
+building a non-`main` commit with `target: production` semantics, which
+was not found in this Vercel account/CLI version. This part of AC1
+remains externally unverified as a result.
 
 ## What this WU does not do
 
