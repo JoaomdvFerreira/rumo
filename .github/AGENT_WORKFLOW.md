@@ -58,7 +58,7 @@ Sequence:
 3. If both effective results are `passed` and the completion gate is met, AIQT transitions the WU to `done` as part of this same command — confirm via the command's own output (`workUnitStatusAfter`) or `aiqt status`, rather than assuming success.
 4. If the transition did not occur despite a `passed`/`passed` amendment, treat it as a signal to inspect why (stale checkpoint, active `currentWorkUnitId`, unresolved issue) before re-amending — never force status by any other means.
 5. Commit any persistent AIQT acceptance changes (`.aiqt/state.json`, `.aiqt/runlog.jsonl`).
-6. Create the canonical WU completion tag only once `aiqt status` confirms the WU is `done` — using this milestone's fixed prefix `m031` (see below) at the final accepted closure SHA.
+6. Create the canonical WU completion tag only once `aiqt status` confirms the WU is `done` — using the active milestone's fixed prefix (see below) at the final accepted closure SHA.
 7. Push branch and tag.
 8. Verify a clean, synchronized tree.
 9. STOP.
@@ -77,9 +77,12 @@ needs_review
 
 A failing or partial amendment never transitions the WU to `done` — the completion gate requires both effective results to be `passed`. Do not create intermediate `done` tags. A `*-done` tag is only ever created after `aiqt status` confirms `done`, following explicit Project Overseer acceptance, at the accepted SHA.
 
-### Completion tag prefix (this milestone)
+### Completion tag prefix (per milestone)
 
-The canonical tag prefix for milestone M03.1 is the fixed string `m031` — e.g. `m031-wu003-done` — matching the existing `m031-wu001-done` and `m031-wu002-done` tags. This prefix is a milestone-numbering convention chosen for this repository; it is **not** derived from the internal AIQT milestone id (`M001`) and must not be recomputed from it.
+Each project-facing milestone has a fixed completion-tag prefix. This prefix is a milestone-numbering convention chosen for this repository; it is **not** derived from the internal AIQT milestone id and must not be recomputed from it. Use the prefix that matches the milestone the WU belongs to:
+
+* Milestone M03.1 (AIQT `M001`) → prefix `m031` — e.g. `m031-wu003-done` — matching the existing `m031-wu001-done` and `m031-wu002-done` tags. M03.1 is closed; this rule is historical and must not be changed.
+* Milestone M03.2 (AIQT `M002`) → prefix `m032` — e.g. `m032-wu009-done`.
 
 ## Milestone delivery
 

@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "review",
+  "projectStatus": "in_progress",
   "currentMilestoneId": null,
   "currentWorkUnitId": null,
   "workGraph": {
@@ -19,6 +19,22 @@
           "WU006",
           "WU007",
           "WU008"
+        ]
+      },
+      {
+        "id": "M002",
+        "title": "Production Candidate & External Validation Readiness",
+        "objective": "Produce a reproducible, hardened, privacy-conscious deployed candidate of the frozen Rumo MVP that is ready for controlled G2.3 external validation, without expanding MVP scope or claiming public-launch readiness.",
+        "status": "ready",
+        "workUnitIds": [
+          "WU009",
+          "WU010",
+          "WU011",
+          "WU012",
+          "WU013",
+          "WU014",
+          "WU015",
+          "WU016"
         ]
       }
     ],
@@ -339,6 +355,316 @@
         ],
         "createdAt": "2026-09-11T18:56:25.144Z",
         "updatedAt": "2026-09-12T22:45:11.145Z"
+      },
+      {
+        "id": "WU009",
+        "milestoneId": "M002",
+        "title": "Deployment Baseline & Environment Contract",
+        "objective": "Establish the reproducible Git-to-deployment path and environment contract for the production candidate.",
+        "scope": [
+          "Vercel as target deployment platform unless a concrete blocker is found",
+          "preview vs production ownership",
+          "Node/pnpm/runtime configuration",
+          "environment-variable/secrets contract",
+          "Git revision/deployment traceability baseline",
+          "deployment/runbook evidence"
+        ],
+        "outOfScope": [
+          "public launch",
+          "custom backend",
+          "DB/auth",
+          "runtime content fetching"
+        ],
+        "acceptanceCriteria": [
+          "Preview and production-candidate deployments are reproducible from Git with documented environment ownership.",
+          "Deployment configuration preserves the frozen architecture and introduces no server persistence or runtime content dependency."
+        ],
+        "agentContextRefs": [],
+        "suggestedFiles": [],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test",
+          "pnpm build",
+          "git diff --check"
+        ],
+        "status": "ready",
+        "dependencies": [],
+        "createdAt": "2026-09-14T08:04:02.925Z",
+        "updatedAt": "2026-09-14T08:04:02.925Z"
+      },
+      {
+        "id": "WU010",
+        "milestoneId": "M002",
+        "title": "Release CI & Quality Gates",
+        "objective": "Make CI enforce the complete release-quality baseline.",
+        "scope": [
+          "preserve existing required validation status compatibility",
+          "canonical content validation in CI",
+          "Playwright/browser smoke in CI",
+          "deterministic build/install path",
+          "bounded CI documentation"
+        ],
+        "outOfScope": [
+          "no scope beyond the stated CI/quality-gate scope"
+        ],
+        "acceptanceCriteria": [
+          "Pull-request CI executes the complete release-quality gate including canonical content and browser smoke validation.",
+          "The protected validation status remains stable and deterministic."
+        ],
+        "agentContextRefs": [],
+        "suggestedFiles": [],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test",
+          "pnpm content:check",
+          "pnpm test:e2e",
+          "pnpm build",
+          "git diff --check"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-012"
+        ],
+        "createdAt": "2026-09-14T08:04:02.925Z",
+        "updatedAt": "2026-09-14T08:04:02.925Z"
+      },
+      {
+        "id": "WU011",
+        "milestoneId": "M002",
+        "title": "Security & HTTP Hardening",
+        "objective": "Establish the production-candidate HTTP/browser security baseline.",
+        "scope": [
+          "CSP",
+          "clickjacking/frame protection",
+          "nosniff",
+          "referrer policy",
+          "permissions policy",
+          "HTTPS/HSTS treatment where appropriate",
+          "safe external official-source navigation",
+          "regression coverage",
+          "Do not add authentication or a security vendor"
+        ],
+        "outOfScope": [
+          "authentication",
+          "security vendor"
+        ],
+        "acceptanceCriteria": [
+          "Deployed responses enforce the approved security-header baseline without breaking Rumo flows or official-source navigation.",
+          "Security controls are regression-tested against the production build."
+        ],
+        "agentContextRefs": [],
+        "suggestedFiles": [],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test",
+          "pnpm test:e2e",
+          "pnpm build",
+          "git diff --check"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-013"
+        ],
+        "createdAt": "2026-09-14T08:04:02.925Z",
+        "updatedAt": "2026-09-14T08:04:02.925Z"
+      },
+      {
+        "id": "WU012",
+        "milestoneId": "M002",
+        "title": "Runtime Resilience & Release Identity",
+        "objective": "Make failures recoverable and every external-validation candidate unambiguously identifiable.",
+        "scope": [
+          "bounded Next.js error/fallback handling",
+          "non-sensitive recovery UX",
+          "release/build revision identity",
+          "candidate version traceability",
+          "no personal facts in diagnostics/URLs"
+        ],
+        "outOfScope": [
+          "no scope beyond the stated resilience/release-identity scope"
+        ],
+        "acceptanceCriteria": [
+          "Fatal runtime failures present a recoverable non-sensitive user experience.",
+          "Every deployed candidate is traceable to an exact Git revision without exposing personal administrative data."
+        ],
+        "agentContextRefs": [],
+        "suggestedFiles": [],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test",
+          "pnpm test:e2e",
+          "pnpm build",
+          "git diff --check"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-014"
+        ],
+        "createdAt": "2026-09-14T08:04:02.925Z",
+        "updatedAt": "2026-09-14T08:04:02.925Z"
+      },
+      {
+        "id": "WU013",
+        "milestoneId": "M002",
+        "title": "Privacy-safe Observability Contract",
+        "objective": "Define bounded observability/telemetry that cannot leak user administrative content.",
+        "scope": [
+          "typed allow-list event contract",
+          "canonical ids/state categories only where justified",
+          "explicit forbidden raw search/fact payloads",
+          "non-blocking telemetry failures",
+          "provider boundary",
+          "Default: do NOT add an external analytics/monitoring provider",
+          "If a provider is materially required, STOP and request a separate owner decision before adding the dependency or sending data externally"
+        ],
+        "outOfScope": [
+          "external analytics/monitoring provider unless explicitly owner-approved"
+        ],
+        "acceptanceCriteria": [
+          "Product telemetry has a typed allow-list contract that cannot emit raw search text or administrative facts.",
+          "Telemetry failure is non-blocking and no external provider is introduced without explicit owner approval."
+        ],
+        "agentContextRefs": [],
+        "suggestedFiles": [],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test",
+          "pnpm build",
+          "git diff --check"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-015"
+        ],
+        "createdAt": "2026-09-14T08:04:02.925Z",
+        "updatedAt": "2026-09-14T08:04:02.925Z"
+      },
+      {
+        "id": "WU014",
+        "milestoneId": "M002",
+        "title": "G2.3 External Validation Readiness Package",
+        "objective": "Make G2.3 executable and reproducible against a pinned deployed candidate.",
+        "scope": [
+          "canonical external-test protocol in repo",
+          "representative tasks for J01/J02/J03",
+          "success/comprehension/trust measures",
+          "reset-between-participants procedure",
+          "synthetic/test data only",
+          "participant/observer evidence capture",
+          "revision/URL pinning",
+          "explicit privacy handling"
+        ],
+        "outOfScope": [
+          "executing G2.3",
+          "claiming G2.3 PASS",
+          "real participant personal administrative data"
+        ],
+        "acceptanceCriteria": [
+          "G2.3 can be executed against a pinned candidate with reproducible tasks success measures reset steps and evidence capture.",
+          "The protocol uses synthetic test data and does not require participants to disclose real administrative information."
+        ],
+        "agentContextRefs": [],
+        "suggestedFiles": [],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test",
+          "git diff --check"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-016",
+          "DEP-017",
+          "DEP-018"
+        ],
+        "createdAt": "2026-09-14T08:04:02.925Z",
+        "updatedAt": "2026-09-14T08:04:02.925Z"
+      },
+      {
+        "id": "WU015",
+        "milestoneId": "M002",
+        "title": "Deployed Candidate & Remote Smoke",
+        "objective": "Produce and verify the stable candidate that will be used for G2.3.",
+        "scope": [
+          "stable candidate deployment",
+          "exact revision verification",
+          "remote functional smoke",
+          "accessibility checks",
+          "security-header checks",
+          "content/source release checks",
+          "J01/J02/J03 representative remote flows"
+        ],
+        "outOfScope": [
+          "no scope beyond the stated deployed-candidate/remote-smoke scope"
+        ],
+        "acceptanceCriteria": [
+          "A stable deployed candidate passes remote smoke accessibility content and security checks.",
+          "The deployed revision is traceable to the reviewed Git commit and is ready for controlled external validation."
+        ],
+        "agentContextRefs": [],
+        "suggestedFiles": [],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test",
+          "pnpm content:check",
+          "pnpm test:e2e",
+          "pnpm build",
+          "git diff --check"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-019",
+          "DEP-020",
+          "DEP-021"
+        ],
+        "createdAt": "2026-09-14T08:04:02.925Z",
+        "updatedAt": "2026-09-14T08:04:02.925Z"
+      },
+      {
+        "id": "WU016",
+        "milestoneId": "M002",
+        "title": "M03.2 Integration & Readiness Gate",
+        "objective": "Reconcile M03.2 and prove readiness to BEGIN G2.3.",
+        "scope": [
+          "integrated evidence",
+          "deployment evidence",
+          "CI/security/resilience/privacy evidence",
+          "remote-candidate evidence",
+          "G2.3 readiness package",
+          "deferred/open finding reconciliation"
+        ],
+        "outOfScope": [
+          "G2.3 execution",
+          "public-launch readiness claim",
+          "autonomous merge"
+        ],
+        "acceptanceCriteria": [
+          "M03.2 evidence supports Project Overseer review for external-validation readiness.",
+          "The milestone does not claim G2.3 success or public-launch readiness."
+        ],
+        "agentContextRefs": [],
+        "suggestedFiles": [],
+        "validationCommands": [
+          "pnpm lint",
+          "pnpm typecheck",
+          "pnpm test",
+          "pnpm content:check",
+          "pnpm test:e2e",
+          "pnpm build",
+          "git diff --check"
+        ],
+        "status": "planned",
+        "dependencies": [
+          "DEP-022"
+        ],
+        "createdAt": "2026-09-14T08:04:02.925Z",
+        "updatedAt": "2026-09-14T08:04:02.925Z"
       }
     ],
     "dependencies": [
@@ -418,6 +744,83 @@
         "toId": "WU008",
         "type": "blocks",
         "reason": "Release gate needs complete shell integration."
+      },
+      {
+        "id": "DEP-012",
+        "fromId": "WU009",
+        "toId": "WU010",
+        "type": "blocks",
+        "reason": "Deployment baseline must exist before CI can gate against it."
+      },
+      {
+        "id": "DEP-013",
+        "fromId": "WU009",
+        "toId": "WU011",
+        "type": "blocks",
+        "reason": "Deployment baseline must exist before security headers can be applied to the deployed target."
+      },
+      {
+        "id": "DEP-014",
+        "fromId": "WU009",
+        "toId": "WU012",
+        "type": "blocks",
+        "reason": "Deployment baseline must exist before release identity/traceability can be bound to it."
+      },
+      {
+        "id": "DEP-015",
+        "fromId": "WU009",
+        "toId": "WU013",
+        "type": "blocks",
+        "reason": "Deployment baseline must exist before telemetry boundaries can be established against it."
+      },
+      {
+        "id": "DEP-016",
+        "fromId": "WU012",
+        "toId": "WU014",
+        "type": "blocks",
+        "reason": "Release identity/traceability is required to pin the candidate for the G2.3 protocol."
+      },
+      {
+        "id": "DEP-017",
+        "fromId": "WU013",
+        "toId": "WU014",
+        "type": "blocks",
+        "reason": "Telemetry/privacy boundaries must be settled before defining external-participant evidence capture."
+      },
+      {
+        "id": "DEP-018",
+        "fromId": "WU009",
+        "toId": "WU014",
+        "type": "blocks",
+        "reason": "Deployment baseline must exist before the readiness package can target a pinned candidate."
+      },
+      {
+        "id": "DEP-019",
+        "fromId": "WU010",
+        "toId": "WU015",
+        "type": "blocks",
+        "reason": "Release CI gates must pass before producing the stable deployed candidate."
+      },
+      {
+        "id": "DEP-020",
+        "fromId": "WU011",
+        "toId": "WU015",
+        "type": "blocks",
+        "reason": "Security headers must be in place before remote security-header smoke checks."
+      },
+      {
+        "id": "DEP-021",
+        "fromId": "WU014",
+        "toId": "WU015",
+        "type": "blocks",
+        "reason": "The readiness package's protocol and pinning approach informs what the deployed candidate must satisfy."
+      },
+      {
+        "id": "DEP-022",
+        "fromId": "WU015",
+        "toId": "WU016",
+        "type": "blocks",
+        "reason": "Integration/readiness gate reconciles evidence from the verified deployed candidate."
       }
     ]
   },
@@ -1081,8 +1484,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt review --mode release",
-  "lastUpdatedAt": "2026-09-12T22:45:11.145Z",
+  "nextRecommendedCommand": "aiqt next",
+  "lastUpdatedAt": "2026-09-14T08:04:02.925Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
