@@ -26,9 +26,11 @@ false successful protected result.
 ## Deterministic runtime and install
 
 CI uses Node 24 and pnpm 11.27.0, matching `engines.node` and
-`packageManager` in `package.json`. Dependencies are installed with
-`pnpm install --frozen-lockfile`; the pnpm cache accelerates installation but
-does not replace or modify the lockfile-resolved dependency graph. The
+`packageManager` in `package.json`. `pnpm/action-setup` resolves pnpm from the
+canonical `packageManager` field rather than declaring a second workflow-level
+version, preserving its integrity-qualified pin. Dependencies are installed
+with `pnpm install --frozen-lockfile`; the pnpm cache accelerates installation
+but does not replace or modify the lockfile-resolved dependency graph. The
 production build remains the canonical `pnpm build`, matching `vercel.json`.
 
 Before browser smoke tests, CI runs

@@ -54,6 +54,7 @@ describe('release CI contract', () => {
     expect(nodeMajor).toBeDefined();
     expect(pnpmVersion).toBeDefined();
     expect(workflow).toContain(`node-version: ${nodeMajor}`);
-    expect(workflow).toContain(`version: ${pnpmVersion}`);
+    expect(workflow).toMatch(/^\s*- uses: pnpm\/action-setup@v4$/m);
+    expect(workflow).not.toMatch(/^\s+version:/m);
   });
 });
