@@ -25,10 +25,15 @@ supports natively with zero custom routing/function configuration.
 
 Node version and package-manager version are **not** duplicated in
 `vercel.json`; Vercel reads `engines.node` (`24.x`) and `packageManager`
-(`pnpm@11.12.0`) from `package.json`, which is the same source CI uses
+(`pnpm@11.27.0`) from `package.json`, which is the same source CI uses
 (`actions/setup-node` with `node-version: 24`, `pnpm/action-setup` with
-`version: 11.12.0`). This keeps one canonical place for the runtime pin
-instead of two that can drift.
+`version: 11.27.0`). This keeps one canonical place for the runtime pin
+instead of two that can drift. (The pin moved from `11.12.0` to `11.27.0`
+during WU009 external verification: `11.12.0`'s `@pnpm/exe` npm package
+shipped without a binary and failed to install on Vercel's build image;
+this was discovered via a real Vercel build, not local inspection, since
+`corepack`/CI's `pnpm/action-setup` installs pnpm through a different
+mechanism than `@pnpm/exe` and did not surface the same failure locally.)
 
 ## Git-to-deployment path
 
