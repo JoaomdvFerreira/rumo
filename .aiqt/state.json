@@ -1,8 +1,8 @@
 {
   "version": "0.9.0",
-  "projectStatus": "in_progress",
+  "projectStatus": "review",
   "currentMilestoneId": "M002",
-  "currentWorkUnitId": "WU011",
+  "currentWorkUnitId": null,
   "workGraph": {
     "milestones": [
       {
@@ -464,12 +464,12 @@
           "pnpm build",
           "git diff --check"
         ],
-        "status": "in_progress",
+        "status": "needs_review",
         "dependencies": [
           "DEP-013"
         ],
         "createdAt": "2026-09-14T08:04:02.925Z",
-        "updatedAt": "2026-09-17T07:12:50.397Z"
+        "updatedAt": "2026-09-17T07:23:05.072Z"
       },
       {
         "id": "WU012",
@@ -1630,6 +1630,94 @@
       "finalWorkUnitStatus": "needs_review",
       "nextRecommendation": "aiqt checkpoint amend --checkpoint C010",
       "createdAt": "2026-09-14T20:00:38.981Z"
+    },
+    {
+      "id": "C011",
+      "workUnitId": "WU011",
+      "packetId": "PKT-012",
+      "summary": "Implemented the bounded WU011 HTTP/browser security baseline and completed local production-response verification; remote app-response inspection is blocked by Vercel preview SSO.",
+      "completed": [
+        "Configured a route-wide CSP, anti-framing protection, nosniff, strict cross-origin referrer policy, deny-by-default permissions policy, and HTTPS-only-effective HSTS treatment in Next.js.",
+        "Added regression coverage for the declared header baseline, live response headers, and safe external official-source links.",
+        "Built and served the optimized production output locally; HTTP 200 returned the complete baseline and the Rumo document.",
+        "Pushed implementation commit 276265a; Vercel Git-integrated preview dpl_6xcYw9CeWNu9bL7TZTZ18eSMhhgb reached Ready."
+      ],
+      "notCompleted": [
+        "The deployed Rumo application response could not be inspected because Vercel Deployment Protection redirects unauthenticated public HTTPS requests to Vercel SSO; platform protection headers are not treated as evidence of application headers."
+      ],
+      "filesChanged": [
+        "next.config.ts",
+        "src/test/deployment.test.ts",
+        "src/test/e2e/home.spec.ts"
+      ],
+      "issues": [
+        {
+          "title": "Preview Deployment Protection blocks remote application-header inspection",
+          "description": "The Git-integrated preview is Ready, but unauthenticated HTTPS requests receive Vercel SSO protection redirects. An authorized authenticated/bypass inspection is needed to confirm deployed Rumo response headers; platform SSO headers are not substituted as application evidence.",
+          "severity": "medium",
+          "status": "open",
+          "agentCanFix": false
+        }
+      ],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "partial",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "The direct pnpm/Corepack launcher hung without output in this environment; the lockfile-installed eslint shim completed successfully."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "The lockfile-installed tsc shim completed successfully."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "35 Vitest files and 372 tests passed via the lockfile-installed Vitest shim."
+        },
+        {
+          "command": "pnpm test:e2e",
+          "result": "passed",
+          "summary": "20 Playwright tests passed, including the new live-header and official-link regressions."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "Optimized Next.js production build completed successfully; a subsequent next start probe returned HTTP 200 with all configured headers."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed",
+          "summary": "No whitespace errors."
+        },
+        {
+          "command": "focused security header response probe",
+          "result": "passed",
+          "summary": "Local development and optimized production responses emitted the complete configured baseline."
+        },
+        {
+          "command": "Vercel preview inspection",
+          "result": "partial",
+          "summary": "The exact Git-integrated preview is Ready, but public HTTPS access is intercepted by Deployment Protection before application headers can be observed."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Deployed responses enforce the approved security-header baseline without breaking Rumo flows or official-source navigation.",
+          "result": "partial",
+          "evidence": "Local optimized production HTTP 200 and 20/20 browser regression tests prove the implementation and flows. Vercel preview dpl_6xcYw9CeWNu9bL7TZTZ18eSMhhgb is Ready for commit 276265a, but SSO protection blocks unauthenticated inspection of its application response."
+        },
+        {
+          "criterion": "Security controls are regression-tested against the production build.",
+          "result": "passed",
+          "evidence": "The optimized production server emitted every configured header on HTTP 200; the full Playwright suite passed with live header and official external-link assertions."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "createdAt": "2026-09-17T07:23:05.072Z",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C011"
     }
   ],
   "lastAgentPacket": {
@@ -1656,8 +1744,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt checkpoint",
-  "lastUpdatedAt": "2026-09-17T07:12:50.397Z",
+  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C011",
+  "lastUpdatedAt": "2026-09-17T07:23:05.072Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -2491,6 +2579,36 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-17T07:10:29.229Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C011",
+      "current": {
+        "observationId": "sha256:96dd411b581da2527164532e98a9de3f5a4c8c916d572dca0b4eab0230fb10d5",
+        "checkpointId": "C011",
+        "workUnitId": "WU011",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-17T07:23:05.072Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-17T07:23:05.072Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:96dd411b581da2527164532e98a9de3f5a4c8c916d572dca0b4eab0230fb10d5",
+          "checkpointId": "C011",
+          "workUnitId": "WU011",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-17T07:23:05.072Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-17T07:23:05.072Z"
         }
       ]
     }
