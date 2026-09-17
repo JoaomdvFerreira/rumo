@@ -21,6 +21,19 @@ test('homepage renders proposition, search, and the three common scenarios', asy
   await expect(page.getByRole('button', { name: 'Internet numa mudança' })).toBeVisible();
 });
 
+test('security headers protect the application response', async ({ page }) => {
+  const response = await page.goto('/');
+  const headers = response?.headers();
+
+  expect(headers?.['content-security-policy']).toContain("default-src 'self'");
+  expect(headers?.['content-security-policy']).toContain("frame-ancestors 'none'");
+  expect(headers?.['x-frame-options']).toBe('DENY');
+  expect(headers?.['x-content-type-options']).toBe('nosniff');
+  expect(headers?.['referrer-policy']).toBe('strict-origin-when-cross-origin');
+  expect(headers?.['permissions-policy']).toContain('geolocation=()');
+  expect(headers?.['strict-transport-security']).toBe('max-age=63072000; includeSubDomains');
+});
+
 test('unsupported search returns zero-result UX, not a fabricated route', async ({ page }) => {
   await page.getByRole('textbox', { name: /precisa de resolver/i }).fill('preciso de um advogado para divórcio');
   await page.getByRole('button', { name: 'Procurar' }).click();
@@ -92,6 +105,9 @@ test('F3: requirement provenance links the official source even with no provider
   await expect(officialSourceLinks.first()).toBeVisible();
   const href = await officialSourceLinks.first().getAttribute('href');
   expect(href).toMatch(/^https:\/\//);
+  await expect(officialSourceLinks.first()).toHaveAttribute('target', '_blank');
+  await expect(officialSourceLinks.first()).toHaveAttribute('rel', /noopener/);
+  await expect(officialSourceLinks.first()).toHaveAttribute('rel', /noreferrer/);
 });
 
 test('Évora rental alias preserves municipality fact and still asks only the missing Citizen Card question', async ({ page }) => {

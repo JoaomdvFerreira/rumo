@@ -2,7 +2,7 @@
   "version": "0.9.0",
   "projectStatus": "in_progress",
   "currentMilestoneId": "M002",
-  "currentWorkUnitId": null,
+  "currentWorkUnitId": "WU011",
   "workGraph": {
     "milestones": [
       {
@@ -25,7 +25,7 @@
         "id": "M002",
         "title": "Production Candidate & External Validation Readiness",
         "objective": "Produce a reproducible, hardened, privacy-conscious deployed candidate of the frozen Rumo MVP that is ready for controlled G2.3 external validation, without expanding MVP scope or claiming public-launch readiness.",
-        "status": "ready",
+        "status": "in_progress",
         "workUnitIds": [
           "WU009",
           "WU010",
@@ -464,12 +464,12 @@
           "pnpm build",
           "git diff --check"
         ],
-        "status": "ready",
+        "status": "in_progress",
         "dependencies": [
           "DEP-013"
         ],
         "createdAt": "2026-09-14T08:04:02.925Z",
-        "updatedAt": "2026-09-14T10:20:39.421Z"
+        "updatedAt": "2026-09-17T07:12:50.397Z"
       },
       {
         "id": "WU012",
@@ -1633,12 +1633,12 @@
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-011",
-    "workUnitId": "WU010",
+    "id": "PKT-012",
+    "workUnitId": "WU011",
     "milestoneId": "M002",
-    "createdAt": "2026-09-14T19:44:54.408Z",
+    "createdAt": "2026-09-17T07:12:50.397Z",
     "format": "markdown",
-    "contentHash": "sha256:db549348fc5099ef9e233f17bf299ff726a088e834cb99d3177ac1298ec9f11e",
+    "contentHash": "sha256:5e2f69081fade58028f7a3cd005144ab82df8a4f4fc547406884080f50ee8fbf",
     "sourceCommand": "aiqt next",
     "renderedSections": [
       "scope",
@@ -1656,8 +1656,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt next",
-  "lastUpdatedAt": "2026-09-17T07:10:29.229Z",
+  "nextRecommendedCommand": "aiqt checkpoint",
+  "lastUpdatedAt": "2026-09-17T07:12:50.397Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",

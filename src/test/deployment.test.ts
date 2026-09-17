@@ -69,3 +69,22 @@ describe('deployment baseline & environment contract (WU009)', () => {
     ).not.toThrow();
   });
 });
+
+describe('HTTP security baseline (WU011)', () => {
+  it('defines the response security-header baseline in Next.js configuration', () => {
+    const config = readFileSync(join(repoRoot, 'next.config.ts'), 'utf-8');
+
+    expect(config).toContain("key: 'Content-Security-Policy'");
+    expect(config).toContain("default-src 'self'");
+    expect(config).toContain("base-uri 'self'");
+    expect(config).toContain("form-action 'self'");
+    expect(config).toContain("frame-ancestors 'none'");
+    expect(config).toContain("object-src 'none'");
+    expect(config).toContain("key: 'X-Frame-Options', value: 'DENY'");
+    expect(config).toContain("key: 'X-Content-Type-Options', value: 'nosniff'");
+    expect(config).toContain("key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin'");
+    expect(config).toContain("key: 'Permissions-Policy'");
+    expect(config).toContain("key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains'");
+    expect(config).toContain("source: '/:path*'");
+  });
+});
