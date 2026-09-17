@@ -48,16 +48,15 @@ describe('deployment baseline & environment contract (WU009)', () => {
     expect(pkg.packageManager).toMatch(/^pnpm@/);
   });
 
-  it('has no application source that reads process.env (no environment-variable dependency today)', () => {
+  it("only reads Vercel's non-secret Git revision system variable for release identity", () => {
     const envAccessPattern = ['process', '.', 'env'].join('');
     const sourceFiles = listSourceFiles(join(repoRoot, 'src')).filter(
       (file) => file !== join(__dirname, 'deployment.test.ts'),
     );
-    const offenders = sourceFiles.filter((file) =>
-      readFileSync(file, 'utf-8').includes(envAccessPattern),
-    );
+    const envReaders = sourceFiles.filter((file) => readFileSync(file, 'utf-8').includes(envAccessPattern));
 
-    expect(offenders).toEqual([]);
+    expect(envReaders).toEqual([join(repoRoot, 'src', 'app', 'page.tsx')]);
+    expect(readFileSync(envReaders[0], 'utf-8')).toContain('process.env.VERCEL_GIT_COMMIT_SHA');
   });
 
   it('documents the environment/secrets contract and deployment runbook', () => {
@@ -86,5 +85,21 @@ describe('HTTP security baseline (WU011)', () => {
     expect(config).toContain("key: 'Permissions-Policy'");
     expect(config).toContain("key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains'");
     expect(config).toContain("source: '/:path*'");
+  });
+});
+
+describe('runtime resilience and release identity (WU012)', () => {
+  it('provides route and root error boundaries with non-sensitive recovery actions', () => {
+    const routeError = readFileSync(join(repoRoot, 'src', 'app', 'error.tsx'), 'utf-8');
+    const globalError = readFileSync(join(repoRoot, 'src', 'app', 'global-error.tsx'), 'utf-8');
+
+    expect(routeError).toContain("'use client'");
+    expect(routeError).toContain('onClick={reset}');
+    expect(routeError).not.toContain('error.message');
+    expect(globalError).toContain("'use client'");
+    expect(globalError).toContain('<html lang="pt-PT">');
+    expect(globalError).toContain('<body>');
+    expect(globalError).toContain('onClick={reset}');
+    expect(globalError).not.toContain('error.message');
   });
 });

@@ -2,14 +2,19 @@
 
 Rumo has no database, authentication, or runtime content fetching
 (`docs/architecture/stack.md`). Canonical content is compiled into the
-application at build time from `src/content/`; there is nothing for the
-deployed application to read from environment configuration today.
+application at build time from `src/content/`. WU012 additionally uses a
+non-secret platform Git revision to identify deployed candidates.
 
 ## Current contract
 
-- **Runtime environment variables required by the application: none.**
+- **WU009 baseline (superseded by the WU012 correction below): runtime
+  environment variables required by the application: none.**
   `src/` contains no `process.env` reads. This is verified, not assumed —
   confirmed by inspection at WU009.
+- **WU012 correction:** `src/app/page.tsx` reads Vercel's non-secret
+  `VERCEL_GIT_COMMIT_SHA` system variable at build time to display an exact
+  Git revision. It is optional for local development, does not configure
+  application behaviour, and is the only current application environment read.
 - **Secrets held by the deployment platform: none.** No API keys, database
   URLs, or credentials exist for this project.
 - Node and package-manager versions are pinned in `package.json`
@@ -35,6 +40,16 @@ This contract exists so that a future variable is never added silently:
    change (`docs/architecture/stack.md` exclusions).
 5. Local-only developer values (if ever needed) belong in `.env*.local`,
    which is already git-ignored (`.gitignore`) and must never be committed.
+
+## Release identity
+
+Vercel's Git-integrated deployments provide `VERCEL_GIT_COMMIT_SHA`. The
+server-rendered homepage displays its full value only when it is a valid Git
+revision, making each deployed external-validation candidate inspectable in
+the running application and traceable to `git log <sha>`. No user input,
+personal administrative fact, secret, URL parameter, or arbitrary environment
+content is included in this diagnostic surface. A local build is explicitly
+labelled as unverified rather than claiming a candidate identity.
 
 ## Preview vs production ownership
 

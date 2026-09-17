@@ -1,5 +1,6 @@
 import { AppShell } from './shell/AppShell';
 import { buildAppBootstrap } from './shell/bootstrap';
+import { resolveReleaseIdentity } from './releaseIdentity';
 
 /**
  * Server Component boundary (WU007 "SERVER / CLIENT BOUNDARY"): all
@@ -12,5 +13,14 @@ import { buildAppBootstrap } from './shell/bootstrap';
  */
 export default function Home() {
   const bootstrap = buildAppBootstrap();
-  return <AppShell bootstrap={bootstrap} />;
+  const release = resolveReleaseIdentity(process.env.VERCEL_GIT_COMMIT_SHA);
+
+  return (
+    <>
+      <AppShell bootstrap={bootstrap} />
+      <footer aria-label="Identidade da versão">
+        <small>{release.label}</small>
+      </footer>
+    </>
+  );
 }

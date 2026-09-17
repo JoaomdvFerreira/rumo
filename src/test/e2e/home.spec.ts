@@ -2,6 +2,13 @@ import { expect, test } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 
+test('homepage exposes a release identity without a URL diagnostic', async ({ page }) => {
+  await page.goto('/');
+
+  await expect(page.getByLabel('Identidade da versão')).toContainText('Local or unverified build');
+  await expect(page).toHaveURL(/\/$/);
+});
+
 async function clearPersistedState(page: Page) {
   await page.evaluate(() => window.localStorage.clear());
 }

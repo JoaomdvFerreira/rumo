@@ -500,12 +500,12 @@
           "pnpm build",
           "git diff --check"
         ],
-        "status": "ready",
+        "status": "needs_review",
         "dependencies": [
           "DEP-014"
         ],
         "createdAt": "2026-09-14T08:04:02.925Z",
-        "updatedAt": "2026-09-14T10:20:39.421Z"
+        "updatedAt": "2026-09-17T07:44:35.746Z"
       },
       {
         "id": "WU013",
@@ -1716,17 +1716,99 @@
         }
       ],
       "finalWorkUnitStatus": "needs_review",
-      "createdAt": "2026-09-17T07:23:05.072Z",
-      "nextRecommendation": "aiqt checkpoint amend --checkpoint C011"
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C011",
+      "createdAt": "2026-09-17T07:23:05.072Z"
+    },
+    {
+      "id": "C012",
+      "workUnitId": "WU012",
+      "packetId": "PKT-013",
+      "summary": "Implemented the bounded WU012 runtime resilience and release-identity contract. The App Router now provides recoverable, non-sensitive route and root failure screens, and the server-rendered homepage exposes a validated Vercel Git revision for traceable deployed candidates.",
+      "completed": [
+        "Added an App Router route error boundary with an accessible retry action and no raw exception disclosure.",
+        "Added a root global error boundary with its required html/body structure and retry action.",
+        "Added a server-side release identity resolver that displays only Git-shaped VERCEL_GIT_COMMIT_SHA values and labels local or invalid builds as unverified.",
+        "Documented the non-secret Vercel system variable and release-identity privacy boundary.",
+        "Added unit, deployment-contract, and browser coverage for the recovery and identity contract."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "src/app/error.module.css",
+        "src/app/error.tsx",
+        "src/app/global-error.tsx",
+        "src/app/releaseIdentity.ts",
+        "src/app/releaseIdentity.test.ts",
+        "src/app/page.tsx",
+        "src/app/layout.tsx",
+        "src/app/globals.css",
+        "src/test/deployment.test.ts",
+        "src/test/e2e/home.spec.ts",
+        "docs/deployment/environment.md"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "Completed successfully."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "Completed successfully."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "Completed successfully, including WU012 release-identity and error-boundary contract coverage."
+        },
+        {
+          "command": "pnpm test:e2e",
+          "result": "passed",
+          "summary": "Completed successfully, including homepage release-identity rendering coverage."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "Completed successfully with the App Router error-boundary and server-rendered release-identity additions."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed",
+          "summary": "No whitespace errors; only the repository's existing LF/CRLF notices were emitted."
+        },
+        {
+          "command": "aiqt graph validate",
+          "result": "passed",
+          "summary": "Graph validation completed with no findings; DEP-014 is WU012's sole dependency and WU011 is not a dependency."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Fatal runtime failures present a recoverable non-sensitive user experience.",
+          "result": "passed",
+          "evidence": "src/app/error.tsx and src/app/global-error.tsx are Client Component error boundaries with retry controls, accessible headings, and no exception message or digest rendered. The deployment contract test asserts the required boundary conventions."
+        },
+        {
+          "criterion": "Every deployed candidate is traceable to an exact Git revision without exposing personal administrative data.",
+          "result": "passed",
+          "evidence": "src/app/page.tsx reads only Vercel's VERCEL_GIT_COMMIT_SHA server-side; resolveReleaseIdentity accepts only Git object IDs and renders the full validated revision. Invalid or local values are labelled unverified, and unit/browser tests cover the safe paths."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "createdAt": "2026-09-17T07:44:35.746Z",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C012"
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-012",
-    "workUnitId": "WU011",
+    "id": "PKT-013",
+    "workUnitId": "WU012",
     "milestoneId": "M002",
-    "createdAt": "2026-09-17T07:12:50.397Z",
+    "createdAt": "2026-09-17T07:27:48.595Z",
     "format": "markdown",
-    "contentHash": "sha256:5e2f69081fade58028f7a3cd005144ab82df8a4f4fc547406884080f50ee8fbf",
+    "contentHash": "sha256:313e328e7c8f2c57a92be8b66474d535ef45759647ef93f97223a4e9eadaced9",
     "sourceCommand": "aiqt next",
     "renderedSections": [
       "scope",
@@ -1744,8 +1826,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C011",
-  "lastUpdatedAt": "2026-09-17T07:23:05.072Z",
+  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C012",
+  "lastUpdatedAt": "2026-09-17T07:44:35.746Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -2609,6 +2691,36 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-17T07:23:05.072Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C012",
+      "current": {
+        "observationId": "sha256:2894efda93874310fe2a2630a1f2764c348c277b21b1007acd9d438ab41b2a6a",
+        "checkpointId": "C012",
+        "workUnitId": "WU012",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-17T07:44:35.746Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-17T07:44:35.746Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:2894efda93874310fe2a2630a1f2764c348c277b21b1007acd9d438ab41b2a6a",
+          "checkpointId": "C012",
+          "workUnitId": "WU012",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-17T07:44:35.746Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-17T07:44:35.746Z"
         }
       ]
     }
