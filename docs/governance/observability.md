@@ -6,8 +6,10 @@ or collect data outside the application.
 
 `src/services/analytics/telemetry.ts` is the sole product-facing contract. Its
 event vocabulary is a typed allow-list and its runtime schemas are strict:
-only the declared event type plus a canonical content identifier, where that
-is useful, can reach a provider. Raw search text, fact keys and values,
+only the declared event type plus an existing canonical content identifier of
+the event's matching kind (destination, requirement, or source), where that
+is useful, can reach a provider. An arbitrary non-empty string or an
+identifier-shaped value is not sufficient. Raw search text, fact keys and values,
 addresses, names, household information, and all other free-form
 administrative content are forbidden. Unexpected fields are rejected rather
 than forwarded.

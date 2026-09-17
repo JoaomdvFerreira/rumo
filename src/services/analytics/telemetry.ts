@@ -1,5 +1,7 @@
 import { z } from 'zod';
 
+import { contentGraph } from '../../content/data';
+
 /**
  * The complete, deliberately small telemetry vocabulary for the MVP.
  *
@@ -9,13 +11,38 @@ import { z } from 'zod';
  * schemas below reject every field outside this allow-list at the provider
  * boundary as a second line of defence for non-TypeScript callers.
  */
-const canonicalIdSchema = z.string().min(1);
+/**
+ * Provider-visible identifiers must be existing IDs from Rumo's canonical
+ * content, and each event may use only the entity category it describes.
+ * A shape-only check would still permit free-form text such as a name or
+ * address disguised as an identifier.
+ */
+function canonicalContentIdSchema(ids: readonly string[], entity: string) {
+  const canonicalIds = new Set(ids);
+
+  return z.string().refine((id) => canonicalIds.has(id), {
+    message: `Expected a canonical Rumo ${entity} identifier`,
+  });
+}
+
+const destinationIdSchema = canonicalContentIdSchema(
+  contentGraph.destinations.map(({ id }) => id),
+  'destination',
+);
+const requirementIdSchema = canonicalContentIdSchema(
+  contentGraph.requirements.map(({ id }) => id),
+  'requirement',
+);
+const sourceIdSchema = canonicalContentIdSchema(
+  contentGraph.sources.map(({ id }) => id),
+  'source',
+);
 
 const telemetryEventSchema = z.discriminatedUnion('type', [
   z.strictObject({ type: z.literal('session_started') }),
-  z.strictObject({ type: z.literal('destination_resolved'), destinationId: canonicalIdSchema }),
-  z.strictObject({ type: z.literal('requirement_confirmed'), requirementId: canonicalIdSchema }),
-  z.strictObject({ type: z.literal('source_disclosed'), sourceId: canonicalIdSchema }),
+  z.strictObject({ type: z.literal('destination_resolved'), destinationId: destinationIdSchema }),
+  z.strictObject({ type: z.literal('requirement_confirmed'), requirementId: requirementIdSchema }),
+  z.strictObject({ type: z.literal('source_disclosed'), sourceId: sourceIdSchema }),
   z.strictObject({ type: z.literal('persistence_unavailable') }),
 ]);
 
