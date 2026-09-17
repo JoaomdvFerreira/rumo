@@ -1628,8 +1628,8 @@
         }
       ],
       "finalWorkUnitStatus": "needs_review",
-      "createdAt": "2026-09-14T20:00:38.981Z",
-      "nextRecommendation": "aiqt checkpoint amend --checkpoint C010"
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C010",
+      "createdAt": "2026-09-14T20:00:38.981Z"
     }
   ],
   "lastAgentPacket": {
@@ -1657,7 +1657,7 @@
     }
   },
   "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C010",
-  "lastUpdatedAt": "2026-09-14T20:00:38.981Z",
+  "lastUpdatedAt": "2026-09-17T05:55:27.874Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -1867,6 +1867,16 @@
       "validationResult": "passed",
       "reason": "Project Overseer accepts WU009. AC1 is satisfied by demonstrated commit-level Git provenance and reproducibility: both Preview and Production-candidate deployments were built by Vercel from the canonical Git repository, branch milestone/m032-production-candidate, at exact commit a013263c0a14ee2bfd78fb02b07a39a94b41b93d, reached READY, and rendered successfully. Preservation of the same Vercel deployment object across promotion is not part of the canonical acceptance criterion. AC2 remains passed: frozen architecture preserved, zero runtime environment/persistence/content-service dependency introduced.",
       "amendedAt": "2026-09-14T10:20:39.421Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-022",
+      "checkpointId": "C010",
+      "workUnitId": "WU010",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer approval: WU010 accepted for closure.",
+      "amendedAt": "2026-09-17T05:55:27.874Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -2397,16 +2407,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C010",
       "current": {
-        "observationId": "sha256:dbc9dcfafe4fb57045a59a26b5a497d8c9c549f6b1945a00d13a1feae7766702",
+        "observationId": "sha256:7612d9074550a31e8a88bc1bef01a56c9f00d9b026faa47fbab07cae062bcad7",
         "checkpointId": "C010",
         "workUnitId": "WU010",
-        "trigger": "checkpoint",
+        "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-14T20:00:38.981Z",
+        "asOf": "2026-09-17T05:55:27.874Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-14T20:00:38.981Z"
+        "recordedAt": "2026-09-17T05:55:27.874Z"
       },
       "history": [
         {
@@ -2420,6 +2430,18 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-14T20:00:38.981Z"
+        },
+        {
+          "observationId": "sha256:7612d9074550a31e8a88bc1bef01a56c9f00d9b026faa47fbab07cae062bcad7",
+          "checkpointId": "C010",
+          "workUnitId": "WU010",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-17T05:55:27.874Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-17T05:55:27.874Z"
         }
       ]
     }
