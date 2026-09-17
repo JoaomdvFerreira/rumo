@@ -1,7 +1,7 @@
 {
   "version": "0.9.0",
   "projectStatus": "review",
-  "currentMilestoneId": "M002",
+  "currentMilestoneId": null,
   "currentWorkUnitId": null,
   "workGraph": {
     "milestones": [
@@ -537,12 +537,12 @@
           "pnpm build",
           "git diff --check"
         ],
-        "status": "needs_review",
+        "status": "done",
         "dependencies": [
           "DEP-015"
         ],
         "createdAt": "2026-09-14T08:04:02.925Z",
-        "updatedAt": "2026-09-17T08:16:46.438Z"
+        "updatedAt": "2026-09-17T08:40:08.070Z"
       },
       {
         "id": "WU014",
@@ -1895,8 +1895,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C013",
-  "lastUpdatedAt": "2026-09-17T08:26:51.473Z",
+  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C012",
+  "lastUpdatedAt": "2026-09-17T08:40:08.070Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -2151,6 +2151,16 @@
       "validationResult": "passed",
       "reason": "Project Overseer finding remediated: provider-visible destinationId, requirementId, and sourceId are now runtime-validated against the matching canonical Rumo content entity set. Focused telemetry tests prove raw/free-form text and invented identifier-shaped values in these allowed fields are rejected; representative real canonical IDs are accepted. Local validation passed; awaiting Project Overseer re-review.",
       "amendedAt": "2026-09-17T08:26:51.473Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-026",
+      "checkpointId": "C013",
+      "workUnitId": "WU013",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "reason": "Project Overseer accepted the canonical-ID remediation.",
+      "amendedAt": "2026-09-17T08:40:08.070Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -2807,16 +2817,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C013",
       "current": {
-        "observationId": "sha256:bf0d237ea22dcc07ede1882809f7346fae232c4770e52ad1fe2a5953b17dd00c",
+        "observationId": "sha256:817765c29c69b813ab7ab21f3a98fcb5009d350b1b26c88e30419bcb9429ed99",
         "checkpointId": "C013",
         "workUnitId": "WU013",
         "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-17T08:26:51.473Z",
+        "asOf": "2026-09-17T08:40:08.070Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-17T08:26:51.473Z"
+        "recordedAt": "2026-09-17T08:40:08.070Z"
       },
       "history": [
         {
@@ -2842,6 +2852,18 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-17T08:26:51.473Z"
+        },
+        {
+          "observationId": "sha256:817765c29c69b813ab7ab21f3a98fcb5009d350b1b26c88e30419bcb9429ed99",
+          "checkpointId": "C013",
+          "workUnitId": "WU013",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-17T08:40:08.070Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-17T08:40:08.070Z"
         }
       ]
     }
