@@ -1657,7 +1657,7 @@
     }
   },
   "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C010",
-  "lastUpdatedAt": "2026-09-17T05:55:27.874Z",
+  "lastUpdatedAt": "2026-09-17T06:14:32.831Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -1877,6 +1877,18 @@
       "validationResult": "passed",
       "reason": "Project Overseer approval: WU010 accepted for closure.",
       "amendedAt": "2026-09-17T05:55:27.874Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-023",
+      "checkpointId": "C010",
+      "workUnitId": "WU010",
+      "acceptanceCriteriaResult": "passed",
+      "validationResult": "passed",
+      "resolvedNotCompleted": "A real pull_request execution against the final WU010 commit remains externally unverified: the workflow has no workflow_dispatch or milestone-branch push trigger, and creating the milestone PR solely for evidence is not authorized.",
+      "resolutionEvidenceReference": "https://github.com/JoaomdvFerreira/rumo/actions/runs/34891971185",
+      "reason": "Project Overseer acceptance: authorized PR #7 verified the final WU010 CI path successfully.",
+      "amendedAt": "2026-09-17T06:14:32.831Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -2407,16 +2419,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C010",
       "current": {
-        "observationId": "sha256:7612d9074550a31e8a88bc1bef01a56c9f00d9b026faa47fbab07cae062bcad7",
+        "observationId": "sha256:d0e7de0ce10a3995eacd751b92b0112be87606c9fca7c7bf2a3ebd80937402a3",
         "checkpointId": "C010",
         "workUnitId": "WU010",
         "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-17T05:55:27.874Z",
+        "asOf": "2026-09-17T06:14:32.831Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-17T05:55:27.874Z"
+        "recordedAt": "2026-09-17T06:14:32.831Z"
       },
       "history": [
         {
@@ -2442,6 +2454,18 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-17T05:55:27.874Z"
+        },
+        {
+          "observationId": "sha256:d0e7de0ce10a3995eacd751b92b0112be87606c9fca7c7bf2a3ebd80937402a3",
+          "checkpointId": "C010",
+          "workUnitId": "WU010",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-17T06:14:32.831Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-17T06:14:32.831Z"
         }
       ]
     }
