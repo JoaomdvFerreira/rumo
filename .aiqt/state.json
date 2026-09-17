@@ -1,6 +1,6 @@
 {
   "version": "0.9.0",
-  "projectStatus": "review",
+  "projectStatus": "in_progress",
   "currentMilestoneId": "M002",
   "currentWorkUnitId": null,
   "workGraph": {
@@ -25,7 +25,7 @@
         "id": "M002",
         "title": "Production Candidate & External Validation Readiness",
         "objective": "Produce a reproducible, hardened, privacy-conscious deployed candidate of the frozen Rumo MVP that is ready for controlled G2.3 external validation, without expanding MVP scope or claiming public-launch readiness.",
-        "status": "in_progress",
+        "status": "ready",
         "workUnitIds": [
           "WU009",
           "WU010",
@@ -423,12 +423,12 @@
           "pnpm build",
           "git diff --check"
         ],
-        "status": "needs_review",
+        "status": "done",
         "dependencies": [
           "DEP-012"
         ],
         "createdAt": "2026-09-14T08:04:02.925Z",
-        "updatedAt": "2026-09-14T20:00:38.981Z"
+        "updatedAt": "2026-09-17T07:10:29.229Z"
       },
       {
         "id": "WU011",
@@ -1656,8 +1656,8 @@
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C010",
-  "lastUpdatedAt": "2026-09-17T06:14:32.831Z",
+  "nextRecommendedCommand": "aiqt next",
+  "lastUpdatedAt": "2026-09-17T07:10:29.229Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -1889,6 +1889,19 @@
       "resolutionEvidenceReference": "https://github.com/JoaomdvFerreira/rumo/actions/runs/34891971185",
       "reason": "Project Overseer acceptance: authorized PR #7 verified the final WU010 CI path successfully.",
       "amendedAt": "2026-09-17T06:14:32.831Z",
+      "sourceCommand": "aiqt checkpoint amend"
+    },
+    {
+      "amendmentId": "AMEND-024",
+      "checkpointId": "C010",
+      "workUnitId": "WU010",
+      "reconciledAcceptanceCriterion": {
+        "criterion": "Pull-request CI executes the complete release-quality gate including canonical content and browser smoke validation.",
+        "result": "passed",
+        "evidenceReference": "PR #7; workflow run 34891971185; tested SHA 69cd92ab40fc38f52e22ea43b69f599f531affe4; https://github.com/JoaomdvFerreira/rumo/actions/runs/34891971185"
+      },
+      "reason": "PR CI gate verified",
+      "amendedAt": "2026-09-17T07:10:29.229Z",
       "sourceCommand": "aiqt checkpoint amend"
     }
   ],
@@ -2419,16 +2432,16 @@
       "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
       "checkpointId": "C010",
       "current": {
-        "observationId": "sha256:d0e7de0ce10a3995eacd751b92b0112be87606c9fca7c7bf2a3ebd80937402a3",
+        "observationId": "sha256:23a6ff4fa0a6c1f58738e2c58822a22660c5064c3ec6a26d40ec88361a93bf63",
         "checkpointId": "C010",
         "workUnitId": "WU010",
         "trigger": "amendment",
         "evaluationStatus": "not_configured",
         "overallResult": null,
-        "asOf": "2026-09-17T06:14:32.831Z",
+        "asOf": "2026-09-17T07:10:29.229Z",
         "issueKeys": [],
         "summary": "No active evidence gate policy is configured.",
-        "recordedAt": "2026-09-17T06:14:32.831Z"
+        "recordedAt": "2026-09-17T07:10:29.229Z"
       },
       "history": [
         {
@@ -2466,6 +2479,18 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-17T06:14:32.831Z"
+        },
+        {
+          "observationId": "sha256:23a6ff4fa0a6c1f58738e2c58822a22660c5064c3ec6a26d40ec88361a93bf63",
+          "checkpointId": "C010",
+          "workUnitId": "WU010",
+          "trigger": "amendment",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-17T07:10:29.229Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-17T07:10:29.229Z"
         }
       ]
     }
