@@ -537,12 +537,12 @@
           "pnpm build",
           "git diff --check"
         ],
-        "status": "ready",
+        "status": "needs_review",
         "dependencies": [
           "DEP-015"
         ],
         "createdAt": "2026-09-14T08:04:02.925Z",
-        "updatedAt": "2026-09-14T10:20:39.421Z"
+        "updatedAt": "2026-09-17T08:16:46.438Z"
       },
       {
         "id": "WU014",
@@ -1798,17 +1798,85 @@
         }
       ],
       "finalWorkUnitStatus": "needs_review",
-      "createdAt": "2026-09-17T07:44:35.746Z",
-      "nextRecommendation": "aiqt checkpoint amend --checkpoint C012"
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C012",
+      "createdAt": "2026-09-17T07:44:35.746Z"
+    },
+    {
+      "id": "C013",
+      "workUnitId": "WU013",
+      "packetId": "PKT-014",
+      "summary": "Implemented WU013's provider-free, privacy-safe observability boundary: a typed and runtime-validated event allow-list, non-blocking provider seam, focused privacy/failure tests, and governing documentation. No external analytics or monitoring provider, dependency, network request, environment variable, or product instrumentation was introduced.",
+      "completed": [
+        "Added the typed telemetry event allow-list with only fixed event kinds and canonical content identifiers where justified.",
+        "Added strict runtime validation that rejects raw search text, administrative facts, and every undeclared field before a provider can receive an event.",
+        "Added a provider boundary whose failures are swallowed, and whose default implementation is a local no-op.",
+        "Added focused privacy-safe observability tests and documentation of the explicit provider-approval boundary."
+      ],
+      "notCompleted": [],
+      "filesChanged": [
+        "src/services/analytics/telemetry.ts",
+        "src/services/analytics/telemetry.test.ts",
+        "docs/governance/observability.md"
+      ],
+      "issues": [],
+      "validationResult": "passed",
+      "acceptanceCriteriaResult": "passed",
+      "validationCommands": [
+        {
+          "command": "pnpm lint",
+          "result": "passed",
+          "summary": "The pnpm launcher hung in this environment; its exact installed ESLint entry point passed via `node node_modules/eslint/bin/eslint.js .`."
+        },
+        {
+          "command": "pnpm typecheck",
+          "result": "passed",
+          "summary": "The pnpm launcher hung in this environment; its exact installed TypeScript entry point passed via `node node_modules/typescript/bin/tsc --noEmit`."
+        },
+        {
+          "command": "pnpm test",
+          "result": "passed",
+          "summary": "The pnpm launcher hung in this environment; Vitest passed via its installed entry point with 37 files and 379 tests."
+        },
+        {
+          "command": "pnpm build",
+          "result": "passed",
+          "summary": "The pnpm launcher hung in this environment; Next.js production build passed via its installed entry point."
+        },
+        {
+          "command": "node node_modules/vitest/vitest.mjs run src/services/analytics/telemetry.test.ts --pool=threads --maxWorkers=1 --reporter=verbose",
+          "result": "passed",
+          "summary": "Focused privacy/observability suite: 4 tests passed, including raw search/fact rejection and non-blocking provider failures."
+        },
+        {
+          "command": "git diff --check",
+          "result": "passed",
+          "summary": "No whitespace errors."
+        }
+      ],
+      "acceptanceCriteria": [
+        {
+          "criterion": "Product telemetry has a typed allow-list contract that cannot emit raw search text or administrative facts.",
+          "result": "passed",
+          "evidence": "TelemetryEvent is a discriminated union of fixed events. Strict Zod schemas reject undeclared properties at runtime; focused tests prove searchText, facts, and factValue payloads are never forwarded."
+        },
+        {
+          "criterion": "Telemetry failure is non-blocking and no external provider is introduced without explicit owner approval.",
+          "result": "passed",
+          "evidence": "createTelemetry catches provider exceptions and defaults to a no-provider local no-op. No provider package or external integration was added; docs require a separate owner decision before one is introduced."
+        }
+      ],
+      "finalWorkUnitStatus": "needs_review",
+      "createdAt": "2026-09-17T08:16:46.438Z",
+      "nextRecommendation": "aiqt checkpoint amend --checkpoint C013"
     }
   ],
   "lastAgentPacket": {
-    "id": "PKT-013",
-    "workUnitId": "WU012",
+    "id": "PKT-014",
+    "workUnitId": "WU013",
     "milestoneId": "M002",
-    "createdAt": "2026-09-17T07:27:48.595Z",
+    "createdAt": "2026-09-17T07:50:02.030Z",
     "format": "markdown",
-    "contentHash": "sha256:313e328e7c8f2c57a92be8b66474d535ef45759647ef93f97223a4e9eadaced9",
+    "contentHash": "sha256:cf7d23fc687941ec1486c50fb0765f8174cc25cc3d2492517d775e98b96eda5f",
     "sourceCommand": "aiqt next",
     "renderedSections": [
       "scope",
@@ -1816,18 +1884,19 @@
       "constraints",
       "acceptance",
       "validation",
+      "designGuidance",
       "sourceControlExpectations"
     ],
     "guidanceFlags": {
-      "includesDesignGuidance": false,
+      "includesDesignGuidance": true,
       "includesWorkingDirectoryDiscipline": false,
       "includesComponentSystemGuidance": false,
       "includesRecoveryGuidance": false,
       "includesSourceControlGuidance": true
     }
   },
-  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C012",
-  "lastUpdatedAt": "2026-09-17T07:44:35.746Z",
+  "nextRecommendedCommand": "aiqt checkpoint amend --checkpoint C013",
+  "lastUpdatedAt": "2026-09-17T08:16:46.438Z",
   "checkpointAmendments": [
     {
       "amendmentId": "AMEND-001",
@@ -2721,6 +2790,36 @@
           "issueKeys": [],
           "summary": "No active evidence gate policy is configured.",
           "recordedAt": "2026-09-17T07:44:35.746Z"
+        }
+      ]
+    },
+    {
+      "protocolVersion": "aiqt-checkpoint-evidence-advisory@1",
+      "checkpointId": "C013",
+      "current": {
+        "observationId": "sha256:c41c782a13fba3d55b411343f3976cb9a066d1f6acd54f991cb2271a6ffab50a",
+        "checkpointId": "C013",
+        "workUnitId": "WU013",
+        "trigger": "checkpoint",
+        "evaluationStatus": "not_configured",
+        "overallResult": null,
+        "asOf": "2026-09-17T08:16:46.438Z",
+        "issueKeys": [],
+        "summary": "No active evidence gate policy is configured.",
+        "recordedAt": "2026-09-17T08:16:46.438Z"
+      },
+      "history": [
+        {
+          "observationId": "sha256:c41c782a13fba3d55b411343f3976cb9a066d1f6acd54f991cb2271a6ffab50a",
+          "checkpointId": "C013",
+          "workUnitId": "WU013",
+          "trigger": "checkpoint",
+          "evaluationStatus": "not_configured",
+          "overallResult": null,
+          "asOf": "2026-09-17T08:16:46.438Z",
+          "issueKeys": [],
+          "summary": "No active evidence gate policy is configured.",
+          "recordedAt": "2026-09-17T08:16:46.438Z"
         }
       ]
     }
